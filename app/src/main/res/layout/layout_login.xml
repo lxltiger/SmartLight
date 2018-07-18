@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="com.example.ledwisdom1.user.UserActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.example.ledwisdom1.user.UserViewModel" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/layout_account"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <AutoCompleteTextView
+                android:id="@+id/account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/ra_username"
+                android:inputType="phone"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:text="@={viewModel.account}"
+                app:show="@{viewModel.errType==UserActivity.EMPTY_ACCOUNT||viewModel.errType==UserActivity.INVALID_ACCOUNT}"
+                app:msg="@{viewModel.errMsg[viewModel.errType]}" />
+
+        </android.support.design.widget.TextInputLayout>
+
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/layout_password"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            app:layout_constraintLeft_toLeftOf="@id/layout_account"
+            app:layout_constraintRight_toRightOf="@id/layout_account"
+            app:layout_constraintTop_toBottomOf="@id/layout_account">
+
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/la_psdword"
+                android:imeActionId="6"
+                android:imeActionLabel="@string/action_sign_in_short"
+                android:imeOptions="actionUnspecified"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:singleLine="true"
+                app:show="@{viewModel.errType==UserActivity.INVALID_PSW}"
+                app:msg="@{viewModel.errMsg[viewModel.errType]}"
+                android:text="@={viewModel.password}" />
+
+        </android.support.design.widget.TextInputLayout>
+
+
+        <Button
+            android:id="@+id/sign_in_button"
+            style="?android:textAppearanceSmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_blue"
+            android:onClick="@{()->viewModel.login()}"
+            android:text="@string/la_login"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="@id/layout_password"
+            app:layout_constraintRight_toRightOf="@id/layout_password"
+            app:layout_constraintTop_toBottomOf="@id/layout_password" />
+
+        <TextView
+            android:id="@+id/register_tv"
+            android:layout_width="64dp"
+            android:layout_height="48dp"
+            android:background="@null"
+            android:gravity="center_vertical"
+            android:onClick="@{()->viewModel.navigateToRegister()}"
+            android:text="@string/la_register"
+
+            android:textSize="16sp"
+            app:layout_constraintLeft_toLeftOf="@id/sign_in_button"
+            app:layout_constraintTop_toBottomOf="@id/sign_in_button" />
+
+
+        <TextView
+            android:id="@+id/forget_password_tv"
+            android:layout_width="96dp"
+            android:layout_height="48dp"
+            android:gravity="center_vertical|end"
+            android:onClick="@{()->viewModel.navigateToForgetPsw()}"
+            android:text="@string/la_forget"
+            android:textColor="#00A0FC"
+            android:textSize="16sp"
+            app:layout_constraintRight_toRightOf="@id/sign_in_button"
+            app:layout_constraintTop_toBottomOf="@id/sign_in_button" />
+    </android.support.constraint.ConstraintLayout>
+</layout>

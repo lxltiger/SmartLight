@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--depre-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+
+        <variable
+            name="titleBar"
+            type="com.example.ledwisdom1.model.TitleBar" />
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/rl_title"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/colorPrimary"
+        tools:showIn="@layout/fragment_add_lamp">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            app:srcCompat="@drawable/ic_back_36dp"
+            android:onClick="@{titleBar.mTitleClickListener::onTitleClick}"
+            android:visibility="@{titleBar.mShowIcon?View.VISIBLE:View.INVISIBLE}" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@{titleBar.mTitle}"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:text="标题" />
+
+        <ImageView
+            android:id="@+id/iv_dynamic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/app_name"
+            android:onClick="@{titleBar.mTitleClickListener::onTitleClick}"
+            app:dynamicIcon="@{titleBar.mDynamicIcon}"
+            tools:src="@drawable/refash2" />
+    </RelativeLayout>
+
+</layout>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.example.ledwisdom1.mesh.MeshViewModel" />
+
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.CallBack" />
+
+        <variable
+            name="mesh"
+            type="com.example.ledwisdom1.mesh.DefaultMesh" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="8dp"
+                android:onClick="@{handler::handleClick}"
+                android:background="@drawable/icon_back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="家庭详情"
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
+
+
+        </android.support.v7.widget.Toolbar>
+
+        <LinearLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+            <include
+                android:id="@+id/modify_mesh"
+                layout="@layout/item_common_pic"
+                app:handler="@{(v) -> handler.handleClick(v)}"
+                app:name="@{viewModel.meshDetailName[0]}"
+                app:value="@{mesh.aijiaIcon}" />
+
+            <View style="@style/divider" />
+
+            <include
+                layout="@layout/item_common_text"
+                app:name="@{viewModel.meshDetailName[1]}"
+                app:value="@{mesh.aijiaName}" />
+
+            <View style="@style/divider" />
+
+            <include
+                layout="@layout/item_common_text"
+                app:name="@{viewModel.meshDetailName[2]}"
+                app:value="@{mesh.name}" />
+
+            <View style="@style/divider" />
+
+            <include
+                layout="@layout/item_common_text"
+                app:name="@{viewModel.meshDetailName[3]}"
+                app:value="@{mesh.aijiaName}" />
+
+            <View style="@style/divider" />
+
+            <include
+                layout="@layout/item_common_text"
+                app:name="@{viewModel.meshDetailName[4]}"
+                app:value="@{mesh.shareCounts}" />
+
+            <View style="@style/divider" />
+        </LinearLayout>
+
+
+        <ImageView
+            android:id="@+id/iv_td_code"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:contentDescription="@string/app_name"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/container"
+            app:layout_constraintVertical_bias="0.4"
+            tools:background="@mipmap/ic_launcher" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="扫描二维码加入家庭"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_td_code" />
+    </android.support.constraint.ConstraintLayout>
+</layout>

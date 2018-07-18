@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+
+        <variable
+            name="viewModel"
+            type="com.example.ledwisdom1.home.HomeViewModel" />
+
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.home.HomeFragment" />
+    </data>
+
+
+      <android.support.constraint.ConstraintLayout
+          android:layout_width="match_parent"
+          android:layout_height="match_parent">
+          <com.example.ledwisdom1.view.CustomViewPager
+              android:id="@+id/viewPager"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" />
+<!--
+          <include
+              layout="@layout/home_layout_detail"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              app:isEmpty="@{!isEmpty}"
+              app:handler="@{handler}"
+              app:viewModel="@{viewModel}"
+              />
+
+          <include layout="@layout/home_layout_empty"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              app:isEmpty="@{isEmpty}"
+              app:viewModel="@{viewModel}"
+              app:handler="@{handler}"
+
+              />-->
+
+
+      </android.support.constraint.ConstraintLayout>
+
+</layout>
+

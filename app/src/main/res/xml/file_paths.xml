@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><!--path 这个比较重要，如果不设置，则表示将整个 SD 卡进行共享，然后制定了，比如 path=”Pictrues”那么，就只共享 sd卡下的 Pictures 文件夹-->
+<resources>
+    <paths>
+
+        <external-path
+            name="download"
+            path="Download" />
+        <external-files-path
+            name="my_images"
+            path="Pictures/" />
+
+    </paths>
+</resources>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+
+        <variable
+            name="lamp"
+            type="com.example.ledwisdom1.device.entity.Lamp" />
+
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.home.OnHandleLampListener" />
+
+
+
+    </data>
+
+    <com.mcxtzhang.swipemenulib.SwipeMenuLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:swipeEnable="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:onClick="@{()->handler.onItemClick(lamp)}">
+
+
+            <ImageView
+                android:id="@+id/iv_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/icon_light" />
+
+            <ImageView
+                android:id="@+id/iv_status"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="8dp"
+                app:lightStatus="@{lamp.lampStatus}"
+                tools:background="@drawable/bg_grey_circle" />
+
+            <TextView
+                android:id="@+id/tv_name_mac"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toEndOf="@+id/iv_icon"
+                android:layout_toStartOf="@+id/iv_status"
+                android:gravity="center_vertical"
+                android:lineSpacingMultiplier="1.5"
+                android:lines="2"
+                android:paddingEnd="8dp"
+                android:paddingStart="8dp"
+                android:text='@{lamp.description}'
+                tools:text="hei\nzhng" />
+
+            <View
+                style="@style/divider"
+                android:layout_alignParentBottom="true" />
+
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/edit"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:background="@color/colorAccent"
+            android:onClick="@{()->handler.onEditClick(lamp)}"
+            android:text="@string/title_main_compile"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/delete"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:background="#FF00"
+            android:onClick="@{()->handler.onDeleteClick(lamp)}"
+            android:text="@string/delete"
+            android:textColor="@android:color/white" />
+
+    </com.mcxtzhang.swipemenulib.SwipeMenuLayout>
+</layout>

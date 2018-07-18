@@ -1,0 +1,248 @@
+<resources>
+    <string name="app_name">智慧照明</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_add">Add</string>
+
+    <string name="add_lights_warning">Search networking</string>
+    <string name="only_devices">只支持RGB和WN设备</string>
+    <string name="toast_associate">检测灯…</string>
+    <string name="toast_associate_time_out">超过10分钟</string>
+    <string name="light_name">Lamp No. </string>
+    <string name="connecting">连接</string>
+    <string name="association_fail">灯具授权失败</string>
+    <string name="associatin">灯具授权</string>
+    <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
+    <string name="brand_name">PHOEBE SPECTRUM</string>
+    <string name="us_web">www.cromptonlamps.com</string>
+    <string name="loading_info">Copyright © White Label Lighting Limited 2017\n ALL Rights Reserved</string>
+    <!--splash界面-->
+    <string name="sp_lodding">正在登录中...</string>
+    <!--loging界面-->
+    <string name="la_username">账号</string>
+    <string name="la_psdword">密码</string>
+    <string name="la_login">登录</string>
+    <string name="la_register">注册</string>
+    <string name="la_forget">忘记密码？</string>
+    <string name="la_error">账号密码错误</string>
+    <string name="la_invalid_account">账号格式不正确</string>
+    <!--register界面-->
+    <string name="ra_username">手机号</string>
+    <string name="ra_psdword">密码</string>
+    <string name="ra_scanner">手机验证码</string>
+    <string name="ra_getyzm">获取验证码</string>
+    <string name="ra_next">下一步</string>
+    <string name="ra_register">注册</string>
+    <string name="ra_toast1">账号密码不能为空</string>
+    <string name="ra_verification">验证码不能为空</string>
+    <string name="ra_refresh">重新获取</string>
+    <string name="ra_reset">重置密码</string>
+    <!--register2界面-->
+    <string name="r2a_register">注册</string>
+    <string name="r2a_text">请按下HUB上的按钮</string>
+    <!--ForgentPSDActivity界面-->
+    <string name="forgment_titletext">忘记密码</string>
+    <string name="forgment_over">完成</string>
+    <string name="ra_forgent_psd">新密码</string>
+    <string name="ra_forgent_really">确认密码</string>
+    <string name="ra_forgent_error">两次输入不同，请重新输入</string>
+    <string name="ra_forgent_null">密码不能为空</string>
+    <string name="connect_fail">链接超时</string>
+    <!--mainActivity-->
+    <string name="title_main_home">首页</string>
+    <string name="title_main_device">设备</string>
+    <string name="title_main_scene">场景</string>
+    <string name="title_main_more">更多</string>
+
+    <string name="title_main_compile">编辑</string>
+    <string name="title_main_gateway">网关</string>
+    <string name="phone_not_null">手机号不能为空</string>
+    <!--AddLampActivity-->
+    <string name="title_add_light">添加灯具</string>
+    <!--AddHubActivity-->
+    <string name="title_add_hub">添加HUB</string>
+    <!--Blutoothfragment-->
+    <string name="toast_result">解析结果</string>
+    <string name="toast_result2">解析二维码失败</string>
+    <string name="blutoothInter">蓝牙网路</string>
+    <!--aboutfragment-->
+    <string name="aboutme_text1">金联讯电子(中国)有限公司</string>
+    <string name="aboutme_textpone">客服电话</string>
+    <string name="aboutme_phone">:025-52119290</string>
+    <string name="aboutme_version">公司版本＠</string>
+    <string name="aboutme_text2">2015-2016 KIMASCEND ELECTRONICS</string>
+    <!--HelpFragment-->
+    <string name="help">帮助</string>
+    <!--HomeSettingFragment-->
+    <string name="homesettingfrag_title">设置</string>
+    <string name="homesettingfrag_people">上传头像</string>
+    <string name="homesettingfrag_regpsd">修改密码</string>
+    <string name="homesettingfrag_exit">退出登陆</string>
+    <!--toast-->
+    <string name="toast_longs">哎呦，网络里的灯泡太多了！目前可以有256灯</string>
+    <string name="title_feedback_text">用户反馈</string>
+    <string name="title_feedback_text1">意见反馈</string>
+    <string name="fragment_feddback_hint">您的反馈是我们前进的动力，非常感谢！</string>
+    <string name="fragment_feddback_hint1">请输入您的手机/微信/QQ/邮箱</string>
+    <string name="fragment_feedback_et_hint">反馈内容</string>
+    <string name="comint">提交</string>
+    <string name="fragment_lamp_actionbar_secondtext">请打开WIFI</string>
+    <string name="title_second_hubfrag_text2">切换到蓝牙</string>
+    <string name="title_second_hubfrag_text3">已连接WIFI</string>
+    <string name="title_second_addlampfrag_text">请打开蓝牙，确保设备以复位</string>
+    <string name="title_selecthub_selecthub">切换网关</string>
+    <string name="title_selecthub_secondtext">已连接WIFI</string>
+    <string name="title_selecthub_secondtext2">切换到蓝牙</string>
+    <string name="title_add2hub_text">添加网关</string>
+    <string name="hubsetting_title_tv">网关设置</string>
+    <string name="selectblkuetooth_item_text">选择蓝牙网路</string>
+    <string name="selectbluetooth_title_secondtext">已连接蓝牙</string>
+    <string name="selectBluetooth_title_secondtext2">切换到WIFI</string>
+    <string name="lampsetting_item_text">灯具详情</string>
+    <string name="scenefrag_title_over">完成</string>
+    <string name="devicesetting_titlename">灯具控制</string>
+    <string name="scene_name_hint">请添加场景名</string>
+    <string name="scene_pic_hint">请添加图片</string>
+    <string name="title_import_serial_num">输入序列号</string>
+    <string name="wifi_setting">WIFI设置</string>
+    <string name="select_bluetooth_hub">选择蓝牙网路</string>
+    <string name="toast_result_sceneaddlamp">添加失败，请检查网络</string>
+    <string name="title_amend_scene">修改场景</string>
+    <string name="register_name_digits">._0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLIMNOPQRSTUVWXYZ</string>
+    <string name="toast_imgcode">请输入验证码</string>
+    <string name="toast_psd_null">密码错误</string>
+    <string name="toast_userid_null">请输入账号</string>
+    <string name="toast_result_login">验证码错误，请重新输入</string>
+    <string name="toast_user_yes">账号输入错误</string>
+    <string name="toast_user_no">账号已注册</string>
+    <string name="about_me_title">关于</string>
+    <string name="dont_delete">当前为好友网络，无法删除！</string>
+    <string name="dont_add">当前为好友网络，无法添加！</string>
+    <string name="dont_update">当前为好友网络，无法修改！</string>
+    <string name="start_bollue">开启蓝牙，体验智能灯!</string>
+    <string name="start_bollue2">重启蓝牙,更好地体验智能灯!</string>
+    <string name="toast_devices_very_more">哎呦，网络里的灯泡太多了！目前可以有256灯</string>
+    <string name="loading">加载中....</string>
+    <string name="now_pattern">当前模式：</string>
+    <string name="sleep">睡眠</string>
+    <string name="readding">阅读</string>
+    <string name="time_delay">5S</string>
+    <string name="conservation">节能</string>
+    <string name="com_visit">来访</string>
+    <string name="update_psd_over">修改密码成功，请重新登录</string>
+    <string name="enter_coid">输入二维码</string>
+    <string name="toast_buellow_answer">蓝牙出问题了，重启蓝牙试试!!</string>
+    <string name="add_over">添加成功</string>
+    <string name="add">添加</string>
+    <string name="mesh_name_hint">Mesh名称 6-16位</string>
+    <string name="mesh_pad_hint">Mesh密码 6位数字</string>
+    <string name="confirm">确定</string>
+    <string name="please_look_device_code">请扫描设备上的二维码</string>
+    <string name="or_enter_code">或者输入二维码下面的序列号</string>
+    <string name="canyinzhang">扫描二维码</string>
+    <string name="enter_serial_number">输入序列号</string>
+    <string name="scene_name">场景名称</string>
+    <string name="hub_manage">HUB管理</string>
+    <string name="lamp_manage">灯具管理</string>
+    <string name="hub_hint">请按下HUB中间区域的圆形按钮</string>
+    <string name="devoce">设备:</string>
+    <string name="The_bluetooth_network">蓝牙网路:</string>
+    <string name="bluetooth_mac">蓝牙-MAC:</string>
+    <string name="wifi_mac">WIFI-MAC:</string>
+    <string name="hub_Ip">网关IP:</string>
+    <string name="wifi">无线网路:</string>
+    <string name="hub_cod">网关序列号:</string>
+    <string name="hub_name">网关名称:</string>
+    <string name="lamp_name">灯具名称:</string>
+    <string name="devices">设备:</string>
+    <string name="device_type">设备类型:灯具</string>
+    <string name="set_mac">设备MAC:</string>
+    <string name="hub">网关:</string>
+    <string name="state">状态:</string>
+    <string name="close">关闭</string>
+    <string name="user_name">账号</string>
+    <string name="psd">密码</string>
+    <string name="new_user_regist">新用户，立即注册</string>
+    <string name="all_open">全开</string>
+    <string name="all_close">全关</string>
+    <string name="hint_new_psd">8-16位密码</string>
+    <string name="crifim_psd">确认密码</string>
+    <string name="readding_registe_user">注册账号，已经阅读并接受</string>
+    <string name="i_have_user">--  已有账号  --</string>
+    <string name="please_press_hub">请按下HUB上的按钮</string>
+    <string name="search_hub">搜索组网</string>
+    <string name="find_hub_device">发现HUB设备，请点击</string>
+    <string name="select_hint1">确保可以正常远程控制，</string>
+    <string name="select_hint2">请选择蓝牙网路，</string>
+    <string name="select_hint3">当前为</string>
+    <string name="select_hint4">MESHNAME</string>
+    <string name="select_hint5">的蓝牙网络，</string>
+    <string name="select_hint6">请检查！</string>
+    <string name="select_hint7">请查看路由器指示灯是否闪烁。</string>
+    <string name="select_hint">确保可以正常远程控制\n请选择蓝牙网路\n当前为MeshName的蓝牙网络\n请检查！\n请查看路由器指示灯是否闪烁。</string>
+
+    <string name="select_buletooth_hint1">当前是您的好友USERNAME的</string>
+    <string name="select_buletooth_hint2">USERNAME的蓝牙网络，</string>
+    <string name="select_buletooth_hint3">不能添加网关</string>
+    <string name="select_buletooth_hint4">先切换蓝牙网路</string>
+    <string name="set_hub_wifi_hint1">设置网关的无线网络，</string>
+    <string name="set_hub_wifi_hint2">不是界面搜索到的无线网路，怎么办？</string>
+    <string name="set_hub_wifi_hint3">通过手机无线网络切换，</string>
+    <string name="set_hub_wifi_hint4">更改网关无线配置。</string>
+    <string name="set_hub_wifi_hint">设置网关的无线网络，\n不是界面搜索到的无线网路，怎么办？\n\n通过手机无线网络切换，\n更改网关无线配置。</string>
+    <string name="drawing_room">客厅</string>
+    <string name="now_mode_sleep">当前模式：睡眠</string>
+    <string name="down_refash">下拉刷新</string>
+    <string name="refash_date">最后刷新时间:2015-07-25 19:59:39</string>
+    <string name="delete">删除</string>
+    <string name="ununited">未连接</string>
+    <string name="photograph">拍照</string>
+    <string name="select_from_album">从相册选择</string>
+    <!-- 样式 -->
+    <string name="cancel">取消</string>
+    <string name="bluetooth">蓝牙</string>
+    <string name="help_me">帮助中心</string>
+    <string name="about_me">关于我们</string>
+    <string name="new_user_name">新的用户名</string>
+    <string name="mesh_name">用户名</string>
+    <string name="if_delete_scene">是否确认删除场景</string>
+    <string name="really">确认</string>
+    <string name="add_hub">添加蓝牙网络</string>
+    <string name="add_scene">添加场景</string>
+    <string name="name">名称</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="config_esptouch">正在配置,请稍等...</string>
+    <string name="psw_tip">密码长度在8到16之间</string>
+    <string name="mesh_name_tip">6-10数字或字母</string>
+    <string name="mesh_psw_tip">6位数字或字母</string>
+    <string name="mesh_account">蓝牙账号：%s</string>
+    <string name="mesh_psw">蓝牙密码：%s</string>
+    <string name="feedback_tip">反馈内容不能为空</string>
+    <string name="contact_tip">联系方式不能为空</string>
+    <string name="alarm">闹钟</string>
+    <string name="scene">情景</string>
+    <string name="about">关于我们</string>
+    <string name="switch_ble">蓝牙</string>
+    <string name="switch_wifi">WIFI</string>
+
+
+</resources>

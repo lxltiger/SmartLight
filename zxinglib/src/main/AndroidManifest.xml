@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ledwisdom1.example.com.zxinglib" >
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application>
+        <activity android:name=".camera.CaptureActivity"/>
+    </application>
+</manifest>

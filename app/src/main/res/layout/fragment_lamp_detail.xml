@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="titleBar"
+            type="com.example.ledwisdom1.model.TitleBar" />
+
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.fragment.LampDetailFragment" />
+
+         </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/title"
+            layout="@layout/layout_header"
+            app:titleBar="@{titleBar}" />
+
+        <TextView
+            android:id="@+id/lamp_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/lamp_name"
+            android:textSize="18sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title" />
+
+        <EditText
+            android:id="@+id/device_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:padding="8dp"
+            android:textSize="16sp"
+            android:text="@={handler.mLamp.name}"
+            app:layout_constraintBaseline_toBaselineOf="@id/lamp_name"
+            app:layout_constraintLeft_toRightOf="@id/lamp_name"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <TextView
+            android:id="@+id/lamp_type"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/device_type"
+            android:textSize="18sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/device_name" />
+
+        <TextView
+            android:id="@+id/lamp_mac"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text='@{String.format("%s%s",@string/set_mac,handler.mLamp.mac)}'
+            android:textSize="18sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lamp_type"
+            tools:text="@string/set_mac" />
+
+        <TextView
+            android:id="@+id/lamp_mesh"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text='@{String.format("%s%s",@string/The_bluetooth_network,handler.mLamp.name)}'
+            android:textSize="18sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lamp_mac"
+            tools:text="@string/The_bluetooth_network" />
+
+        <TextView
+            android:id="@+id/lamp_gate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:drawableEnd="@drawable/icon_next"
+            android:text='@{String.format("%s%s",@string/hub,handler.mLamp.gateway_id)}'
+            android:textSize="18sp"
+            android:onClick="@{handler::handleClick}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lamp_mesh"
+            tools:text="@string/hub" />
+
+        <TextView
+            android:id="@+id/lamp_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text='@{String.format("%s%s",@string/state,handler.mLamp.id)}'
+            android:textSize="18sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lamp_gate"
+            tools:text="@string/state" />
+
+        <Button
+            android:id="@+id/confirm"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_margin="12dp"
+            android:background="@drawable/bg_blue"
+            android:gravity="center"
+            android:onClick="@{handler::handleClick}"
+            android:text="@string/confirm"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

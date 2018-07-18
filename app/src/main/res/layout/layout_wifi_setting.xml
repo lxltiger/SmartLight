@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.device.AddHubFragment" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <TextView
+            android:id="@+id/tip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="20dp"
+            android:padding="12dp"
+            android:background="@drawable/bg_blue_white"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:lineSpacingMultiplier="1.5"
+            android:text="@string/set_hub_wifi_hint"
+            android:textColor="@android:color/black"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+             />
+
+        <TextView
+            android:id="@+id/wifi_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="48dp"
+            android:textSize="24sp"
+            android:text="@{handler.mSSID}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tip"
+            tools:text="ntest" />
+
+        <EditText
+            android:id="@+id/wifi_pwd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="36dp"
+            android:hint="@string/ra_psdword"
+            android:inputType="textPassword"
+            android:textSize="16sp"
+            android:text="@={handler.mPassword}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/wifi_name" />
+
+
+        <Button
+            android:id="@+id/next_for_wifi_setting"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="36dp"
+            android:background="@drawable/bg_blue"
+            android:onClick="@{handler::handleClick}"
+            android:text="@string/ra_next"
+            android:enabled="@{handler.mConnectHubEnable}"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

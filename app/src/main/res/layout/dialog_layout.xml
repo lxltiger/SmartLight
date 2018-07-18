@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/takePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="#FFFFFF"
+                android:gravity="center"
+                android:text="@string/photograph"
+                android:textColor="@color/color_text"
+                android:textSize="@dimen/text_size" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="#9e9e9e" />
+
+            <Button
+                android:id="@+id/choosePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="#FFFFFF"
+                android:gravity="center"
+                android:text="@string/select_from_album"
+                android:textColor="@color/color_text"
+                android:textSize="@dimen/text_size" />
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="8dp"
+                android:background="#FFFFFF"
+                android:gravity="center"
+                android:text="@string/cancel"
+                android:textColor="@color/color_text"
+                android:textSize="@dimen/text_size" />
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+</layout>

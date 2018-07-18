@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.home.HomeFragment" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@drawable/list_white"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/pop_scan_mesh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="12dp"
+            android:drawableStart="@drawable/icon_scan_small"
+            android:padding="8dp"
+            android:text="扫 一 扫"
+            android:onClick="@{handler::handleClick}"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_grey" />
+
+        <TextView
+            android:id="@+id/pop_mesh_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="12dp"
+            android:onClick="@{handler::handleClick}"
+            android:drawableStart="@drawable/icon_list"
+            android:padding="8dp"
+            android:text="家庭列表"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp" />
+    </LinearLayout>
+</layout>

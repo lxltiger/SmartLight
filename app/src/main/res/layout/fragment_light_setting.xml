@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.device.LightSettingFragment" />
+
+        <variable
+            name="progress"
+            type="int" />
+
+        <variable
+            name="on"
+            type="boolean" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/icon_back"
+                android:onClick="@{handler::handleClick}" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="灯"
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
+
+
+        </android.support.v7.widget.Toolbar>
+
+        <RadioGroup
+            android:id="@+id/rg_main_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:onCheckedChanged="@{handler::onCheckedChanged}"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <RadioButton
+                android:id="@+id/rb_sleep"
+                style="@style/main_radioButton"
+                android:checked="true"
+                android:drawableTop="@drawable/selector_sleep"
+                android:gravity="center"
+                android:text="@string/sleep" />
+
+            <RadioButton
+                android:id="@+id/rb_visit"
+                style="@style/main_radioButton"
+                android:drawableTop="@drawable/selector_visit"
+                android:text="@string/com_visit" />
+
+            <RadioButton
+                android:id="@+id/rb_read"
+                style="@style/main_radioButton"
+                android:drawableTop="@drawable/selector_read"
+                android:text="@string/time_delay" />
+
+            <RadioButton
+                android:id="@+id/rb_conservation"
+                style="@style/main_radioButton"
+                android:drawableTop="@drawable/selector_conservation"
+                android:text="@string/conservation" />
+
+
+        </RadioGroup>
+
+        <ImageView
+            android:id="@+id/iv_rgb"
+            android:layout_width="196dp"
+            android:layout_height="196dp"
+            android:background="@drawable/lightcontrol"
+            app:layout_constraintBottom_toTopOf="@id/sb_brightness"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+        <ImageView
+            android:id="@+id/iv_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@{on?@drawable/light_control_btn:@drawable/lightcontrol_off_btn}"
+            android:onClick="@{handler::handleClick}"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_rgb"
+            app:layout_constraintLeft_toLeftOf="@+id/iv_rgb"
+            app:layout_constraintRight_toRightOf="@+id/iv_rgb"
+            app:layout_constraintTop_toTopOf="@+id/iv_rgb" />
+
+        <ImageView
+            android:id="@+id/left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/lighting_drak"
+            app:layout_constraintBottom_toBottomOf="@+id/sb_brightness"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/sb_brightness" />
+
+        <ImageView
+            android:id="@+id/right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/brightness_big"
+            app:layout_constraintBottom_toBottomOf="@+id/sb_brightness"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/sb_brightness" />
+
+        <SeekBar
+            android:id="@+id/sb_brightness"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="false"
+            android:max="100"
+            android:onProgressChanged="@{handler::onProgressChanged}"
+            android:progress="@{progress}"
+            app:layout_constraintBottom_toTopOf="@id/rg_main_group"
+            app:layout_constraintLeft_toRightOf="@+id/left"
+            app:layout_constraintRight_toLeftOf="@+id/right"
+            app:layout_constraintTop_toBottomOf="@+id/iv_rgb" />
+    </android.support.constraint.ConstraintLayout>
+
+
+</layout>

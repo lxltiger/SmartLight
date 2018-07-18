@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+
+        <variable
+            name="group"
+            type="com.example.ledwisdom1.home.entity.Group" />
+
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.home.OnHandleSceneListener" />
+    </data>
+
+
+    <com.example.ledwisdom1.view.SquareItemLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="4dp"
+        >
+
+
+        <ImageView
+            android:id="@+id/scene_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:onClick="@{()->handler.onItemClick(group)}"
+            app:imageUrl="@{group.icon}"
+            tools:background="@mipmap/ic_launcher"
+            android:adjustViewBounds="true"
+
+            />
+
+        <TextView
+            android:id="@+id/tv_item_scene_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:lines="1"
+            android:text="@{group.name}"
+            android:layout_below="@+id/scene_icon"
+            android:layout_centerHorizontal="true"
+            tools:text="123" />
+
+        <ImageView
+            android:id="@+id/scene_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_setting"
+            android:layout_margin="8dp"
+            android:onClick="@{()->handler.onEditClick(group)}"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+    </com.example.ledwisdom1.view.SquareItemLayout>
+
+</layout>

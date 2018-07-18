@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context=".home.HomeActivity">
+
+        <RadioGroup
+            android:id="@+id/rg_main_group"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/bg_title"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_home"
+                style="@style/main_radioButton"
+                android:checked="true"
+                android:drawableTop="@drawable/selector_radio_button_light"
+                android:text="@string/title_main_home" />
+
+            <RadioButton
+                android:id="@+id/rb_device"
+                style="@style/main_radioButton"
+                android:drawableTop="@drawable/selector_radio_button_hub"
+                android:text="@string/title_main_device" />
+
+            <RadioButton
+                android:id="@+id/rb_scene"
+                style="@style/main_radioButton"
+                android:drawableTop="@drawable/selector_radio_button_scene"
+                android:text="@string/title_main_scene" />
+            <RadioButton
+                android:id="@+id/rb_more"
+                style="@style/main_radioButton"
+                android:drawableTop="@drawable/selector_radio_button_more"
+                android:text="@string/title_main_more" />
+
+        </RadioGroup>
+
+        <FrameLayout
+            android:id="@+id/fl_main_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/rg_main_group" />
+
+    </RelativeLayout>
+</layout>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.ledwisdom1.home.HomeViewModel" />
+        <variable
+            name="homeIcon"
+            type="String" />
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.home.MoreFragment" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/light_grey">
+
+        <ImageView
+            android:id="@+id/portrait_bg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/more_bg" />
+
+        <ImageView
+            android:id="@+id/portrait"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/pic_portrait"
+            app:layout_constraintBottom_toBottomOf="@+id/portrait_bg"
+            android:onClick="@{handler::handleClick}"
+            app:imageUrl="@{homeIcon}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="96dp"
+            android:layout_marginTop="24dp"
+            android:background="@android:color/white"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/portrait_bg" />
+
+        <Button
+            android:id="@+id/btn_scene"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/more_btn_scene"
+            android:text="@string/scene"
+            android:textColor="@android:color/white"
+            android:textSize="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/view"
+            app:layout_constraintLeft_toLeftOf="@+id/view"
+            app:layout_constraintRight_toLeftOf="@id/btn_clock"
+            app:layout_constraintTop_toTopOf="@+id/view" />
+
+        <Button
+            android:id="@+id/btn_clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/more_btn_scene"
+            android:text="@string/alarm"
+            android:textColor="@android:color/white"
+            android:textSize="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/view"
+            app:layout_constraintLeft_toRightOf="@id/btn_scene"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/view" />
+
+        <TextView
+            android:id="@+id/about_us"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/white"
+            android:drawableLeft="@drawable/icon_about"
+            android:drawablePadding="16dp"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:text="@string/about_me"
+            android:onClick="@{handler::handleClick}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view" />
+
+        <TextView
+            android:id="@+id/feed_back"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:background="@android:color/white"
+            android:drawableLeft="@drawable/icon_feedback"
+            android:drawablePadding="16dp"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:text="@string/title_feedback_text"
+            android:onClick="@{handler::handleClick}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/about_us" />
+
+        <TextView
+            android:id="@+id/setting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/white"
+            android:drawableLeft="@drawable/icon_setting"
+            android:drawablePadding="16dp"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:text="@string/homesettingfrag_title"
+            android:onClick="@{handler::handleClick}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/feed_back" />
+    </android.support.constraint.ConstraintLayout>
+
+</layout>
+

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="mesh"
+            type="com.example.ledwisdom1.mesh.Mesh" />
+
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.mesh.OnMeshListener" />
+
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/btn_mesh"
+            android:layout_width="96dp"
+            android:layout_height="wrap_content"
+            android:background="@{mesh.isDefault==1?@drawable/bg_mesh_selected:@drawable/bg_mesh_normal}"
+            android:onClick="@{(view)->handler.onItemClick(view,mesh)}"
+            android:onLongClick="@{()->handler.onItemLongClick(mesh)}"
+            android:text="@{mesh.homeName}"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            tools:text="@string/app_name" />
+
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/delete"
+            app:visibleGone="@{mesh.showDeleteIcon}"
+            android:onClick="@{(view)->handler.onDeleteClick(mesh)}"
+            app:layout_constraintRight_toRightOf="@id/btn_mesh"
+            app:layout_constraintTop_toTopOf="@id/btn_mesh" />
+    </android.support.constraint.ConstraintLayout>
+
+
+
+</layout>
