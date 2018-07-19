@@ -9,6 +9,8 @@ import android.net.NetworkInfo;
 import android.support.v4.util.ArrayMap;
 import android.widget.Toast;
 
+import com.example.ledwisdom1.app.SmartLightApp;
+
 
 public class NetUtils {
     private static ArrayMap<String,String> mParams;
@@ -16,6 +18,8 @@ public class NetUtils {
 		/* cannot be instantiated */
 		throw new UnsupportedOperationException("cannot be instantiated");
 	}
+
+
 
 
     /**

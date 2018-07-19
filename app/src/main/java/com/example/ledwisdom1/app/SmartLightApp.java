@@ -2,10 +2,7 @@ package com.example.ledwisdom1.app;
 
 import android.util.Log;
 
-import com.example.ledwisdom1.database.SmartLightDataBase;
-import com.example.ledwisdom1.mesh.MeshBean;
 import com.example.ledwisdom1.sevice.TelinkLightService;
-import com.example.ledwisdom1.user.Profile;
 import com.telink.TelinkApplication;
 import com.telink.bluetooth.TelinkLog;
 import com.telink.crypto.AES;
@@ -16,11 +13,6 @@ import com.telink.crypto.AES;
  */
 public final class SmartLightApp extends TelinkApplication {
     private static final String TAG = SmartLightApp.class.getSimpleName();
-    private MeshBean mesh;
-    /**
-     * 用户信息
-     */
-    private Profile profile;
     private AppExecutors mAppExecutors;
     //是否使用蓝牙
     private boolean isBlueTooth=true;
@@ -36,7 +28,6 @@ public final class SmartLightApp extends TelinkApplication {
     public void onCreate() {
         super.onCreate();
         sLightApp = this;
-        profile = SmartLightDataBase.INSTANCE(this).user().getProfile();
         doInit();
         AdvanceStrategy.setDefault(new MySampleAdvanceStrategy());
         mAppExecutors=new AppExecutors();
@@ -49,11 +40,6 @@ public final class SmartLightApp extends TelinkApplication {
 
     public void setBlueTooth(boolean blueTooth) {
         isBlueTooth = blueTooth;
-    }
-
-    @Deprecated
-    public Profile getUserProfile() {
-        return profile;
     }
 
 
@@ -83,14 +69,8 @@ public final class SmartLightApp extends TelinkApplication {
         Log.d(TAG, "onTerminate: ");
     }
 
-    public MeshBean getMesh() {
-        return this.mesh;
-    }
 
 
-    public boolean isEmptyMesh() {
-        return this.mesh == null;
-    }
 
 
 

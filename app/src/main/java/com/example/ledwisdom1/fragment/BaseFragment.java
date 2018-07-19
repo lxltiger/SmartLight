@@ -172,14 +172,14 @@ public abstract class BaseFragment extends Fragment implements EventListener<Str
                 Log.d(TAG, "connect");
                 String meshName = "";
                 String psw = "";
-                if (mSmartLightApp.isEmptyMesh()) {
+                /*if (mSmartLightApp.isEmptyMesh()) {
                     meshName = sFactoryName;
                     psw=sFactoryName;
 
                 }else{
                     meshName = mSmartLightApp.getMesh().getMeshName();
                     psw = mSmartLightApp.getMesh().getMeshPassword();
-                }
+                }*/
                 Log.d(TAG, meshName);
                 Log.d(TAG, psw);
                 LeAutoConnectParameters connectParams = Parameters.createAutoConnectParameters();

@@ -3,6 +3,7 @@ package com.example.ledwisdom1.api;
 import android.arch.lifecycle.LiveData;
 
 import com.example.ledwisdom1.device.entity.LampList;
+import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.home.entity.HubList;
 import com.example.ledwisdom1.mesh.AddMeshResult;
@@ -10,6 +11,7 @@ import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.mesh.MeshList;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.scene.AddGroupResult;
+import com.example.ledwisdom1.scene.GroupDevice;
 import com.example.ledwisdom1.user.Profile;
 
 import java.util.Map;
@@ -110,11 +112,16 @@ public interface KimAscendService {
     @POST("group/createGroup")
     LiveData<ApiResponse<AddGroupResult>> createGroup(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
 
+    @Multipart
     @POST("group/updateGroup")
-    LiveData<Response<Profile>> updateGroup(@Body RequestBody request);
+    LiveData<ApiResponse<AddGroupResult>> updateGroup(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
 
+    @POST("group/updateGroup")
+    LiveData<ApiResponse<AddGroupResult>> updateGroup(@QueryMap Map<String, String> map);
+
+    /*删除场景*/
     @POST("group/deleteGroup")
-    LiveData<Response<Profile>> deleteGroup(@Body RequestBody request);
+    LiveData<ApiResponse<RequestResult>> deleteGroup(@Body RequestBody request);
 
     /*添加设备到场景*/
     @POST("group/addDeviceToGroup")
@@ -122,10 +129,11 @@ public interface KimAscendService {
 
     /*获取场景详情 用来修改*/
     @POST("group/getGroupById")
-    LiveData<ApiResponse<RequestResult>> getGroupById(@Body RequestBody request);
+    LiveData<ApiResponse<Group>> getGroupById(@Body RequestBody request);
 
+    /*获取场景添加的设备*/
     @POST("group/getDevicesByGroupId")
-    LiveData<Response<Profile>> getDevicesByGroupId(@Body RequestBody request);
+    LiveData<ApiResponse<GroupDevice>> getDevicesByGroupId(@Body RequestBody request);
 
     @POST("scene/getSceneList")
     LiveData<Response<Profile>> getSceneList(@Body RequestBody request);

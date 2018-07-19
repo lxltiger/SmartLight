@@ -2,6 +2,7 @@ package com.example.ledwisdom1.utils;
 
 import com.example.ledwisdom1.device.entity.AddHubRequest;
 import com.example.ledwisdom1.model.CommonRequest;
+import com.example.ledwisdom1.scene.GroupRequest;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -77,20 +78,41 @@ public class RequestCreator {
         return RequestBody.create(MEDIATYPE, paramsStr);
     }
 
-    //
-
     /**
      * 为场景添加灯具
      *
      * @return
      */
     public static RequestBody requestAddLampToGroup(String groupId, String deviceIds) {
-        AddDeviceToGroup addDeviceToGroup=new AddDeviceToGroup(groupId,deviceIds);
+        GroupRequest addDeviceToGroup = new GroupRequest(groupId, deviceIds);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(addDeviceToGroup));
     }
 
+    /*删除场景*/
+    public static RequestBody requestDeleteGroup(String groupId) {
+        GroupRequest request = new GroupRequest(groupId, null);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
+    }
+
+    /*删除场景下的设备*/
+    public static RequestBody requestDeleteDeviceInGroup(String groupId, String deviceIds) {
+        GroupRequest request = new GroupRequest(groupId, deviceIds);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
+    }
+
+    /*获取场景详情*/
+    public static RequestBody requestGroupDetail(String groupId) {
+        GroupRequest groupRequest = new GroupRequest(groupId, null);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
+    }
+    /*获取场景下的设备*/
+    public static RequestBody requestGroupDevices(String groupId) {
+        GroupRequest groupRequest = new GroupRequest(groupId, null);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
+    }
+
+
     public static RequestBody createAddHub(AddHubRequest addHubRequest) {
-//        AddHubRequest request = new AddHubRequest(serialNum, ssid, psw, serialNum, "", "");
         return RequestBody.create(MEDIATYPE, new Gson().toJson(addHubRequest));
     }
 
@@ -132,11 +154,11 @@ public class RequestCreator {
      * 灯具列表请求
      */
     private static class DeviceRequest {
-        private  String meshId;
-        private  int pageNO;
-        private  int pageSize;
-        private  int typeId;
-        private  String deviceId;
+        private String meshId;
+        private int pageNO;
+        private int pageSize;
+        private int typeId;
+        private String deviceId;
 
         public DeviceRequest(String meshId, int pageNO, int pageSize, int typeId) {
             this.meshId = meshId;
@@ -149,17 +171,6 @@ public class RequestCreator {
             this.deviceId = deviceId;
         }
     }
-
-    private static class AddDeviceToGroup {
-        public final String groupId;
-        public final String deviceId;
-
-        public AddDeviceToGroup(String groupId, String deviceId) {
-            this.groupId = groupId;
-            this.deviceId = deviceId;
-        }
-    }
-
 
 
 }

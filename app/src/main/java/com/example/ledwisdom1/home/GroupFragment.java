@@ -79,8 +79,10 @@ public class GroupFragment extends Fragment implements CallBack{
         }
 
         @Override
-        public void onEditClick(Group scene) {
-            Log.d(TAG, "onEditClick() called with: scene = [" + scene + "]");
+        public void onEditClick(Group group) {
+            Intent intent = SceneActivity.newIntent(getActivity(),SceneActivity.ACTION_GROUP, group);
+            startActivity(intent);
+
         }
 
         @Override
@@ -108,7 +110,6 @@ public class GroupFragment extends Fragment implements CallBack{
             }
         });
     }
-
 
 
     @Override
@@ -153,6 +154,6 @@ public class GroupFragment extends Fragment implements CallBack{
 
     @Override
     public void handleClick(View view) {
-        startActivity(new Intent(getActivity(), SceneActivity.class));
+        startActivity(SceneActivity.newIntent(getActivity(),SceneActivity.ACTION_GROUP, null));
     }
 }

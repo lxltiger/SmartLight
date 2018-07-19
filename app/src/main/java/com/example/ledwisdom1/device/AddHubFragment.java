@@ -20,11 +20,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,11 +36,9 @@ import com.espressif.iot.esptouch.util.ByteUtil;
 import com.espressif.iot.esptouch.util.EspAES;
 import com.espressif.iot.esptouch.util.EspNetUtil;
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.Url;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.adapter.InsetDecoration;
 import com.example.ledwisdom1.api.ApiResponse;
-import com.example.ledwisdom1.app.SmartLightApp;
 import com.example.ledwisdom1.databinding.FragmentAddHubBinding;
 import com.example.ledwisdom1.databinding.LayoutAddHubBinding;
 import com.example.ledwisdom1.databinding.LayoutInputSerialNumberBinding;
@@ -52,7 +48,6 @@ import com.example.ledwisdom1.databinding.LayoutStartWifiBinding;
 import com.example.ledwisdom1.databinding.LayoutWifiSettingBinding;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
 import com.example.ledwisdom1.device.entity.Lamp;
-import com.example.ledwisdom1.device.entity.LampList;
 import com.example.ledwisdom1.home.LampAdapter;
 import com.example.ledwisdom1.home.OnHandleLampListener;
 import com.example.ledwisdom1.mesh.Mesh;
@@ -60,22 +55,12 @@ import com.example.ledwisdom1.mesh.MeshAdapter;
 import com.example.ledwisdom1.mesh.OnMeshListener;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.model.TitleBar;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.zhy.http.okhttp.OkHttpUtils;
-import com.zhy.http.okhttp.callback.StringCallback;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import ledwisdom1.example.com.zxinglib.camera.CaptureActivity;
-import okhttp3.Call;
-import okhttp3.MediaType;
 
 /**
  *未初始化的网关显示红灯，初始化过程是蓝灯，说明正在链接WIFI，完成WIFI绑定是黄灯，hub链接到Wifi之后 按一下上报自己IP MAC等的参数来激活
@@ -288,42 +273,13 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
                     Toast.makeText(getActivity(), "没有选择蓝牙网络", Toast.LENGTH_SHORT).show();
                     return ;
                 }
-                updateHubMesh(mSelectedMesh);
                 break;
             case R.id.confirm:
-                selectLampsForHub();
                 break;
         }
     }
 
-    private void selectLampsForHub() {
-        List<Lamp> lampList = mLampAdapter.getLampList();
-        if (lampList.isEmpty()) {
-            return;
-        }
-        JSONArray paramsArray = new JSONArray();
 
-        for (Lamp lamp : lampList) {
-            Map<String, String> params_upload = new ArrayMap<>();
-            String gatewayId = mSerialNumber.get();
-            String deviceId=lamp.getId();
-//            如果灯具未被选中且Hub是当前的 设置为randomUUID
-            if (!lamp.isSelected()) {
-                if (TextUtils.isEmpty(lamp.getGateway_id()) || lamp.getGateway_id().equals(gatewayId)) {
-                    gatewayId = "d-" + java.util.UUID.randomUUID().toString();
-                }
-            }
-            params_upload.put("gatewayId", gatewayId);
-            params_upload.put("id", deviceId);
-            JSONObject object = new JSONObject(params_upload);
-            paramsArray.put(object);
-        }
-
-        String paramsStr = paramsArray.toString();
-        Log.d(TAG, "paramsStr "+paramsStr);
-        updateHubLamps(paramsStr);
-
-    }
 
     /**
      * 连接Hub和Wifi
@@ -569,129 +525,9 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
 
 
 
-    /**
-     * 更新Hub绑定的Mesh网络
-     * @param selectedMesh
-     */
-    private void updateHubMesh(Mesh selectedMesh) {
-        String url = String.format("%s%s", Url.PREFIX, Url.UPDATE_LAMP_BLEMESH);
-        SmartLightApp lightApp = SmartLightApp.INSTANCE();
-//        String userId = lightApp.getUserProfile().getUserId();
-        Map<String, String> params = new ArrayMap<>();
-        params.put("gatewayId", mSerialNumber.get());
-//        params.put("meshName", selectedMesh.getMeshName());
-//        params.put("meshPassword", selectedMesh.getMeshPassword());
-        String paramsStr = new GsonBuilder().serializeNulls().create().toJson(params);
-        OkHttpUtils.postString()
-                .url(url)
-                .content(paramsStr)
-                .mediaType(MediaType.parse("application/json; charset=utf-8"))
-                .addHeader("accessToken", lightApp.getUserProfile().getSessionid())
-                .tag(getActivity())
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onResponse(String result, int arg1) {
-                        Log.d(TAG, "updateHubMesh: result = [" + result + "], arg1 = [" + arg1 + "]");
-                        RequestResult requestResult = new Gson().fromJson(result, RequestResult.class);
-                        if (requestResult.succeed()) {
-                            //选择灯具页面
-                            mBinding.addHub.setCurrentItem(5,true);
-                            isLoading.set(true);
-                            loadLampsFromRemote(lightApp.getMesh().getMeshName());
-                        }
-
-//                        Toast.makeText(lightApp, requestResult.getResultMsg(), Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onError(Call call, Exception exception, int arg2) {
-                        String message = exception.getMessage();
-                        Log.d(TAG, message);
-                        Toast.makeText(lightApp, message, Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-    }
-
-    private void loadLampsFromRemote(String meshName) {
-        String url = String.format("%s%s", Url.PREFIX, Url.LAMP_DEVICE_LIST);
-        SmartLightApp lightApp = (SmartLightApp) getActivity().getApplication();
-        String userId = lightApp.getUserProfile().getUserId();
-        Map<String, String> params = new ArrayMap<>();
-        params.put("userID", userId);
-        params.put("meshName", meshName);
-        String paramsStr = new GsonBuilder().serializeNulls().create().toJson(params);
-        OkHttpUtils.postString()
-                .url(url)
-                .content(paramsStr)
-                .mediaType(MediaType.parse("application/json; charset=utf-8"))
-                .addHeader("accessToken", lightApp.getUserProfile().getSessionid())
-                .tag(getActivity())
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onResponse(String result, int arg1) {
-                        Log.d(TAG, "loadLampsFromRemote: result = [" + result + "], arg1 = [" + arg1 + "]");
-                        isLoading.set(false);
-                        LampList lampList = new Gson().fromJson(result, LampList.class);
-                        if (lampList != null&&lampList.getList()!=null) {
-                            mLampAdapter.addLamps(lampList.getList());
-                        }
-
-                    }
-
-                    @Override
-                    public void onError(Call call, Exception exception, int arg2) {
-                        String message = exception.getMessage();
-                        Log.d(TAG, message);
-                        isLoading.set(false);
-                        Toast.makeText(lightApp, message, Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-
-    }
 
 
-    /**
-     * 选择远程控制灯具
-     * 更新网关的灯具
-     */
-    private void updateHubLamps(String paramsStr) {
-        String url = String.format("%s%s", Url.PREFIX, Url.UPDATE_HUB_LAMPS);
-        SmartLightApp lightApp = SmartLightApp.INSTANCE();
-        OkHttpUtils.postString()
-                .url(url)
-                .content(paramsStr)
-                .mediaType(MediaType.parse("application/json; charset=utf-8"))
-                .addHeader("accessToken", lightApp.getUserProfile().getSessionid())
-                .tag(getActivity())
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onResponse(String result, int arg1) {
-                        Log.d(TAG, "updateHubLamps: result = [" + result + "], arg1 = [" + arg1 + "]");
-                        RequestResult requestResult = new Gson().fromJson(result, RequestResult.class);
-                        if (requestResult.succeed()) {
-                            //选择灯具页面
-                            mBinding.addHub.setCurrentItem(5,true);
-                            isLoading.set(true);
-                            getActivity().finish();
-                        }
 
-//                        Toast.makeText(lightApp, requestResult.getResultMsg(), Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onError(Call call, Exception exception, int arg2) {
-                        String message = exception.getMessage();
-                        Log.d(TAG, message);
-                        Toast.makeText(lightApp, message, Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-    }
 
     /**
      * mesh 列表的选择

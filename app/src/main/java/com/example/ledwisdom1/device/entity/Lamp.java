@@ -9,6 +9,8 @@ import android.support.annotation.NonNull;
 
 import com.example.ledwisdom1.utils.BindingAdapters;
 
+import java.util.Objects;
+
 /**
  * device_id : 10
  * name : kimascend
@@ -172,6 +174,19 @@ public class Lamp implements Parcelable {
             return new Lamp[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Lamp lamp = (Lamp) o;
+        return Objects.equals(id, lamp.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
     @Override
     public String toString() {

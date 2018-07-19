@@ -3,10 +3,6 @@ package com.example.ledwisdom1.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.example.ledwisdom1.app.SmartLightApp;
-import com.example.ledwisdom1.mesh.MeshBean;
-import com.google.gson.Gson;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -68,21 +64,6 @@ public class SharePrefencesUtil {
         return get(context, USER_PROFILE, "");
     }
 
-    /**
-     * 保存当前的蓝牙 mesh
-     * @param meshJson
-     */
-    public static void saveMesh(String meshJson) {
-        put(SmartLightApp.INSTANCE(), CURRENT_MESH,meshJson);
-    }
-
-    public static void saveMesh(MeshBean mesh) {
-        put(SmartLightApp.INSTANCE(), CURRENT_MESH,new Gson().toJson(mesh));
-    }
-
-    public static String getCurrentMesh() {
-        return get(SmartLightApp.INSTANCE(), CURRENT_MESH, "");
-    }
 
 
 

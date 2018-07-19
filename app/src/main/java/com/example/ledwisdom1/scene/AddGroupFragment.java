@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,12 +21,11 @@ import android.widget.Toast;
 
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.CommonItemClickListener;
+import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.Url;
 import com.example.ledwisdom1.adapter.CommonItemAdapter;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.api.ApiResponse;
-import com.example.ledwisdom1.app.SmartLightApp;
 import com.example.ledwisdom1.databinding.FragmentAddGroupBinding;
 import com.example.ledwisdom1.databinding.LayoutAddGroupBinding;
 import com.example.ledwisdom1.databinding.LayoutSelectLampBinding;
@@ -36,22 +34,18 @@ import com.example.ledwisdom1.device.entity.LampList;
 import com.example.ledwisdom1.fragment.ProduceAvatarFragment;
 import com.example.ledwisdom1.home.LampAdapter;
 import com.example.ledwisdom1.home.OnHandleLampListener;
+import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.model.CommonItem;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.utils.BindingAdapters;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.zhy.http.okhttp.OkHttpUtils;
-import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import okhttp3.Call;
-import okhttp3.MediaType;
+import static com.example.ledwisdom1.utils.ToastUtil.showToast;
 
 
 /**
@@ -60,6 +54,9 @@ import okhttp3.MediaType;
  * 图片、场景名称、设备都不能为空
  * 先创建场景获取到id，使用id绑定设备 ，如果绑定设备失败需要删除场景 告知创建失败。
  * 以后完成结束此页面
+ *
+ * 修改场景
+ * 图片可以为空 但请求接口不同
  */
 
 public class AddGroupFragment extends Fragment implements CallBack, ProduceAvatarFragment.Listener {
@@ -70,9 +67,7 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
     private LayoutSelectLampBinding selectLampBinding;
     private LampAdapter mLampAdapter;
     private CommonItemAdapter commonItemAdapter;
-
-    private AddGroup addGroup;
-    public ObservableBoolean isLoading = new ObservableBoolean(false);
+    private GroupRequest groupRequest;
     private SceneViewModel viewModel;
 
     public static AddGroupFragment newInstance() {
@@ -95,7 +90,7 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        addGroup = new AddGroup();
+        groupRequest = new GroupRequest();
         populateViewPager();
 
     }
@@ -144,8 +139,67 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
         subscribeUI(viewModel);
     }
 
-    private  int groupId=-1;
+    private int groupId = -1;
+    List<Lamp> lampsSelected;
+
     private void subscribeUI(SceneViewModel viewModel) {
+//        如果是修改 会受到场景详情
+        /*viewModel.groupDetailObserver.observe(this, new Observer<ApiResponse<Group>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<Group> groupApiResponse) {
+
+            }
+        });*/
+        viewModel.group.observe(this, new Observer<Group>() {
+            @Override
+            public void onChanged(@Nullable Group group) {
+                if (group != null) {
+                    addGroupBinding.setTitle("修改场景");
+                    addGroupBinding.setAdd(false);
+                    groupRequest.groupId = group.getId();
+                    CommonItem pic = commonItemAdapter.getItem(0);
+                    //显示图片
+                    pic.observableValue.set(Config.IMG_PREFIX.concat(group.getIcon()));
+//                    显示名称
+                    CommonItem name = commonItemAdapter.getItem(1);
+                    name.observableValue.set(group.getName());
+
+                } else {
+                    addGroupBinding.setTitle("新建场景");
+                    addGroupBinding.setAdd(true);
+                }
+            }
+        });
+
+        viewModel.groupDevicesObserver.observe(this, new Observer<ApiResponse<GroupDevice>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<GroupDevice> apiResponse) {
+                if (apiResponse != null) {
+                    if (apiResponse.isSuccessful()) {
+                        GroupDevice body = apiResponse.body;
+                        lampsSelected = body.getList();
+                        CommonItem device = commonItemAdapter.getItem(2);
+                        device.observableValue.set(String.valueOf(lampsSelected.size()));
+//
+                    }
+                }
+            }
+        });
+
+//        删除场景
+        viewModel.deleteGroupObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    showToast(apiResponse.body.resultMsg);
+                    getActivity().finish();
+                } else {
+                    showToast("删除失败");
+                }
+            }
+        });
+
+
         viewModel.lampListObserver.observe(this, new Observer<ApiResponse<LampList>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<LampList> apiResponse) {
@@ -163,11 +217,11 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
                     AddGroupResult body = apiResponse.body;
                     if (body.succeed()) {
                         String id = body.id;
-                        groupId=body.groupId;
+                        groupId = body.groupId;
                         List<String> ids = mLampAdapter.getSelectedNum();
                         String deviceIds = new Gson().toJson(ids);
-                        Log.d(TAG, "onChanged: "+deviceIds);
-                        viewModel.addDeviceToGroupRequest.setValue(new Pair<>(id,deviceIds));
+                        Log.d(TAG, "onChanged: " + deviceIds);
+                        viewModel.addDeviceToGroupRequest.setValue(new Pair<>(id, deviceIds));
                     }
                 }
             }
@@ -176,15 +230,26 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
         viewModel.addDeviceToGroupObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
-                Log.d(TAG, "bind light");
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     List<Lamp> lampList = mLampAdapter.getLampList();
                     for (Lamp lamp : lampList) {
-                        if (BindingAdapters.LIGHT_SELECTED==lamp.lampStatus.get()) {
+                        if (BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get()) {
                             allocDeviceGroup(groupId, lamp.getProductUuid(), true);
                         }
                     }
                     getActivity().finish();
+                }
+            }
+        });
+
+        viewModel.updateGroupObserver.observe(this, new Observer<ApiResponse<AddGroupResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<AddGroupResult> apiResponse) {
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    showToast(apiResponse.body.resultMsg);
+                    getActivity().finish();
+                }else{
+                    showToast("更新失败");
                 }
             }
         });
@@ -201,6 +266,17 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
                 break;
             case 2:
                 mBinding.addScene.setCurrentItem(1);
+//                        如果已存在 设为选择状态
+                if (lampsSelected != null) {
+                    // 假设灯具已经加载
+                    List<Lamp> lampList = mLampAdapter.getLampList();
+                    for (Lamp lamp : lampList) {
+                        Log.d(TAG, "lamp" + lamp.getId());
+                        if (lampsSelected.contains(lamp)) {
+                            lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
+                        }
+                    }
+                }
                 break;
 
         }
@@ -232,50 +308,6 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
 
 
     /**
-     * 添加或删除灯具到组
-     */
-
-    private void updateLampToScene(Lamp lamp) {
-
-        SmartLightApp lightApp = SmartLightApp.INSTANCE();
-        String url = String.format("%s%s", Url.PREFIX, lamp.isSelected() ? Url.ADD_DEVICE_TO_GROUP : Url.DElDEVICE_FROM_GROUP);
-        Map<String, String> params = new ArrayMap<>();
-//        params.put("groupId", addScene.getGroup().getId());
-        params.put("deviceId", lamp.getId());
-        String paramsStr = new GsonBuilder().serializeNulls().create().toJson(params);
-        OkHttpUtils.postString()
-                .url(url)
-                .content(paramsStr)
-                .mediaType(MediaType.parse("application/json; charset=utf-8"))
-                .addHeader("accessToken", lightApp.getUserProfile().getSessionid())
-                .tag(getActivity())
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onResponse(String result, int arg1) {
-                        Log.d(TAG, "addLampToScene: result = [" + result + "], arg1 = [" + arg1 + "]");
-                        RequestResult requestResult = new Gson().fromJson(result, RequestResult.class);
-                        /*if (requestResult.succeed()) {
-                            allocDeviceGroup(addScene.getGroup().getUid(), lamp.getDevice_id(), lamp.isSelected());
-                        }*/
-//                        Toast.makeText(lightApp, requestResult.getResultMsg(), Toast.LENGTH_SHORT).show();
-
-                    }
-
-                    @Override
-                    public void onError(Call call, Exception exception, int arg2) {
-                        String message = exception.getMessage();
-                        Log.d(TAG, message);
-                        isLoading.set(false);
-                        Toast.makeText(lightApp, message, Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-
-    }
-
-
-    /**
      * 添加灯具到场景
      *
      * @param groupAddress
@@ -290,7 +322,6 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
                 (byte) (groupAddress >> 8 & 0xFF)};
 
         params[0] = (byte) (add ? 0x01 : 0x00);
-
 
         TelinkLightService.Instance().sendCommand(opcode, dstAddress, params);
 
@@ -313,35 +344,67 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
                 break;
 //                创建场景
             case R.id.confirm:
-                CommonItem itemName = commonItemAdapter.getItem(1);
-                String name = itemName.observableValue.get();
-                Log.d(TAG, "name " + name);
-                if (TextUtils.isEmpty(name)) {
-                    Toast.makeText(getContext(), "还没有设置名称", Toast.LENGTH_SHORT).show();
-                    return;
+//                不为空说明是修改
+                Group value = viewModel.group.getValue();
+                if (value != null) {
+                    updateGroup();
+                } else {
+                    addGroup();
                 }
-                addGroup.name = name;
-                if (null == addGroup.pic) {
-                    Toast.makeText(getContext(), "还没有设置图片", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                List<String> ids = mLampAdapter.getSelectedNum();
-                if (ids.isEmpty()) {
-                    Toast.makeText(getContext(), "还没有选择灯具", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                viewModel.addGroupRequest.setValue(addGroup);
+                break;
+            case R.id.delete:
+                viewModel.deleteGroup();
                 break;
         }
 
+    }
 
+    //    添加场景
+    private void addGroup() {
+        CommonItem itemName = commonItemAdapter.getItem(1);
+        String name = itemName.observableValue.get();
+        Log.d(TAG, "name " + name);
+        if (TextUtils.isEmpty(name)) {
+            Toast.makeText(getContext(), "还没有设置名称", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        groupRequest.name = name;
+        if (null == groupRequest.pic) {
+            Toast.makeText(getContext(), "还没有设置图片", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        List<String> ids = mLampAdapter.getSelectedNum();
+        if (ids.isEmpty()) {
+            Toast.makeText(getContext(), "还没有选择灯具", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        viewModel.addGroupRequest.setValue(groupRequest);
+    }
+
+//    更新场景
+    private void updateGroup() {
+        CommonItem itemName = commonItemAdapter.getItem(1);
+        String name = itemName.observableValue.get();
+        Log.d(TAG, "name " + name);
+        if (TextUtils.isEmpty(name)) {
+            Toast.makeText(getContext(), "还没有设置名称", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        groupRequest.name = name;
+
+        List<String> ids = mLampAdapter.getSelectedNum();
+        if (ids.isEmpty()) {
+            Toast.makeText(getContext(), "还没有选择灯具", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        viewModel.updateGroupRequest.setValue(groupRequest);
     }
 
     //选择灯具返回添加页面 统计选择的灯数
     private void setLampsNum() {
         mBinding.addScene.setCurrentItem(0);
-        List<String> ids= mLampAdapter.getSelectedNum();
+        List<String> ids = mLampAdapter.getSelectedNum();
         CommonItem item = commonItemAdapter.getItem(2);
         item.observableValue.set(String.valueOf(ids.size()));
     }
@@ -353,7 +416,7 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
         CommonItem item = commonItemAdapter.getItem(0);
         item.observableValue.set(file.getAbsolutePath());
 //        item.value = file.getAbsolutePath();
-        addGroup.pic = file;
+        groupRequest.pic = file;
 //        commonItemAdapter.notifyItemChanged(0);
 
     }

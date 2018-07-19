@@ -1,6 +1,12 @@
 package com.example.ledwisdom1.home.entity;
 
-public class Group {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+/**
+ * 场景
+ */
+public class Group implements Parcelable{
     /**
      * groupId : 32790
      * name : Ghhjjhjj
@@ -44,17 +50,40 @@ public class Group {
     public void setId(String id) {
         this.id = id;
     }
-    /**
-     * uid : 32772
-     * createBy : f96f13c6e52a4b7abe1da9da578add52
-     * loginName : 18217612547
-     * name : 书房
-     * icon : http://192.168.1.33:80//lamp/upload/scene-4.png
-     * meshName : kimios
-     * id : 043d56ff700e4677a6697ee08a391a03
-     * userId : f96f13c6e52a4b7abe1da9da578add52
-     * createDate : 2018-06-13 02:03:56
-     */
 
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.groupId);
+        dest.writeString(this.name);
+        dest.writeString(this.icon);
+        dest.writeString(this.id);
+    }
+
+    public Group() {
+    }
+
+    protected Group(Parcel in) {
+        this.groupId = in.readInt();
+        this.name = in.readString();
+        this.icon = in.readString();
+        this.id = in.readString();
+    }
+
+    public static final Creator<Group> CREATOR = new Creator<Group>() {
+        @Override
+        public Group createFromParcel(Parcel source) {
+            return new Group(source);
+        }
+
+        @Override
+        public Group[] newArray(int size) {
+            return new Group[size];
+        }
+    };
 }

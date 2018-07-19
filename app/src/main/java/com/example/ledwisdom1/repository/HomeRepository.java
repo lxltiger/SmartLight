@@ -21,6 +21,7 @@ import com.example.ledwisdom1.database.SmartLightDataBase;
 import com.example.ledwisdom1.database.UserDao;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
 import com.example.ledwisdom1.device.entity.LampList;
+import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.home.entity.HubList;
 import com.example.ledwisdom1.mesh.AddMeshResult;
@@ -29,8 +30,9 @@ import com.example.ledwisdom1.mesh.Mesh;
 import com.example.ledwisdom1.mesh.MeshList;
 import com.example.ledwisdom1.mesh.ReportMesh;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.scene.AddGroup;
 import com.example.ledwisdom1.scene.AddGroupResult;
+import com.example.ledwisdom1.scene.GroupDevice;
+import com.example.ledwisdom1.scene.GroupRequest;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.RequestCreator;
 
@@ -126,8 +128,7 @@ public class HomeRepository {
     }
 
 //   创建场景
-    public LiveData<ApiResponse<AddGroupResult>> createGroup(AddGroup addGroup) {
-        Log.d(TAG, "createGroup() called with: addGroup = [" + addGroup + "]");
+    public LiveData<ApiResponse<AddGroupResult>> createGroup(GroupRequest addGroup) {
         String id = defaultMeshObserver.getValue().id;
         ArrayMap<String, String> map = new ArrayMap<>();
         map.put("name", addGroup.name);
@@ -139,6 +140,40 @@ public class HomeRepository {
         return kimService.createGroup(icon, map);
 
     }
+
+//    更新场景
+    public LiveData<ApiResponse<AddGroupResult>> updateGroup(GroupRequest addGroup) {
+        String id = defaultMeshObserver.getValue().id;
+        ArrayMap<String, String> map = new ArrayMap<>();
+        map.put("name", addGroup.name);
+        map.put("groupId", addGroup.groupId);
+        map.put("meshId", id);
+        if (null != addGroup.pic) {
+            RequestBody requestFile = RequestBody.create(RequestCreator.MEDIATYPE, addGroup.pic);
+            MultipartBody.Part icon =MultipartBody.Part.createFormData("pic", addGroup.pic.getName(), requestFile);
+            return kimService.updateGroup(icon, map);
+        }else{
+            return kimService.updateGroup(map);
+        }
+
+    }
+
+    /*获取场景详情*/
+    public LiveData<ApiResponse<Group>> getGroupDetail(String groupId) {
+        RequestBody requestBody = RequestCreator.requestGroupDetail(groupId);
+        return kimService.getGroupById(requestBody);
+    }
+
+    public LiveData<ApiResponse<GroupDevice>> getDevicesInGroup(String groupId) {
+        RequestBody requestBody = RequestCreator.requestGroupDevices(groupId);
+        return kimService.getDevicesByGroupId(requestBody);
+    }
+
+    public LiveData<ApiResponse<RequestResult>> deleteGroup(String groupId) {
+        RequestBody requestBody = RequestCreator.requestDeleteGroup(groupId);
+        return kimService.deleteGroup(requestBody);
+    }
+
 
     public LiveData<ApiResponse<RequestResult>> addDeviceToGroup(Pair<String, String> pair) {
         RequestBody requestBody = RequestCreator.requestAddLampToGroup(pair.first, pair.second);

@@ -8,6 +8,13 @@
         <variable
             name="handler"
             type="com.example.ledwisdom1.CallBack" />
+        <variable
+            name="title"
+            type="String"/>
+
+        <variable
+            name="add"
+            type="boolean"/>
     </data>
 
     <android.support.constraint.ConstraintLayout
@@ -34,7 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="新建场景"
+                android:text="@{title}"
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
 
@@ -59,6 +66,23 @@
             app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
 
+        <Button
+            android:id="@+id/delete"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_blue"
+            android:onClick="@{handler::handleClick}"
+            android:text="删除"
+            app:visibleGone="@{!add}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:textColor="@android:color/white"
+            android:textSize="20sp" />
     </android.support.constraint.ConstraintLayout>
 
 </layout>
