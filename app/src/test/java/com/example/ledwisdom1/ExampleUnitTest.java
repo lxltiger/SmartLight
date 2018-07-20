@@ -1,5 +1,7 @@
 package com.example.ledwisdom1;
 
+import com.google.gson.Gson;
+
 import org.junit.Test;
 
 import java.io.File;
@@ -27,20 +29,20 @@ public class ExampleUnitTest {
             File des = new File(file.getAbsolutePath() + "_bak");
             if (des.mkdir()) {
                 System.out.println("success");
-                listFile(des,file);
+                listFile(des, file);
             }
 
         }
     }
 
 
-    private void listFile(File des,File file) throws IOException {
+    private void listFile(File des, File file) throws IOException {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             for (File file1 : files) {
-                listFile(des,file1);
+                listFile(des, file1);
             }
-        }else{
+        } else {
             System.out.println(file.getAbsolutePath());
 //            命名不能大写
             Files.copy(file.toPath(), new File(des, file.getName().toLowerCase()).toPath());
@@ -54,7 +56,7 @@ public class ExampleUnitTest {
     @Test
     public void copyOnDifference() throws IOException {
         File src_file = new File(src);
-        if (src_file.exists()&&src_file.isDirectory()) {
+        if (src_file.exists() && src_file.isDirectory()) {
             File[] files = src_file.listFiles();
             //依次处理各分辨率图片
             for (File file : files) {
@@ -65,8 +67,8 @@ public class ExampleUnitTest {
 //                目标文件夹 如drawable-hdpi
                 File des_file = new File(des, dir_name);
 //                判断目标文件夹具体分辨率文件夹是否存在
-                if (des_file.exists()&&des_file.isDirectory()) {
-                    List<String > src_list =new ArrayList<>( Arrays.asList(file.list()));
+                if (des_file.exists() && des_file.isDirectory()) {
+                    List<String> src_list = new ArrayList<>(Arrays.asList(file.list()));
                     List<String> des_list = Arrays.asList(des_file.list());
 //                    名字相同的都移除
                     src_list.removeAll(des_list);
@@ -80,5 +82,14 @@ public class ExampleUnitTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void testJson() {
+        List<String> deviceIds = new ArrayList<>();
+        deviceIds.add("hgei");
+        deviceIds.add("hgei");
+        String s = new Gson().toJson(deviceIds);
+        System.out.println(s);
     }
 }

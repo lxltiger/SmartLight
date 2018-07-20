@@ -21,8 +21,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,22 +35,13 @@ import com.espressif.iot.esptouch.util.EspAES;
 import com.espressif.iot.esptouch.util.EspNetUtil;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
-import com.example.ledwisdom1.adapter.InsetDecoration;
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.databinding.FragmentAddHubBinding;
 import com.example.ledwisdom1.databinding.LayoutAddHubBinding;
 import com.example.ledwisdom1.databinding.LayoutInputSerialNumberBinding;
-import com.example.ledwisdom1.databinding.LayoutSelectLampsForhubBinding;
-import com.example.ledwisdom1.databinding.LayoutSelectMeshBinding;
 import com.example.ledwisdom1.databinding.LayoutStartWifiBinding;
 import com.example.ledwisdom1.databinding.LayoutWifiSettingBinding;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
-import com.example.ledwisdom1.device.entity.Lamp;
-import com.example.ledwisdom1.home.LampAdapter;
-import com.example.ledwisdom1.home.OnHandleLampListener;
-import com.example.ledwisdom1.mesh.Mesh;
-import com.example.ledwisdom1.mesh.MeshAdapter;
-import com.example.ledwisdom1.mesh.OnMeshListener;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.model.TitleBar;
 
@@ -62,46 +51,41 @@ import java.util.List;
 
 import ledwisdom1.example.com.zxinglib.camera.CaptureActivity;
 
-/**
+/*
  *未初始化的网关显示红灯，初始化过程是蓝灯，说明正在链接WIFI，完成WIFI绑定是黄灯，hub链接到Wifi之后 按一下上报自己IP MAC等的参数来激活
- * 激活的HUb 其status为1
+ *激活的HUb 其status为1
  *
- * Hub 有可能USB接触不良导致初始化失败
+ *Hub 有可能USB接触不良导致初始化失败
  *
- * 添加Hub页面 连接hub到WIFI 暂且不支持5G
- * <p>
+ *添加Hub页面 连接hub到WIFI 暂且不支持5G
+ *<p>
+
  */
 public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickListener {
     public static final String TAG = AddHubFragment.class.getSimpleName();
-    /**
-     * 暂且用不上
-     */
+
     private static final boolean AES_ENABLE = false;
     private static final String AES_SECRET_KEY = "1234567890123456";
     private FragmentAddHubBinding mBinding;
     private TitleBar mTitleBar;
-    /**
-     * 执行连接的操作
-     */
+    //执行连接的操作
+
     private EsptouchAsyncTask4 mTask;
 
-    /**
-     * 网关的序列号
-     */
+//网关的序列号
+
+
     public ObservableField<String> mSerialNumber = new ObservableField<>("1102F483CD9E6123");
     public ObservableField<String> mSSID = new ObservableField<>("");
     public ObservableField<String> mPassword = new ObservableField<>("12345678");
-    /**
-     * 是否能连接Hub和WiFi，默认false
-     * 获取到Wifi SSID 才能连接
-     */
+    /*
+     *是否能连接Hub和WiFi，默认false获取到Wifi SSID才能连接*/
+
     public ObservableBoolean mConnectHubEnable = new ObservableBoolean(false);
 
     public ObservableBoolean isLoading = new ObservableBoolean(false);
 
     private String mBSSID = "";
-    private MeshAdapter mMeshAdapter;
-    private LampAdapter mLampAdapter;
     private DeviceViewModel viewModel;
 
     public static AddHubFragment newInstance() {
@@ -148,10 +132,10 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
                     if (apiResponse.body.succeed()) {
                         getActivity().finish();
 //                        mBinding.addHub.setCurrentItem(3);
-                    }else{
+                    } else {
                         showToast(apiResponse.body.resultMsg);
                     }
-                }else{
+                } else {
                     showToast(apiResponse.errorMsg);
                 }
 
@@ -162,18 +146,13 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
             }
         });
 
-        /*viewModel.myMeshList.observe(this, new Observer<List<Mesh>>() {
-            @Override
-            public void onChanged(@Nullable List<Mesh> meshes) {
-                Log.d(TAG, "meshes.size():" + meshes.size());
-                mMeshAdapter.addMeshes(meshes);
-            }
-        });*/
+
     }
 
     private void showToast(String msg) {
         Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -192,23 +171,20 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
         LayoutStartWifiBinding startWifiBinding = DataBindingUtil.inflate(inflater, R.layout.layout_start_wifi, null, false);
         startWifiBinding.setHandler(this);
 
-        LayoutSelectMeshBinding selectMeshBinding = DataBindingUtil.inflate(inflater, R.layout.layout_select_mesh, null, false);
+       /* LayoutSelectMeshBinding selectMeshBinding = DataBindingUtil.inflate(inflater, R.layout.layout_select_mesh, null, false);
         selectMeshBinding.setHandler(this);
-        //mesh 列表
         selectMeshBinding.meshList.setLayoutManager(new GridLayoutManager(getActivity(), 3));
         mMeshAdapter = new MeshAdapter(mOnMeshListener);
         selectMeshBinding.meshList.setAdapter(mMeshAdapter);
         selectMeshBinding.meshList.addItemDecoration(new InsetDecoration(getActivity()));
 
-        //灯具列表
         LayoutSelectLampsForhubBinding selectLampsForhubBinding = DataBindingUtil.inflate(inflater, R.layout.layout_select_lamps_forhub, null, false);
         selectLampsForhubBinding.setHandler(this);
-        //灯具列表
         selectLampsForhubBinding.lamps.setLayoutManager(new LinearLayoutManager(getActivity()));
         mLampAdapter = new LampAdapter(mOnHandleLampListener);
-        //显示是否选中图片
         mLampAdapter.setShowSelectIcon(true);
-        selectLampsForhubBinding.lamps.setAdapter(mLampAdapter);
+        selectLampsForhubBinding.lamps.setAdapter(mLampAdapter);*/
+
 
         List<View> views = new ArrayList<>();
         views.add(addHubBinding.getRoot());
@@ -216,8 +192,8 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
         views.add(wifiSettingBinding.getRoot());
         views.add(startWifiBinding.getRoot());
 //        todo remove reduant
-        views.add(selectMeshBinding.getRoot());
-        views.add(selectLampsForhubBinding.getRoot());
+//        views.add(selectMeshBinding.getRoot());
+//        views.add(selectLampsForhubBinding.getRoot());
 
         CommonPagerAdapter pagerAdapter = new CommonPagerAdapter(views);
         mBinding.addHub.setAdapter(pagerAdapter);
@@ -236,10 +212,9 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
 
     }
 
+//回退到上一个页面
 
-    /**
-     * 回退到上一个页面
-     */
+
     public void handleBackPressed() {
         int currentItem = mBinding.addHub.getCurrentItem();
         if (currentItem > 0) {
@@ -269,10 +244,7 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
                 mBinding.addHub.setCurrentItem(4, true);
                 break;
             case R.id.next_for_select_mesh:
-                if (mSelectedMesh == null) {
-                    Toast.makeText(getActivity(), "没有选择蓝牙网络", Toast.LENGTH_SHORT).show();
-                    return ;
-                }
+
                 break;
             case R.id.confirm:
                 break;
@@ -280,10 +252,9 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
     }
 
 
+//连接Hub和Wifi
 
-    /**
-     * 连接Hub和Wifi
-     */
+
     private void connectHubToWifi() {
         byte[] ssid = ByteUtil.getBytesByString(mSSID.get());
         byte[] password = ByteUtil.getBytesByString(mPassword.get());
@@ -335,68 +306,49 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
         }
     }
 
-    /**
-     * 上传Hub信息
-     */
+//上传Hub信息
+
+
     private void upLoadHub() {
-        AddHubRequest addHubRequest = new AddHubRequest(mSerialNumber.get(), mSSID.get(), mPassword.get(), "", "","");
+        AddHubRequest addHubRequest = new AddHubRequest(mSerialNumber.get(), mSSID.get(), mPassword.get(), "", "", "");
         viewModel.addHubRequest.setValue(addHubRequest);
-        /*String url = String.format("%s%s", Url.PREFIX, Url.REPORT_LAMP_GATEWAY);
-        Log.d(TAG, mSerialNumber.get());
-        SmartLightApp lightApp = SmartLightApp.INSTANCE();
-        String userId = lightApp.getUserProfile().getUserId();
-        Map<String, String> params = new ArrayMap<>();
-        params.put("userId", userId);
-        params.put("gatewayId", mSerialNumber.get());
-        params.put("routing", mSSID.get());
-        params.put("password", mPassword.get());
-        String paramsStr = new GsonBuilder().serializeNulls().create().toJson(params);
-        OkHttpUtils.postString()
-                .url(url)
-                .content(paramsStr)
-                .mediaType(MediaType.parse("application/json; charset=utf-8"))
-                .addHeader("accessToken", lightApp.getUserProfile().getSessionid())
-                .tag(getActivity())
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onResponse(String result, int arg1) {
-                        Log.d(TAG, "upLoadHub: result = [" + result + "], arg1 = [" + arg1 + "]");
-                        RequestResult requestResult = new Gson().fromJson(result, RequestResult.class);
-                        if (requestResult.succeed()) {
-                            mBinding.addHub.setCurrentItem(3);
-                        }
-                        if (mTask != null) {
-                            mTask.cancelProgressDialog();
-                            mTask = null;
-                        }
-//                        Toast.makeText(lightApp, requestResult.getResultMsg(), Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onError(Call call, Exception exception, int arg2) {
-                        String message = exception.getMessage();
-                        Log.d(TAG, message);
-                        if (mTask != null) {
-                            mTask.cancelProgressDialog();
-                            mTask = null;
-                        }
-                        Toast.makeText(lightApp, message, Toast.LENGTH_SHORT).show();
-
-                    }
-                });*/
     }
 
-    /**
-     * 实现WiFI和Hub的连接
-     * Hub只能连一个，所以必须是初始化状态，否则会失败，长按至灯闪烁
-     * without the lock, if the user tap confirm and cancel quickly enough,
-     * the bug will arise. the reason is follows:
-     * 0. task is starting created, but not finished
-     * 1. the task is cancel for the task hasn't been created, it do nothing
-     * 2. task is created
-     * 3. Oops, the task should be cancelled, but it is running
-     */
+/*
+        *实现WiFI和Hub的连接
+     *Hub只能连一个，所以必须是初始化状态，否则会失败，长按至灯闪烁
+     *
+    without the
+    lock,if
+    the user
+    tap confirm
+    and cancel
+    quickly enough,
+     *
+    the bug
+    will arise.
+    the reason
+    is follows:
+            *0.
+    task is
+    starting created, but
+    not finished
+     *1.
+    the task
+    is cancel for
+    the task
+    hasn't been created, it do nothing
+            *2.
+    task is
+    created
+     *3.Oops,
+    the task
+    should be
+    cancelled,
+    but it
+    is running*/
+
+
     private static class EsptouchAsyncTask4 extends AsyncTask<byte[], Void, List<IEsptouchResult>> {
 
         private WeakReference<AddHubFragment> mActivity;
@@ -526,57 +478,22 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
 
 
 
-
-
-
-    /**
-     * mesh 列表的选择
-     */
-    private Mesh mSelectedMesh=null;
-    private OnMeshListener mOnMeshListener = new OnMeshListener() {
-        @Override
-        public void onItemClick(View view, Mesh meshBean) {
-            mSelectedMesh=meshBean;
-
-        }
-
-        @Override
-        public void onDeleteClick(Mesh meshBean) {
-
-        }
-
-        @Override
-        public boolean onItemLongClick(Mesh light) {
-            return false;
-        }
-    };
-
-    private OnHandleLampListener mOnHandleLampListener=new OnHandleLampListener() {
-        @Override
-        public void onItemClick(Lamp lamp) {
-            lamp.setSelected(!lamp.isSelected());
-            mLampAdapter.notifyDataSetChanged();
-        }
-
-        @Override
-        public void onEditClick(Lamp lamp) {
-
-        }
-
-        @Override
-        public void onDeleteClick(Lamp lamp) {
-
-        }
-    };
-
-    /**
-     * 扫描Hub的二维码返回的结果
+/*
+        *扫描Hub的二维码返回的结果
      *
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
+             *
+    @param
+    requestCode
+     *
+    @param
+    resultCode
+     *
+    @param
+    data*/
+
+
     @Override
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
             String result = data.getStringExtra("result");

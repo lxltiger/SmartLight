@@ -6,7 +6,7 @@ import com.example.ledwisdom1.home.entity.Group;
 /**
  * 首页场景列表点击事件处理
  */
-public interface OnHandleSceneListener {
+public interface OnHandleGroupListener {
 
 
     void onItemClick(Group scene);

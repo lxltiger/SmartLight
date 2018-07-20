@@ -1,11 +1,11 @@
 
+
 package com.example.ledwisdom1.scene;
 
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
-import android.databinding.ObservableBoolean;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -48,6 +48,7 @@ import java.util.List;
 import static com.example.ledwisdom1.utils.ToastUtil.showToast;
 
 
+
 /**
  * A simple {@link Fragment} subclass.
  * 添加场景页面
@@ -59,6 +60,7 @@ import static com.example.ledwisdom1.utils.ToastUtil.showToast;
  * 图片可以为空 但请求接口不同
  */
 
+
 public class AddGroupFragment extends Fragment implements CallBack, ProduceAvatarFragment.Listener {
 
     public static final String TAG = AddGroupFragment.class.getSimpleName();
@@ -67,8 +69,8 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
     private LayoutSelectLampBinding selectLampBinding;
     private LampAdapter mLampAdapter;
     private CommonItemAdapter commonItemAdapter;
-    private GroupRequest groupRequest;
-    private SceneViewModel viewModel;
+    private GroupSceneRequest groupRequest =new GroupSceneRequest(true);;
+    private GroupSceneViewModel viewModel;
 
     public static AddGroupFragment newInstance() {
         Bundle args = new Bundle();
@@ -90,7 +92,6 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        groupRequest = new GroupRequest();
         populateViewPager();
 
     }
@@ -134,7 +135,7 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        viewModel = ViewModelProviders.of(getActivity()).get(SceneViewModel.class);
+        viewModel = ViewModelProviders.of(getActivity()).get(GroupSceneViewModel.class);
         viewModel.lampListRequest.setValue(1);
         subscribeUI(viewModel);
     }
@@ -142,14 +143,16 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
     private int groupId = -1;
     List<Lamp> lampsSelected;
 
-    private void subscribeUI(SceneViewModel viewModel) {
+    private void subscribeUI(GroupSceneViewModel viewModel) {
 //        如果是修改 会受到场景详情
-        /*viewModel.groupDetailObserver.observe(this, new Observer<ApiResponse<Group>>() {
+
+/*viewModel.groupDetailObserver.observe(this, new Observer<ApiResponse<Group>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<Group> groupApiResponse) {
 
             }
         });*/
+
         viewModel.group.observe(this, new Observer<Group>() {
             @Override
             public void onChanged(@Nullable Group group) {
@@ -210,11 +213,11 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
             }
         });
 
-        viewModel.addGroupObserver.observe(this, new Observer<ApiResponse<AddGroupResult>>() {
+        viewModel.addGroupObserver.observe(this, new Observer<ApiResponse<AddGroupSceneResult>>() {
             @Override
-            public void onChanged(@Nullable ApiResponse<AddGroupResult> apiResponse) {
-                if (apiResponse.isSuccessful()) {
-                    AddGroupResult body = apiResponse.body;
+            public void onChanged(@Nullable ApiResponse<AddGroupSceneResult> apiResponse) {
+                if (apiResponse!=null&&apiResponse.isSuccessful()) {
+                    AddGroupSceneResult body = apiResponse.body;
                     if (body.succeed()) {
                         String id = body.id;
                         groupId = body.groupId;
@@ -242,9 +245,9 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
             }
         });
 
-        viewModel.updateGroupObserver.observe(this, new Observer<ApiResponse<AddGroupResult>>() {
+        viewModel.updateGroupObserver.observe(this, new Observer<ApiResponse<AddGroupSceneResult>>() {
             @Override
-            public void onChanged(@Nullable ApiResponse<AddGroupResult> apiResponse) {
+            public void onChanged(@Nullable ApiResponse<AddGroupSceneResult> apiResponse) {
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     showToast(apiResponse.body.resultMsg);
                     getActivity().finish();
@@ -307,13 +310,15 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
     };
 
 
-    /**
+
+/**
      * 添加灯具到场景
      *
      * @param groupAddress
      * @param dstAddress
      * @param add
      */
+
 
     private void allocDeviceGroup(int groupAddress, int dstAddress, boolean add) {
 
@@ -339,9 +344,9 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
                     getActivity().finish();
                 }
                 break;
-            case R.id.ok:
-                setLampsNum();
-                break;
+//            case R.id.ok:
+//                setLampsNum();
+//                break;
 //                创建场景
             case R.id.confirm:
 //                不为空说明是修改
@@ -353,7 +358,7 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
                 }
                 break;
             case R.id.delete:
-                viewModel.deleteGroup();
+                viewModel.deleteGroup(true);
                 break;
         }
 
@@ -421,4 +426,5 @@ public class AddGroupFragment extends Fragment implements CallBack, ProduceAvata
 
     }
 }
+
 

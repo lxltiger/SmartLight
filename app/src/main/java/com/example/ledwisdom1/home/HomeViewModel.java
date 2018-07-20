@@ -61,7 +61,6 @@ public class HomeViewModel extends AndroidViewModel {
     public final LiveData<ApiResponse<GroupList>> groupListObserver;
 
 
-
     public HomeViewModel(@NonNull Application application) {
         super(application);
         repository = HomeRepository.INSTANCE(application);
@@ -94,6 +93,8 @@ public class HomeViewModel extends AndroidViewModel {
                 return repository.deleteDevice(input);
             }
         });
+
+
     }
 
 

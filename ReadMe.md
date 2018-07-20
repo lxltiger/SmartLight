@@ -9,7 +9,7 @@
   短连接，使用Retrofit、OKHTTP库
   长连接，使用MQTT库  
   
-  使用Retrofit，如果参数为null，内部处理掩盖了异常，什么请求都不会发生，此时需要检查参数是否为空
+  使用Retrofit，如果请求参数含null，内部处理掩盖了异常，什么请求都不会发生，此时需要检查参数是否为空
 
 3.Hub状态
  未初始化的网关显示红灯
@@ -28,6 +28,67 @@
            
 6.灯具的初始化，手动设置：拔掉插停1秒，重复三次，然后拔掉插停5秒二次
 
- 问题集：
-CardView在5.0前后版本设置app:cardElevation会导致边距不一致，添加app:cardUseCompatPadding="true"
+7.RecyclerView中的item可视化
 
+    tools:layoutManager="GridLayoutManager"
+    tools:listitem="@layout/item_scene"
+    tools:spanCount="2"
+
+8.CardView在5.0前后版本设置app:cardElevation会导致边距不一致，添加app:cardUseCompatPadding="true"
+
+        app:cardCornerRadius="8dp"  圆角
+        app:cardElevation="6dp"   阴影
+        app:cardUseCompatPadding="true"  阴影兼容
+        app:cardPreventCornerOverlap="false" 圆角兼容 否则有padding 露出cardBackground
+        
+9正方形图片 
+
+    <ImageView
+      android:id="@+id/scene_icon"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:onClick="@{()->handler.onItemClick(scene)}"
+      android:scaleType="centerCrop"
+      app:imageUrl="@{scene.icon}"
+      app:type="@{ImageTransformationType.ROUND}"
+      app:layout_constraintDimensionRatio="w,1:1"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:background="@mipmap/ic_launcher"
+      />
+   10 带阴影和圆角的正方形图片（L以下无圆角）
+      
+    <android.support.v7.widget.CardView
+            android:id="@+id/card"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:onClick="@{()->handler.onItemClick(scene)}"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="6dp"
+            app:cardUseCompatPadding="true"
+            app:cardPreventCornerOverlap="false"
+            app:layout_constraintDimensionRatio="w,1:1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:imageUrl="@{scene.icon}"
+                tools:background="@mipmap/ic_launcher" />
+
+            <ImageView
+                android:id="@+id/edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_setting"
+                android:onClick="@{()->handler.onEditClick(scene)}"
+                android:layout_gravity="end|top"
+                android:layout_margin="10dp"
+                />
+        </android.support.v7.widget.CardView>

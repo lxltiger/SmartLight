@@ -38,9 +38,9 @@ public interface Url {
     String DELETE_LAMP_GATEWAY = "gateway/deleteLampGateway";//1.9.	网关删除接口
 
     /**场景接口*/
-    String CREATE_GROUP= "group/createGroup";//新建场景
+    String CREATE_GROUP= "group/isGroup";//新建场景
     String DEL_GROUP = "group/deleteGroup";//删除场景
-    String UPDATE_GROUP = "group/updateGroup";//修改场景
+    String UPDATE_GROUP = "group/updateGroupScene";//修改场景
     String GET_GROUP_BY_ID = "group/getGroupById";//根据id查询场景
     String GET_GROUPS_BY_USERID_OR_MESHID = "group/getGroupsByUserIdOrMesh";//根据用户id查询场景
     String GET_DEVICES_BY_GROUP_ID = "group/getDevicesByGroupId";//根据场景id查询灯

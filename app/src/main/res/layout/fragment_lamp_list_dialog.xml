@@ -1,71 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="handler"
             type="com.example.ledwisdom1.CallBack" />
+
     </data>
 
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginBottom="8dp">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay">
-
-            <ImageView
-                android:id="@+id/iv_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/icon_back"
-                android:onClick="@{handler::handleClick}" />
 
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="情景"
+                android:text="请选择"
                 android:textColor="@android:color/white"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                tools:text="demo" />
 
             <ImageView
-                android:id="@+id/btn_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/btn_add"
+                android:background="@drawable/icon_ok"
                 android:onClick="@{handler::handleClick}" />
         </android.support.v7.widget.Toolbar>
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/scenes"
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
-            tools:layoutManager="GridLayoutManager"
-            tools:listitem="@layout/item_scene"
-            tools:spanCount="2"
-            />
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/list_item_spacing_half"
+            android:paddingTop="@dimen/list_item_spacing_half"
+            tools:context=".scene.LampListDialogFragment"
+            tools:listitem="@layout/item_lamp" />
 
-
-    </android.support.constraint.ConstraintLayout>
+    </LinearLayout>
 
 
 </layout>
-

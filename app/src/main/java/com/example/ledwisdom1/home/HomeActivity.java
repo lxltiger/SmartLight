@@ -27,6 +27,7 @@ import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.NavigatorController;
+import com.example.ledwisdom1.utils.ToastUtil;
 import com.telink.bluetooth.LeBluetooth;
 import com.telink.bluetooth.event.DeviceEvent;
 import com.telink.bluetooth.event.MeshEvent;
@@ -44,6 +45,7 @@ import java.io.IOException;
 
 /**
  * 主页含4个UI
+ * fixme 蓝牙连接bug；添加灯具后断开了连接，必须选择mesh来激活
  */
 public class HomeActivity extends AppCompatActivity
         implements RadioGroup.OnCheckedChangeListener, EventListener<String> {
@@ -111,7 +113,6 @@ public class HomeActivity extends AppCompatActivity
             }
         });
     }
-
 
 
     private void addBlueToothStatusReceiver() {
@@ -248,8 +249,7 @@ public class HomeActivity extends AppCompatActivity
                 break;
             case MeshEvent.ERROR:
 //               onMeshError((MeshEvent) event);
-                Toast.makeText(this, "蓝牙出了问题 重启试试", Toast.LENGTH_SHORT).show();
-
+                ToastUtil.showToast("蓝牙出了问题 重启试试");
                 break;
             case ServiceEvent.SERVICE_CONNECTED:
                 autoConnect();
@@ -295,7 +295,12 @@ public class HomeActivity extends AppCompatActivity
 
     private void onDeviceStatusChanged(DeviceEvent event) {
         DeviceInfo deviceInfo = event.getArgs();
-        String meshName = deviceInfo.meshName;
+        String meshName;
+        if (mesh != null) {
+            meshName = mesh.aijiaName;
+        } else {
+            meshName = deviceInfo.meshName;
+        }
         switch (deviceInfo.status) {
             case LightAdapter.STATUS_LOGIN:
                 Log.d(TAG, "connecting success");

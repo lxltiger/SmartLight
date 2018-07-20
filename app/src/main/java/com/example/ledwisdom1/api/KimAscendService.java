@@ -10,8 +10,9 @@ import com.example.ledwisdom1.mesh.AddMeshResult;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.mesh.MeshList;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.scene.AddGroupResult;
+import com.example.ledwisdom1.scene.AddGroupSceneResult;
 import com.example.ledwisdom1.scene.GroupDevice;
+import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.user.Profile;
 
 import java.util.Map;
@@ -109,15 +110,15 @@ public interface KimAscendService {
     LiveData<ApiResponse<GroupList>> groupList(@Body RequestBody request);
 
     @Multipart
-    @POST("group/createGroup")
-    LiveData<ApiResponse<AddGroupResult>> createGroup(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
+    @POST("group/isGroup")
+    LiveData<ApiResponse<AddGroupSceneResult>> createGroup(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
 
     @Multipart
-    @POST("group/updateGroup")
-    LiveData<ApiResponse<AddGroupResult>> updateGroup(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
+    @POST("group/updateGroupScene")
+    LiveData<ApiResponse<AddGroupSceneResult>> updateGroup(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
 
-    @POST("group/updateGroup")
-    LiveData<ApiResponse<AddGroupResult>> updateGroup(@QueryMap Map<String, String> map);
+    @POST("group/updateGroupScene")
+    LiveData<ApiResponse<AddGroupSceneResult>> updateGroup(@QueryMap Map<String, String> map);
 
     /*删除场景*/
     @POST("group/deleteGroup")
@@ -136,22 +137,27 @@ public interface KimAscendService {
     LiveData<ApiResponse<GroupDevice>> getDevicesByGroupId(@Body RequestBody request);
 
     @POST("scene/getSceneList")
-    LiveData<Response<Profile>> getSceneList(@Body RequestBody request);
+    LiveData<ApiResponse<SceneList>> getSceneList(@Body RequestBody request);
 
+    @Multipart
     @POST("scene/createScene")
-    LiveData<Response<Profile>> createScene(@Body RequestBody request);
+    LiveData<ApiResponse<AddGroupSceneResult>> createScene(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
+
+    @Multipart
+    @POST("scene/updateScene")
+    LiveData<ApiResponse<AddGroupSceneResult>> updateScene(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
 
     @POST("scene/updateScene")
-    LiveData<Response<Profile>> updateScene(@Body RequestBody request);
+    LiveData<ApiResponse<AddGroupSceneResult>> updateScene(@QueryMap Map<String, String> map);
 
     @POST("scene/deleteScene")
-    LiveData<Response<Profile>> deleteScene(@Body RequestBody request);
+    LiveData<ApiResponse<RequestResult>> deleteScene(@Body RequestBody request);
 
     @POST("scene/addDeviceToScene")
-    LiveData<Response<Profile>> addDeviceToScene(@Body RequestBody request);
+    LiveData<ApiResponse<RequestResult>> addDeviceToScene(@Body RequestBody request);
 
     @POST("scene/getDevicesBySceneId")
-    LiveData<Response<Profile>> getDevicesBySceneId(@Body RequestBody request);
+    LiveData<ApiResponse<GroupDevice>> getDevicesBySceneId(@Body RequestBody request);
 
     @POST("clock/getClockList")
     LiveData<Response<Profile>> getClockList(@Body RequestBody request);

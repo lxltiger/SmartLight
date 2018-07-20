@@ -86,7 +86,7 @@
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
-        <activity android:name=".scene.SceneActivity" />
+        <activity android:name=".scene.GroupSceneActivity" android:launchMode="singleTop" />
         <activity android:name=".user.UserActivity"/>
         <activity android:name=".device.DeviceActivity"/>
         <provider

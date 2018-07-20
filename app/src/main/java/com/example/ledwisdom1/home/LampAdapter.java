@@ -83,6 +83,15 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
         return deviceIds;
     }
 
+    public List<String> getIds() {
+        List<String> deviceIds=new ArrayList<>();
+        for (Lamp lamp : mLampList) {
+                deviceIds.add(lamp.getId());
+        }
+
+        return deviceIds;
+    }
+
 
 
     public void removeLamp(Lamp lamp) {
@@ -119,6 +128,8 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemLampBinding binding= DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_lamp, parent, false);
+        //条目多选的时候不显示menu
+        if(showSelectIcon) binding.swipeMenu.setSwipeEnable(false);
         binding.setHandler(mOnHandleLampListener);
         return new ViewHolder(binding);
     }
@@ -126,7 +137,7 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Lamp lamp = mLampList.get(position);
-        lamp.setDescription(String.format("%s\n%s",lamp.getName(),lamp.getGateway_id()));
+        lamp.setDescription(String.format("%s\n%s",lamp.getName(),lamp.getMac()));
         holder.mBinding.setLamp(lamp);
         holder.mBinding.executePendingBindings();
 

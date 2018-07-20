@@ -15,6 +15,8 @@ import com.example.ledwisdom1.home.HomeFragment;
 import com.example.ledwisdom1.home.MoreFragment;
 import com.example.ledwisdom1.mesh.MeshFragment;
 import com.example.ledwisdom1.scene.AddGroupFragment;
+import com.example.ledwisdom1.scene.AddSceneFragment;
+import com.example.ledwisdom1.scene.SceneFragment;
 import com.example.ledwisdom1.user.AboutUSFragment;
 import com.example.ledwisdom1.user.FeedBackFragment;
 import com.example.ledwisdom1.user.SettingFragment;
@@ -101,9 +103,21 @@ public class NavigatorController {
                 .commitAllowingStateLoss();
     }
 
+    public void navigateToScene() {
+        fm.beginTransaction()
+                .replace(container, SceneFragment.newInstance(), SceneFragment.TAG)
+                .commitAllowingStateLoss();
+    }
+
     public void navigateToAddGroup() {
         fm.beginTransaction()
                 .replace(container, AddGroupFragment.newInstance(), AddGroupFragment.TAG)
+                .commitAllowingStateLoss();
+    }
+
+    public void navigateToAddScene() {
+        fm.beginTransaction()
+                .replace(container, AddSceneFragment.newInstance(), AddSceneFragment.TAG)
                 .commitAllowingStateLoss();
     }
 

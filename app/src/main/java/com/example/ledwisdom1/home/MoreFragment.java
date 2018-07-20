@@ -28,6 +28,7 @@ import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.databinding.FragmentMoreBinding;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.mesh.ReportMesh;
+import com.example.ledwisdom1.scene.GroupSceneActivity;
 import com.example.ledwisdom1.user.UserActivity;
 import com.example.ledwisdom1.utils.AutoClearValue;
 import com.example.ledwisdom1.utils.ImageUtil;
@@ -94,6 +95,7 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
                 show();
                 break;
             case R.id.btn_scene:
+                GroupSceneActivity.start(getActivity(), GroupSceneActivity.ACTION_SCENE);
                 break;
             case R.id.btn_clock:
                 break;

@@ -2,7 +2,7 @@ package com.example.ledwisdom1.utils;
 
 import com.example.ledwisdom1.device.entity.AddHubRequest;
 import com.example.ledwisdom1.model.CommonRequest;
-import com.example.ledwisdom1.scene.GroupRequest;
+import com.example.ledwisdom1.scene.GroupSceneRequest;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -83,31 +83,47 @@ public class RequestCreator {
      *
      * @return
      */
+    @Deprecated
     public static RequestBody requestAddLampToGroup(String groupId, String deviceIds) {
-        GroupRequest addDeviceToGroup = new GroupRequest(groupId, deviceIds);
+        GroupSceneRequest addDeviceToGroup = new GroupSceneRequest(groupId, null,deviceIds);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(addDeviceToGroup));
     }
 
+    public static RequestBody requestAddLampToGroupScene(GroupSceneRequest request) {
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
+    }
+
+
     /*删除场景*/
     public static RequestBody requestDeleteGroup(String groupId) {
-        GroupRequest request = new GroupRequest(groupId, null);
+        GroupSceneRequest request = new GroupSceneRequest(groupId, null);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
+    }
+
+    public static RequestBody requestDeleteScene(String sceneId) {
+        GroupSceneRequest request = new GroupSceneRequest( null,sceneId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
     /*删除场景下的设备*/
     public static RequestBody requestDeleteDeviceInGroup(String groupId, String deviceIds) {
-        GroupRequest request = new GroupRequest(groupId, deviceIds);
+        GroupSceneRequest request = new GroupSceneRequest(groupId, null,deviceIds);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
     /*获取场景详情*/
     public static RequestBody requestGroupDetail(String groupId) {
-        GroupRequest groupRequest = new GroupRequest(groupId, null);
+        GroupSceneRequest groupRequest = new GroupSceneRequest(groupId, null);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
     }
     /*获取场景下的设备*/
     public static RequestBody requestGroupDevices(String groupId) {
-        GroupRequest groupRequest = new GroupRequest(groupId, null);
+        GroupSceneRequest groupRequest = new GroupSceneRequest(groupId, null);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
+    }
+    /*获取情景景下的设备*/
+    public static RequestBody requestSceneDevices(String sceneId) {
+        GroupSceneRequest groupRequest = new GroupSceneRequest(null,sceneId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
     }
 

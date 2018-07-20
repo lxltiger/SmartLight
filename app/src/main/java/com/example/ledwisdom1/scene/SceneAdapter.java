@@ -1,4 +1,4 @@
-package com.example.ledwisdom1.home;
+package com.example.ledwisdom1.scene;
 
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
@@ -7,25 +7,25 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.databinding.ItemGroupBinding;
+import com.example.ledwisdom1.databinding.ItemSceneBinding;
 import com.example.ledwisdom1.home.entity.Group;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 首页场景列表适配器
+ * 情景列表适配器
  */
-public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
+public class SceneAdapter extends RecyclerView.Adapter<SceneAdapter.ViewHolder> {
 
-    private List<Group> groupList;
+    private List<Scene> sceneList;
 
-    private final OnHandleGroupListener mHandleSceneListener;
+    private final OnHandleSceneListener mHandleSceneListener;
 
 
-    public GroupAdapter(OnHandleGroupListener handleSceneListener) {
+    public SceneAdapter(OnHandleSceneListener handleSceneListener) {
         mHandleSceneListener = handleSceneListener;
-        groupList = new ArrayList<>();
+        sceneList = new ArrayList<>();
     }
 
     /**
@@ -33,16 +33,16 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
      *
      * @param scenes
      */
-    public void addScenes(List<Group> scenes) {
-        groupList.clear();
-        groupList.addAll(scenes);
+    public void addScenes(List<Scene> scenes) {
+        sceneList.clear();
+        sceneList.addAll(scenes);
         notifyDataSetChanged();
     }
 
 
 
     public void removeScene(Group scene) {
-        groupList.remove(scene);
+        sceneList.remove(scene);
         notifyDataSetChanged();
     }
 
@@ -50,22 +50,22 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemGroupBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_group, parent, false);
+        ItemSceneBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_scene, parent, false);
         binding.setHandler(mHandleSceneListener);
         return new ViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Group scene = groupList.get(position);
-        holder.mBinding.setGroup(scene);
+        Scene scene = sceneList.get(position);
+        holder.mBinding.setScene(scene);
         holder.mBinding.executePendingBindings();
 
     }
 
     @Override
     public int getItemCount() {
-        return groupList == null ? 0 : groupList.size();
+        return sceneList == null ? 0 : sceneList.size();
     }
 
 
@@ -73,9 +73,9 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private final ItemGroupBinding mBinding;
+        private final ItemSceneBinding mBinding;
 
-        public ViewHolder(ItemGroupBinding binding) {
+        public ViewHolder(ItemSceneBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
         }

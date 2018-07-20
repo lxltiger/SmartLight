@@ -35,7 +35,6 @@ public class Lamp implements Parcelable {
     private int brightness;
     private int color;
     private int temperature;
-    private boolean isSelected=false;
     @Ignore
     public ObservableInt lampStatus = new ObservableInt(BindingAdapters.LIGHT_OFF);
 
@@ -49,14 +48,8 @@ public class Lamp implements Parcelable {
     }
 
     public boolean isSelected() {
-        return isSelected;
+        return BindingAdapters.LIGHT_SELECTED==lampStatus.get();
     }
-
-    public void setSelected(boolean selected) {
-        isSelected = selected;
-    }
-
-
 
     public String getDescription() {
         return description;
@@ -143,6 +136,8 @@ public class Lamp implements Parcelable {
         this.productUuid = productUuid;
     }
 
+
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.id);
@@ -202,7 +197,6 @@ public class Lamp implements Parcelable {
                 ", brightness=" + brightness +
                 ", color=" + color +
                 ", temperature=" + temperature +
-                ", isSelected=" + isSelected +
                 ", lampStatus=" + lampStatus +
                 '}';
     }

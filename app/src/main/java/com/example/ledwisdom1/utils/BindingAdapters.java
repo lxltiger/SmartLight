@@ -1,5 +1,6 @@
 package com.example.ledwisdom1.utils;
 
+import android.content.Context;
 import android.databinding.BindingAdapter;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -10,6 +11,9 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.view.CircleTransform;
+import com.example.ledwisdom1.view.RoundTransform;
+import com.example.ledwisdom1.view.ImageTransformationType;
 
 /**
  * xml中不要出现复杂的表达式
@@ -119,33 +123,40 @@ public class BindingAdapters {
         }
     }
 
-    @BindingAdapter("imageUrl")
-    public static void loadImageUrl(ImageView view, String url) {
-      /*  if ("add".equals(url)) {
-           view.setImageResource(R.drawable.scene_pic_add);
-        }else{
-            Glide.with(view.getContext()).load(url).into(view);
-        }*/
+    @BindingAdapter(value = {"imageUrl", "type"}, requireAll = false)
+    public static void loadImageUrl(ImageView view, String url, ImageTransformationType type) {
         if (!TextUtils.isEmpty(url)) {
-            Glide.with(view.getContext()).load(Config.IMG_PREFIX.concat(url)).into(view);
+            Context context = view.getContext();
+            if (type == null) {type = ImageTransformationType.NONE;}
+            switch (type) {
+                case ROUND:
+                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new RoundTransform(context,2)).crossFade(1000).into(view);
+                    break;
+                case CIRCLE:
+                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new CircleTransform(context)).into(view);
+                    break;
+                case NONE:
+                default:
+                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).crossFade(1000).into(view);
+                    break;
+            }
         }
 
     }
 
 
     /*加载条目的图片，先显示默认图片 等拍照再设置剪裁后的图片
-    *  注意：参数的顺序要和value中的一致
-    * */
-    @BindingAdapter(value = {"dynamicImage","resId"},requireAll = false)
-    public static void loadDynamicImage(ImageView view,String dynamicImage, int resId) {
-        if(!TextUtils.isEmpty(dynamicImage)){
+     *  注意：参数的顺序要和value中的一致
+     * */
+    @BindingAdapter(value = {"dynamicImage", "resId"}, requireAll = false)
+    public static void loadDynamicImage(ImageView view, String dynamicImage, int resId) {
+        if (!TextUtils.isEmpty(dynamicImage)) {
             Glide.with(view.getContext()).load(dynamicImage).into(view);
-        }else if(resId!=-1){
+        } else if (resId != -1) {
             view.setImageResource(resId);
         }
 
     }
-
 
 
     @BindingAdapter("visibleGone")

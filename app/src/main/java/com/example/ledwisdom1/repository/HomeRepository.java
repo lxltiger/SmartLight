@@ -30,9 +30,10 @@ import com.example.ledwisdom1.mesh.Mesh;
 import com.example.ledwisdom1.mesh.MeshList;
 import com.example.ledwisdom1.mesh.ReportMesh;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.scene.AddGroupResult;
+import com.example.ledwisdom1.scene.AddGroupSceneResult;
 import com.example.ledwisdom1.scene.GroupDevice;
-import com.example.ledwisdom1.scene.GroupRequest;
+import com.example.ledwisdom1.scene.GroupSceneRequest;
+import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.RequestCreator;
 
@@ -127,36 +128,45 @@ public class HomeRepository {
 
     }
 
-//   创建场景
-    public LiveData<ApiResponse<AddGroupResult>> createGroup(GroupRequest addGroup) {
+
+    /**
+     *
+     * @param request  创建场景或情景的参数
+     * @return
+     */
+    public LiveData<ApiResponse<AddGroupSceneResult>> createGroup(GroupSceneRequest request) {
         String id = defaultMeshObserver.getValue().id;
         ArrayMap<String, String> map = new ArrayMap<>();
-        map.put("name", addGroup.name);
+        map.put("name", request.name);
         map.put("meshId", id);
-        RequestBody requestFile = RequestBody.create(RequestCreator.MEDIATYPE, addGroup.pic);
+        RequestBody requestFile = RequestBody.create(RequestCreator.MEDIATYPE, request.pic);
         // MultipartBody.Part用来发送真实的文件名
         MultipartBody.Part icon =
-                MultipartBody.Part.createFormData("pic", addGroup.pic.getName(), requestFile);
-        return kimService.createGroup(icon, map);
+                MultipartBody.Part.createFormData("pic", request.pic.getName(), requestFile);
+        return request.isGroup ?kimService.createGroup(icon, map):kimService.createScene(icon,map);
 
     }
 
-//    更新场景
-    public LiveData<ApiResponse<AddGroupResult>> updateGroup(GroupRequest addGroup) {
+
+//    更新场景 情景
+    public LiveData<ApiResponse<AddGroupSceneResult>> updateGroupScene(GroupSceneRequest addGroup) {
         String id = defaultMeshObserver.getValue().id;
+        boolean isGroup=addGroup.isGroup;
         ArrayMap<String, String> map = new ArrayMap<>();
         map.put("name", addGroup.name);
-        map.put("groupId", addGroup.groupId);
+        map.put(isGroup?"groupId":"sceneId", isGroup?addGroup.groupId:addGroup.sceneId);
         map.put("meshId", id);
         if (null != addGroup.pic) {
             RequestBody requestFile = RequestBody.create(RequestCreator.MEDIATYPE, addGroup.pic);
             MultipartBody.Part icon =MultipartBody.Part.createFormData("pic", addGroup.pic.getName(), requestFile);
-            return kimService.updateGroup(icon, map);
+            return isGroup?kimService.updateGroup(icon, map):kimService.updateScene(icon,map);
         }else{
-            return kimService.updateGroup(map);
+            return isGroup?kimService.updateGroup(map):kimService.updateScene(map);
         }
-
     }
+
+
+
 
     /*获取场景详情*/
     public LiveData<ApiResponse<Group>> getGroupDetail(String groupId) {
@@ -169,16 +179,37 @@ public class HomeRepository {
         return kimService.getDevicesByGroupId(requestBody);
     }
 
+    /*获取情景景下的设备*/
+    public LiveData<ApiResponse<GroupDevice>> getDevicesInScene(String sceneId) {
+        RequestBody requestBody = RequestCreator.requestSceneDevices(sceneId);
+        return kimService.getDevicesBySceneId(requestBody);
+    }
+
     public LiveData<ApiResponse<RequestResult>> deleteGroup(String groupId) {
         RequestBody requestBody = RequestCreator.requestDeleteGroup(groupId);
         return kimService.deleteGroup(requestBody);
     }
 
+    public LiveData<ApiResponse<RequestResult>> deleteScene(String sceneId) {
+        RequestBody requestBody = RequestCreator.requestDeleteScene(sceneId);
+        return kimService.deleteScene(requestBody);
+    }
 
+
+    @Deprecated
     public LiveData<ApiResponse<RequestResult>> addDeviceToGroup(Pair<String, String> pair) {
         RequestBody requestBody = RequestCreator.requestAddLampToGroup(pair.first, pair.second);
         return kimService.addDeviceToGroup(requestBody);
     }
+
+
+    public LiveData<ApiResponse<RequestResult>> addDeviceToGroupScene(GroupSceneRequest request) {
+        RequestBody requestBody = RequestCreator.requestAddLampToGroupScene(request);
+        return request.isGroup ?kimService.addDeviceToGroup(requestBody):kimService.addDeviceToScene(requestBody);
+    }
+
+
+
 
     /**
      * 添加蓝牙网络 成功后返回蓝牙列表
@@ -327,6 +358,15 @@ public class HomeRepository {
         RequestBody requestBody = RequestCreator.requestHubList(meshId, pageNo);
         return kimService.groupList(requestBody);
     }
+
+
+    public LiveData<ApiResponse<SceneList>> getSceneList(int pageNo) {
+        String meshId = profileObserver.getValue().meshId;
+        RequestBody requestBody = RequestCreator.requestHubList(meshId, pageNo);
+        return kimService.getSceneList(requestBody);
+    }
+
+
 
     public LiveData<ApiResponse<RequestResult>> reportDevice(RequestBody requestBody) {
         return kimService.reportDevice(requestBody);
