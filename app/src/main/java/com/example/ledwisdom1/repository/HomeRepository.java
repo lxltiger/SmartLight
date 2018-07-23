@@ -20,6 +20,7 @@ import com.example.ledwisdom1.app.SmartLightApp;
 import com.example.ledwisdom1.database.SmartLightDataBase;
 import com.example.ledwisdom1.database.UserDao;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
+import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.device.entity.LampList;
 import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.home.entity.GroupList;
@@ -174,9 +175,22 @@ public class HomeRepository {
         return kimService.getGroupById(requestBody);
     }
 
-    public LiveData<ApiResponse<GroupDevice>> getDevicesInGroup(String groupId) {
-        RequestBody requestBody = RequestCreator.requestGroupDevices(groupId);
-        return kimService.getDevicesByGroupId(requestBody);
+    public LiveData<List<Lamp>> getDevicesInGroup(boolean group,String id) {
+        MediatorLiveData<List<Lamp>> lamps=new MediatorLiveData<>();
+        RequestBody requestBody =group? RequestCreator.requestGroupDevices(id):RequestCreator.requestSceneDevices(id);
+        LiveData<ApiResponse<GroupDevice>> devicesByGroupId =group? kimService.getDevicesByGroupId(requestBody): kimService.getDevicesBySceneId(requestBody);
+        lamps.addSource(devicesByGroupId, new Observer<ApiResponse<GroupDevice>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<GroupDevice> apiResponse) {
+                lamps.removeSource(devicesByGroupId);
+                if (apiResponse!=null&&apiResponse.isSuccessful()) {
+                    GroupDevice body = apiResponse.body;
+                    List<Lamp> list = body.getList();
+                    lamps.setValue(list);
+                }
+            }
+        });
+        return lamps;
     }
 
     /*获取情景景下的设备*/

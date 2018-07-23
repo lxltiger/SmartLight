@@ -95,7 +95,7 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
                 show();
                 break;
             case R.id.btn_scene:
-                GroupSceneActivity.start(getActivity(), GroupSceneActivity.ACTION_SCENE);
+                GroupSceneActivity.start(getActivity(), GroupSceneActivity.ACTION_SCENE_LIST);
                 break;
             case R.id.btn_clock:
                 break;

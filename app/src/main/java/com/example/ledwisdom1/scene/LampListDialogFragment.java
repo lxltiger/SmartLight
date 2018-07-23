@@ -2,7 +2,6 @@ package com.example.ledwisdom1.scene;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -26,9 +25,8 @@ import com.example.ledwisdom1.utils.BindingAdapters;
 import java.util.List;
 
 /**
- * 灯具列表的对话框形式 从页面底部弹出
+ * 灯具列表，可以作为对话框 从页面底部弹出，目前作为fragment
  */
-@Deprecated
 public class LampListDialogFragment extends BottomSheetDialogFragment implements CallBack {
     public static final String TAG = LampListDialogFragment.class.getSimpleName();
     private GroupSceneViewModel viewModel;
@@ -54,7 +52,7 @@ public class LampListDialogFragment extends BottomSheetDialogFragment implements
         //显示是否选中图片
         lampAdapter.setShowSelectIcon(true);
         lampListDialogBinding.recyclerView.setAdapter(lampAdapter);
-        binding=new AutoClearValue<>(this,lampListDialogBinding);
+        binding = new AutoClearValue<>(this, lampListDialogBinding);
         return lampListDialogBinding.getRoot();
     }
 
@@ -78,20 +76,15 @@ public class LampListDialogFragment extends BottomSheetDialogFragment implements
             }
         });
 
-        //        情景已选中灯具
-        viewModel.sceneDevicesObserver.observe(this, new Observer<ApiResponse<GroupDevice>>() {
+        //场景或情景已有灯具 标记出来
+        viewModel.groupDevicesObserver.observe(this, new Observer<List<Lamp>>() {
             @Override
-            public void onChanged(@Nullable ApiResponse<GroupDevice> apiResponse) {
-                if (apiResponse != null) {
-                    if (apiResponse.isSuccessful()) {
-                        GroupDevice groupDevice = apiResponse.body;
-                        List<Lamp> lampsSelected = groupDevice.getList();
-                        // 假设灯具已经加载
-                        List<Lamp> lampList = lampAdapter.getLampList();
-                        for (Lamp lamp : lampList) {
-                            if (lampsSelected.contains(lamp)) {
-                                lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
-                            }
+            public void onChanged(@Nullable List<Lamp> selectedLamps) {
+                if (selectedLamps != null) {
+                    List<Lamp> lampList = lampAdapter.getLampList();
+                    for (Lamp lamp : lampList) {
+                        if (selectedLamps.contains(lamp)) {
+                            lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
                         }
                     }
                 }
@@ -124,28 +117,27 @@ public class LampListDialogFragment extends BottomSheetDialogFragment implements
         }
     };
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-       /*  final Fragment parent = getParentFragment();
-       if (parent != null) {
-            mListener = (Listener) parent;
-        } else {
-            mListener = (Listener) context;
-        }*/
-    }
+
 
     @Override
-    public void onDetach() {
-//        mListener = null;
-        super.onDetach();
-    }
+    public void handleClick(View v) {
 
-    @Override
-    public void handleClick(View view) {
-//        将操作后的数据集设置到viewmodel中，与初始数据相比仅修改了是否选中状态
-//        viewModel.groupSceneLamps.setValue(lampAdapter.getLampList());
-        dismiss();
+        switch (v.getId()) {
+            case R.id.iv_cancel:
+                getActivity().onBackPressed();
+                break;
+            case R.id.iv_select:
+                viewModel.groupSceneLamps.clear();
+                viewModel.groupSceneLamps.addAll(lampAdapter.getLampList());
+                //更新已选择灯具页面
+                if (!viewModel.MODE_ADD) {
+                    List<Lamp> selectedLamps = lampAdapter.getSelectedLamps();
+                    viewModel.groupDevicesObserver.setValue(selectedLamps);
+                }
+                getActivity().onBackPressed();
+                break;
+
+        }
     }
 
 

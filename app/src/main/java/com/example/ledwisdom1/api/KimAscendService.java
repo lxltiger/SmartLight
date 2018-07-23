@@ -110,14 +110,14 @@ public interface KimAscendService {
     LiveData<ApiResponse<GroupList>> groupList(@Body RequestBody request);
 
     @Multipart
-    @POST("group/isGroup")
+    @POST("group/createGroup")
     LiveData<ApiResponse<AddGroupSceneResult>> createGroup(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
 
     @Multipart
-    @POST("group/updateGroupScene")
+    @POST("group/updateGroup")
     LiveData<ApiResponse<AddGroupSceneResult>> updateGroup(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
 
-    @POST("group/updateGroupScene")
+    @POST("group/updateGroup")
     LiveData<ApiResponse<AddGroupSceneResult>> updateGroup(@QueryMap Map<String, String> map);
 
     /*删除场景*/

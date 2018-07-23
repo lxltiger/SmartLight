@@ -1,9 +1,8 @@
-package com.example.ledwisdom1.home;
+package com.example.ledwisdom1.scene;
 
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,32 +16,29 @@ import android.view.ViewGroup;
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.api.ApiResponse;
-import com.example.ledwisdom1.databinding.FragmentGroupBinding;
-import com.example.ledwisdom1.home.entity.Group;
-import com.example.ledwisdom1.home.entity.GroupList;
-import com.example.ledwisdom1.scene.GroupSceneActivity;
+import com.example.ledwisdom1.databinding.FragmentSceneListBinding;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 
 import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
- * 场景页面
+ *
+ * 情景列表页面
+ * 情景不仅能控制多个灯具 还能控制多个场景
  */
-public class GroupFragment extends Fragment implements CallBack{
-    public static final String TAG = GroupFragment.class.getSimpleName();
-    private FragmentGroupBinding mBinding;
-    private GroupAdapter groupAdapter;
-    private HomeViewModel viewModel;
+public class SceneListFragment extends Fragment implements CallBack{
+    public static final String TAG = SceneListFragment.class.getSimpleName();
+    private SceneAdapter sceneAdapter;
+    private GroupSceneViewModel viewModel;
 
 
-    public GroupFragment() {
+    public SceneListFragment() {
         // Required empty public constructor
     }
 
-    public static GroupFragment newInstance() {
+    public static SceneListFragment newInstance() {
         Bundle args = new Bundle();
-        GroupFragment fragment = new GroupFragment();
+        SceneListFragment fragment = new SceneListFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,21 +47,20 @@ public class GroupFragment extends Fragment implements CallBack{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_group, container, false);
+        FragmentSceneListBinding mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_scene_list, container, false);
         mBinding.setHandler(this);
         mBinding.scenes.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        groupAdapter = new GroupAdapter(mHandleSceneListener);
-        mBinding.scenes.setAdapter(groupAdapter);
+        sceneAdapter = new SceneAdapter(mHandleSceneListener);
+        mBinding.scenes.setAdapter(sceneAdapter);
         return mBinding.getRoot();
     }
 
     boolean on = false;
-    private OnHandleGroupListener mHandleSceneListener = new OnHandleGroupListener() {
+    private OnHandleSceneListener mHandleSceneListener = new OnHandleSceneListener() {
         @Override
-        public void onItemClick(Group scene) {
-            Log.d(TAG, "onItemClick() called with: scene = [" + scene + "]");
+        public void onItemClick(Scene scene) {
             byte opcode = (byte) 0xD0;
-            int dstAddr = scene.getGroupId();
+            int dstAddr = scene.getSceneId();
             if (on) {
                 Log.d(TAG, "kai");
                 TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr,
@@ -79,14 +74,9 @@ public class GroupFragment extends Fragment implements CallBack{
         }
 
         @Override
-        public void onEditClick(Group group) {
-            Intent intent = GroupSceneActivity.newIntent(getActivity(), GroupSceneActivity.ACTION_ADD_GROUP, group);
-            startActivity(intent);
-
-        }
-
-        @Override
-        public void onDeleteClick(Group scene) {
+        public void onEditClick(Scene scene) {
+//            viewModel.scene.setValue(scene);
+            GroupSceneActivity.start(getContext(),GroupSceneActivity.ACTION_ADD_SCENE,scene);
         }
     };
 
@@ -94,16 +84,15 @@ public class GroupFragment extends Fragment implements CallBack{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        viewModel = ViewModelProviders.of(getActivity()).get(HomeViewModel.class);
-        viewModel.groupListObserver.observe(this, new Observer<ApiResponse<GroupList>>() {
+        viewModel = ViewModelProviders.of(getActivity()).get(GroupSceneViewModel.class);
+        viewModel.sceneListObserver.observe(this, new Observer<ApiResponse<SceneList>>() {
             @Override
-            public void onChanged(@Nullable ApiResponse<GroupList> apiResponse) {
-                mBinding.setIsLoading(false);
+            public void onChanged(@Nullable ApiResponse<SceneList> apiResponse) {
                 if (apiResponse.isSuccessful()) {
                     if (apiResponse.body != null) {
-                        List<Group> list = apiResponse.body.getList();
+                        List<Scene> list = apiResponse.body.getList();
                         if (list != null) {
-                            groupAdapter.addScenes(list);
+                            sceneAdapter.addScenes(list);
                         }
                     }
                 }
@@ -128,8 +117,7 @@ public class GroupFragment extends Fragment implements CallBack{
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: ");
-        mBinding.setIsLoading(true);
-        viewModel.groupListRequest.setValue(1);
+        viewModel.sceneListRequest.setValue(1);
     }
 
     @Override
@@ -150,10 +138,16 @@ public class GroupFragment extends Fragment implements CallBack{
         Log.d(TAG, "onDestroy: ");
     }
 
-
-
     @Override
     public void handleClick(View view) {
-        startActivity(GroupSceneActivity.newIntent(getActivity(), GroupSceneActivity.ACTION_ADD_GROUP, null));
+        switch (view.getId()) {
+            case R.id.iv_back:
+                getActivity().finish();
+                break;
+            case R.id.btn_add:
+                GroupSceneActivity.start(getContext(),GroupSceneActivity.ACTION_ADD_SCENE,null);
+                break;
+
+        }
     }
 }

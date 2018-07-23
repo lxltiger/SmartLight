@@ -31,6 +31,14 @@ public class CommonItemAdapter extends RecyclerView.Adapter<CommonItemAdapter.Vi
         itemList = commonItems;
     }
 
+    public CommonItemAdapter(CommonItemClickListener mHandleSceneListener) {
+        this.mHandleSceneListener = mHandleSceneListener;
+    }
+
+    public void setItems(List<CommonItem> items) {
+        itemList = items;
+        notifyDataSetChanged();
+    }
 
     public CommonItem getItem(int pos) {
         return itemList.get(pos);

@@ -8,7 +8,7 @@ import android.os.Parcelable;
  */
 public class Group implements Parcelable{
     /**
-     * groupId : 32790
+     * groupSceneId : 32790
      * name : Ghhjjhjj
      * icon : /groupIcon/groupIcon_20180717175722.png
      * id : 064d2fe04d5e4fa0a7b28eefe8a52d09

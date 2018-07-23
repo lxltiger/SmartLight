@@ -21,6 +21,7 @@ import com.example.ledwisdom1.utils.AutoClearValue;
 /**
  * 场景 情景 修改名称的对话框
  */
+@Deprecated
 public class SceneDialog extends DialogFragment implements CallBack {
     public static final String TAG = SceneDialog.class.getSimpleName();
     private AutoClearValue<DialogSceneBinding> binding;

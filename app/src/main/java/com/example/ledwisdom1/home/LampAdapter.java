@@ -26,11 +26,11 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
     /**
      * 默认不显示选中图片
      */
-    private  boolean showSelectIcon=false;
+    private boolean showSelectIcon = false;
 
     public LampAdapter(OnHandleLampListener handleLampListener) {
         mOnHandleLampListener = handleLampListener;
-        mLampList =new ArrayList<>();
+        mLampList = new ArrayList<>();
     }
 
     public void setShowSelectIcon(boolean showSelectIcon) {
@@ -43,6 +43,7 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
 
     /**
      * 分页加载的时候添加更多
+     *
      * @param lamps
      */
     public void addMoreLamps(List<Lamp> lamps) {
@@ -52,6 +53,7 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
 
     /**
      * 刷新添加 先情况再更新
+     *
      * @param lamps
      */
     public void addLamps(List<Lamp> lamps) {
@@ -73,9 +75,9 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
     }
 
     public List<String> getSelectedNum() {
-        List<String> deviceIds=new ArrayList<>();
+        List<String> deviceIds = new ArrayList<>();
         for (Lamp lamp : mLampList) {
-            if (BindingAdapters.LIGHT_SELECTED==lamp.lampStatus.get()) {
+            if (BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get()) {
                 deviceIds.add(lamp.getId());
             }
         }
@@ -84,14 +86,23 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
     }
 
     public List<String> getIds() {
-        List<String> deviceIds=new ArrayList<>();
+        List<String> deviceIds = new ArrayList<>();
         for (Lamp lamp : mLampList) {
-                deviceIds.add(lamp.getId());
+            deviceIds.add(lamp.getId());
         }
-
         return deviceIds;
     }
 
+    //获取选择的灯具
+    public List<Lamp> getSelectedLamps() {
+        List<Lamp> lamps = new ArrayList<>();
+        for (Lamp lamp : mLampList) {
+            if (BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get()) {
+                lamps.add(lamp);
+            }
+        }
+        return lamps;
+    }
 
 
     public void removeLamp(Lamp lamp) {
@@ -123,13 +134,12 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
     }
 
 
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemLampBinding binding= DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_lamp, parent, false);
+        ItemLampBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_lamp, parent, false);
         //条目多选的时候不显示menu
-        if(showSelectIcon) binding.swipeMenu.setSwipeEnable(false);
+        if (showSelectIcon) binding.swipeMenu.setSwipeEnable(false);
         binding.setHandler(mOnHandleLampListener);
         return new ViewHolder(binding);
     }
@@ -137,7 +147,7 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Lamp lamp = mLampList.get(position);
-        lamp.setDescription(String.format("%s\n%s",lamp.getName(),lamp.getMac()));
+        lamp.setDescription(String.format("%s\n%s", lamp.getName(), lamp.getMac()));
         holder.mBinding.setLamp(lamp);
         holder.mBinding.executePendingBindings();
 
@@ -145,17 +155,17 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mLampList ==null?0: mLampList.size();
+        return mLampList == null ? 0 : mLampList.size();
     }
 
-     static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-         private final ItemLampBinding mBinding;
+        private final ItemLampBinding mBinding;
 
-         public ViewHolder(ItemLampBinding binding) {
+        public ViewHolder(ItemLampBinding binding) {
             super(binding.getRoot());
-             mBinding = binding;
-         }
+            mBinding = binding;
+        }
     }
 }
 

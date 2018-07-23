@@ -8,15 +8,18 @@ import com.example.ledwisdom1.device.AddDeviceFragment;
 import com.example.ledwisdom1.device.AddHubFragment;
 import com.example.ledwisdom1.device.AddLampFragment;
 import com.example.ledwisdom1.device.LightSettingFragment;
+import com.example.ledwisdom1.scene.EditFragment;
 import com.example.ledwisdom1.home.DeviceFragment;
-import com.example.ledwisdom1.home.GroupFragment;
+import com.example.ledwisdom1.home.GroupListFragment;
 import com.example.ledwisdom1.home.HomeActivity;
 import com.example.ledwisdom1.home.HomeFragment;
 import com.example.ledwisdom1.home.MoreFragment;
 import com.example.ledwisdom1.mesh.MeshFragment;
-import com.example.ledwisdom1.scene.AddGroupFragment;
-import com.example.ledwisdom1.scene.AddSceneFragment;
+import com.example.ledwisdom1.scene.GroupFragment;
 import com.example.ledwisdom1.scene.SceneFragment;
+import com.example.ledwisdom1.scene.LampListDialogFragment;
+import com.example.ledwisdom1.scene.SceneListFragment;
+import com.example.ledwisdom1.scene.SelectedLampListFragment;
 import com.example.ledwisdom1.user.AboutUSFragment;
 import com.example.ledwisdom1.user.FeedBackFragment;
 import com.example.ledwisdom1.user.SettingFragment;
@@ -99,25 +102,47 @@ public class NavigatorController {
 
     public void navigateToGroup() {
         fm.beginTransaction()
-                .replace(container, GroupFragment.newInstance(), GroupFragment.TAG)
+                .replace(container, GroupListFragment.newInstance(), GroupListFragment.TAG)
                 .commitAllowingStateLoss();
     }
 
     public void navigateToScene() {
         fm.beginTransaction()
-                .replace(container, SceneFragment.newInstance(), SceneFragment.TAG)
+                .replace(container, SceneListFragment.newInstance(), SceneListFragment.TAG)
                 .commitAllowingStateLoss();
     }
 
     public void navigateToAddGroup() {
         fm.beginTransaction()
-                .replace(container, AddGroupFragment.newInstance(), AddGroupFragment.TAG)
+                .replace(container, GroupFragment.newInstance(), GroupFragment.TAG)
+                .commitAllowingStateLoss();
+    }
+
+    public void navigateToEditName() {
+        fm.beginTransaction()
+                .replace(container, EditFragment.newInstance(), EditFragment.TAG)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+    }
+
+    public void navigateToLampList() {
+        fm.beginTransaction()
+                .replace(container, LampListDialogFragment.newInstance(), LampListDialogFragment.TAG)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+    }
+
+    public void navigateToSelectedLamps() {
+        fm.beginTransaction()
+                .replace(container, SelectedLampListFragment.newInstance(), SelectedLampListFragment.TAG)
+                .addToBackStack(null)
                 .commitAllowingStateLoss();
     }
 
     public void navigateToAddScene() {
         fm.beginTransaction()
-                .replace(container, AddSceneFragment.newInstance(), AddSceneFragment.TAG)
+                .replace(container, SceneFragment.newInstance(), SceneFragment.TAG)
+                .addToBackStack(null)
                 .commitAllowingStateLoss();
     }
 
