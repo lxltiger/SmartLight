@@ -18,7 +18,7 @@ import android.widget.SeekBar;
 
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.app.SmartLightApp;
-import com.example.ledwisdom1.databinding.FragmentLightSettingBinding;
+import com.example.ledwisdom1.databinding.FragmentLightControlBinding;
 import com.example.ledwisdom1.device.entity.LampCmd;
 import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.sevice.TelinkLightService;
@@ -30,18 +30,17 @@ import static com.example.ledwisdom1.utils.BindingAdapters.LIGHT_OFF;
 import static com.example.ledwisdom1.utils.BindingAdapters.LIGHT_ON;
 
 /**
- * A simple {@link Fragment} subclass.
- * 灯具的亮度设置
+ * 灯具控制 开关 亮度  还有颜色
  * 需要兼任蓝牙和网关控制，场景下蓝牙控制
  */
-public class LightSettingFragment extends Fragment {
-    public static final String TAG = LightSettingFragment.class.getSimpleName();
-    private int mMeshAddress;
-    private FragmentLightSettingBinding mBinding;
+public class GroupSceneControlFragment extends Fragment {
+    public static final String TAG = GroupSceneControlFragment.class.getSimpleName();
+    private int address;
+    private FragmentLightControlBinding mBinding;
     /**
      * 灯具开关状态
      */
-    public ObservableInt mLightStatus;
+    public ObservableInt mLightStatus = new ObservableInt();
     //灯具亮度
     private int mBrightness;
 
@@ -55,16 +54,16 @@ public class LightSettingFragment extends Fragment {
         }
     };
 
-    public LightSettingFragment() {
+    public GroupSceneControlFragment() {
         // Required empty public constructor
     }
 
-    public static LightSettingFragment newInstance(int meshAddress, int brightness, int status) {
+    public static GroupSceneControlFragment newInstance(int meshAddress, int brightness, int status) {
         Bundle args = new Bundle();
         args.putInt("address", meshAddress);
         args.putInt("brightness", brightness);
         args.putInt("status", status);
-        LightSettingFragment fragment = new LightSettingFragment();
+        GroupSceneControlFragment fragment = new GroupSceneControlFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,15 +73,13 @@ public class LightSettingFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Bundle arguments = getArguments();
         if (arguments != null) {
-            mMeshAddress = arguments.getInt("address");
-            Log.d(TAG, "mMeshAddress:" + mMeshAddress);
-
+            address = arguments.getInt("address");
+            Log.d(TAG, "address:" + address);
             mBrightness = arguments.getInt("brightness", 100);
             Log.d(TAG, "mBrightness:" + mBrightness);
             int status = arguments.getInt("status", 0);
             Log.d(TAG, "status:" + status);
-
-            mLightStatus = new ObservableInt(status);
+            mLightStatus.set(status);
             if (status == LIGHT_OFF) {
                 mBrightness = 0;
             }
@@ -93,7 +90,7 @@ public class LightSettingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_light_setting, container, false);
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_light_control, container, false);
         mBinding.setHandler(this);
         mBinding.setOn(LIGHT_ON == mLightStatus.get());
         mBinding.setProgress(mBrightness);
@@ -125,27 +122,19 @@ public class LightSettingFragment extends Fragment {
      */
     public void onCheckedChanged(RadioGroup group, int checkedId) {
         int brightness = 0;
-        int resId = 0;
         switch (checkedId) {
             case R.id.rb_sleep:
                 brightness = 40;
-                resId = R.string.sleep;
                 break;
             case R.id.rb_visit:
                 brightness = 100;
-                resId = R.string.com_visit;
                 break;
             case R.id.rb_read:
-//                brightness = 80;
-
-                resId = R.string.readding;
                 break;
             case R.id.rb_conservation:
-                resId = R.string.conservation;
                 brightness = 40;
                 break;
         }
-        String mode = String.format("%s%s", getString(R.string.now_pattern), getString(resId));
         mBinding.setProgress(brightness);
         setLight(brightness);
     }
@@ -154,7 +143,7 @@ public class LightSettingFragment extends Fragment {
         Log.d(TAG, "handleClick: ");
         switch (view.getId()) {
             case R.id.iv_switch:
-                toggleLamp();
+                toggleLightInGroupOrScene();
                 break;
             case R.id.iv_back:
                 getActivity().finish();
@@ -162,11 +151,12 @@ public class LightSettingFragment extends Fragment {
         }
     }
 
-    public void toggleLamp() {
-        int dstAddr = mMeshAddress;
+    /**
+     * 场景或情景的开关切换e
+     */
+    public void toggleLightInGroupOrScene() {
+        int dstAddr = address;
         boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
-
-        Log.d(TAG, "dstAddr:" + dstAddr);
         byte opcode = (byte) 0xD0;
         switch (mLightStatus.get()) {
             case LIGHT_OFF:
@@ -206,7 +196,7 @@ public class LightSettingFragment extends Fragment {
      * @param progress
      */
     private void setLight(int progress) {
-        int addr = mMeshAddress;
+        int addr = address;
         byte opcode;
         byte[] params;
         opcode = (byte) 0xD2;

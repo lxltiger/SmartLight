@@ -20,6 +20,10 @@
             name="mesh"
             type="com.example.ledwisdom1.mesh.DefaultMesh" />
 
+        <variable
+            name="showScene"
+            type="boolean"/>
+
         <!--是否使用蓝牙-->
         <variable
             name="ble"
@@ -136,61 +140,26 @@
                     </android.support.constraint.ConstraintLayout>
                 </android.support.v7.widget.CardView>
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/home_no_scene" />
 
+                <!--                    android:background="#f6f6f9"-->
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:background="#f6f6f9"
-                    android:paddingBottom="16dp"
-                    android:paddingTop="16dp"
-                    android:visibility="gone">
+                   >
 
-                    <TextView
-                        android:id="@+id/one"
-                        android:layout_width="96dp"
-                        android:layout_height="96dp"
-                        android:background="@drawable/bg_blue_circle"
-                        android:gravity="center"
-                        android:textColor="@color/colorPrimary"
-                        android:textSize="20sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toLeftOf="@+id/two"
-                        app:layout_constraintTop_toTopOf="parent" />
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/home_no_scene"
+                        app:visibleGone="@{!showScene}"/>
 
-                    <TextView
-                        android:id="@+id/two"
-                        android:layout_width="96dp"
-                        android:layout_height="96dp"
-                        android:background="@drawable/bg_blue_circle"
-                        android:gravity="center"
-                        android:text="全开"
-                        android:textColor="@android:color/white"
-                        android:textSize="20sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toRightOf="@+id/one"
-                        app:layout_constraintRight_toLeftOf="@+id/three"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/three"
-                        android:layout_width="96dp"
-                        android:layout_height="96dp"
-                        android:background="@drawable/bg_blue_circle"
-                        android:gravity="center"
-                        android:text="全开"
-                        android:textColor="@android:color/white"
-                        android:textSize="20sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toRightOf="@+id/two"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/recyclerViewScene"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="8dp"
+                        android:paddingTop="8dp"
+                        app:visibleGone="@{showScene}"/>
 
                 </android.support.constraint.ConstraintLayout>
 

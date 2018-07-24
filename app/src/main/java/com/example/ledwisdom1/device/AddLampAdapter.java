@@ -3,6 +3,7 @@ package com.example.ledwisdom1.device;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -37,29 +38,28 @@ public class AddLampAdapter extends RecyclerView.Adapter<AddLampAdapter.ViewHold
 
     }
 
+
     /**
-     * 因为meshAddress是唯一的
+     * 因为macAddress是唯一的
      * 在灯的状态发生改变的时候 通过meshAddress 来定位Light修改状态
      *
-     * @param meshAddress
+     * @param mac
      */
-    public Light getLight(int meshAddress) {
-        for (int i = 0; i < getItemCount(); i++) {
-            Light light = mDeviceInfoList.get(i);
-            if (light.meshAddress == meshAddress) {
+    public Light getLightByMAC(String mac) {
+       if(TextUtils.isEmpty(mac)) return null;
+        for (Light light : mDeviceInfoList) {
+            if (mac.endsWith(light.raw.macAddress)) {
                 return light;
             }
         }
-
         return null;
     }
-
 
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemLightAddBinding binding= DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_light_add, parent, false);
+        ItemLightAddBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_light_add, parent, false);
         binding.setHandler(mHandleNewLightListener);
         return new ViewHolder(binding);
     }
@@ -73,17 +73,17 @@ public class AddLampAdapter extends RecyclerView.Adapter<AddLampAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mDeviceInfoList==null?0:mDeviceInfoList.size();
+        return mDeviceInfoList == null ? 0 : mDeviceInfoList.size();
     }
 
-     static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-         private final ItemLightAddBinding mBinding;
+        private final ItemLightAddBinding mBinding;
 
-         public ViewHolder(ItemLightAddBinding binding) {
+        public ViewHolder(ItemLightAddBinding binding) {
             super(binding.getRoot());
-             mBinding = binding;
-         }
+            mBinding = binding;
+        }
     }
 }
 

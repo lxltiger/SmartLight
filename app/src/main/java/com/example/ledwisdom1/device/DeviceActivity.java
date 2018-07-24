@@ -1,6 +1,7 @@
 package com.example.ledwisdom1.device;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,18 +13,26 @@ import com.example.ledwisdom1.utils.NavigatorController;
 
 /**
  * 设备页面 包含灯具和网关的添加等
- *
  */
 public class DeviceActivity extends AppCompatActivity {
     private NavigatorController navigatorController;
     public static final String ACTION_LAMP_SETTING = "action_lamp_setting";
     public static final String ACTION_ADD_DEVICE = "action_add_device";
-    public static final String ACTION_ADD_HUB = "action_add_hub";
+    public static final String ACTION_GROUP_CONTROL = "action_group_control";
 
     public static final int NAVIGATE_TO_ADD_LAMP = 1;
     public static final int NAVIGATE_TO_ADD_HUB = 2;
     public static final int FINISH = 3;
-    private String action="";
+    private String action = "";
+
+    public static void start(Context context, String action,int address, int brightness, int status) {
+        Intent intent = new Intent(context, DeviceActivity.class);
+        intent.putExtra("action", action);
+        intent.putExtra("address", address);
+        intent.putExtra("brightness", brightness);
+        intent.putExtra("status", status);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +55,20 @@ public class DeviceActivity extends AppCompatActivity {
                 case ACTION_ADD_DEVICE:
                     navigatorController.navigateToAddDevice();
                     break;
-                case ACTION_LAMP_SETTING:
-                    int meshAddress = intent.getIntExtra("meshAddress",-1);
+                case ACTION_LAMP_SETTING: {
+                    int meshAddress = intent.getIntExtra("address", -1);
                     int brightness = intent.getIntExtra("brightness", 100);
                     int status = intent.getIntExtra("status", 0);
                     navigatorController.navigateToLampSetting(meshAddress, brightness, status);
                     break;
+                }
+                case ACTION_GROUP_CONTROL: {
+                    int meshAddress = intent.getIntExtra("address", -1);
+                    int brightness = intent.getIntExtra("brightness", 100);
+                    int status = intent.getIntExtra("status", 0);
+                    navigatorController.navigateToGroupSceneControl(meshAddress, brightness, status);
+                    break;
+                }
             }
         }
     }
@@ -75,7 +92,7 @@ public class DeviceActivity extends AppCompatActivity {
         });
     }
 
-//    如果不是添加设备入口界面 按返回键就返回这个界面
+    //    如果不是添加设备入口界面 按返回键就返回这个界面
     @Override
     public void onBackPressed() {
         switch (action) {
@@ -84,11 +101,12 @@ public class DeviceActivity extends AppCompatActivity {
                 Fragment fragmentByTag = supportFragmentManager.findFragmentByTag(AddDeviceFragment.TAG);
                 if (fragmentByTag == null) {
                     navigatorController.navigateToAddDevice();
-                }else{
+                } else {
                     super.onBackPressed();
                 }
                 break;
             case ACTION_LAMP_SETTING:
+            case ACTION_GROUP_CONTROL:
                 super.onBackPressed();
                 break;
         }

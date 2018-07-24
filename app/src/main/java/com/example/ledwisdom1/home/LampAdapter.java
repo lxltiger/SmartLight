@@ -119,7 +119,7 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
     public Lamp getLamp(int meshAddress) {
         for (int i = 0; i < getItemCount(); i++) {
             Lamp lamp = mLampList.get(i);
-            if (lamp.getProductUuid() == meshAddress) {
+            if (lamp.getDevice_id() == meshAddress) {
                 return lamp;
             }
         }

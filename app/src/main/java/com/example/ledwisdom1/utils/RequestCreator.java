@@ -65,7 +65,7 @@ public class RequestCreator {
     }
 
     public static RequestBody requestDeleteLamp(String id) {
-        DeviceRequest request = new DeviceRequest(id);
+        DeviceRequest request = new DeviceRequest(null,id);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
@@ -85,7 +85,7 @@ public class RequestCreator {
      */
     @Deprecated
     public static RequestBody requestAddLampToGroup(String groupId, String deviceIds) {
-        GroupSceneRequest addDeviceToGroup = new GroupSceneRequest(groupId, null,deviceIds);
+        GroupSceneRequest addDeviceToGroup = new GroupSceneRequest(groupId, null, deviceIds);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(addDeviceToGroup));
     }
 
@@ -101,13 +101,13 @@ public class RequestCreator {
     }
 
     public static RequestBody requestDeleteScene(String sceneId) {
-        GroupSceneRequest request = new GroupSceneRequest( null,sceneId);
+        GroupSceneRequest request = new GroupSceneRequest(null, sceneId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
     /*删除场景下的设备*/
     public static RequestBody requestDeleteDeviceInGroup(String groupId, String deviceIds) {
-        GroupSceneRequest request = new GroupSceneRequest(groupId, null,deviceIds);
+        GroupSceneRequest request = new GroupSceneRequest(groupId, null, deviceIds);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
@@ -116,20 +116,28 @@ public class RequestCreator {
         GroupSceneRequest groupRequest = new GroupSceneRequest(groupId, null);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
     }
+
     /*获取场景下的设备*/
     public static RequestBody requestGroupDevices(String groupId) {
         GroupSceneRequest groupRequest = new GroupSceneRequest(groupId, null);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
     }
+
     /*获取情景景下的设备*/
     public static RequestBody requestSceneDevices(String sceneId) {
-        GroupSceneRequest groupRequest = new GroupSceneRequest(null,sceneId);
+        GroupSceneRequest groupRequest = new GroupSceneRequest(null, sceneId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
     }
 
 
     public static RequestBody createAddHub(AddHubRequest addHubRequest) {
         return RequestBody.create(MEDIATYPE, new Gson().toJson(addHubRequest));
+    }
+
+    public static RequestBody requestDeviceId(String meshId) {
+        DeviceRequest deviceRequest=new DeviceRequest(meshId,null);
+        String s = new Gson().toJson(deviceRequest);
+        return RequestBody.create(MEDIATYPE,s);
     }
 
 
@@ -171,10 +179,10 @@ public class RequestCreator {
      */
     private static class DeviceRequest {
         private String meshId;
+        private String deviceId;
         private int pageNO;
         private int pageSize;
         private int typeId;
-        private String deviceId;
 
         public DeviceRequest(String meshId, int pageNO, int pageSize, int typeId) {
             this.meshId = meshId;
@@ -183,9 +191,21 @@ public class RequestCreator {
             this.typeId = typeId;
         }
 
-        public DeviceRequest(String deviceId) {
+        public DeviceRequest(String meshId, String deviceId) {
+            this.meshId = meshId;
             this.deviceId = deviceId;
         }
+
+    }
+ private static class TempRequest {
+        private String meshId;
+
+
+
+        public TempRequest(String meshId) {
+            this.meshId = meshId;
+        }
+
     }
 
 

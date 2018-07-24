@@ -17,7 +17,8 @@ import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.databinding.FragmentSceneListBinding;
-import com.example.ledwisdom1.sevice.TelinkLightService;
+import com.example.ledwisdom1.device.DeviceActivity;
+import com.example.ledwisdom1.utils.BindingAdapters;
 
 import java.util.List;
 
@@ -55,22 +56,10 @@ public class SceneListFragment extends Fragment implements CallBack{
         return mBinding.getRoot();
     }
 
-    boolean on = false;
     private OnHandleSceneListener mHandleSceneListener = new OnHandleSceneListener() {
         @Override
         public void onItemClick(Scene scene) {
-            byte opcode = (byte) 0xD0;
-            int dstAddr = scene.getSceneId();
-            if (on) {
-                Log.d(TAG, "kai");
-                TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr,
-                        new byte[]{0x01, 0x00, 0x00});
-            } else {
-                Log.d(TAG, "guan");
-                TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr,
-                        new byte[]{0x00, 0x00, 0x00});
-            }
-            on = !on;
+            DeviceActivity.start(getActivity(),DeviceActivity.ACTION_GROUP_CONTROL,scene.getSceneId(),100, BindingAdapters.LIGHT_ON);
         }
 
         @Override

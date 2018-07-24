@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,8 +96,13 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
                 show();
                 break;
             case R.id.btn_scene:
-                GroupSceneActivity.start(getActivity(), GroupSceneActivity.ACTION_SCENE_LIST);
-                break;
+//                GroupSceneActivity.start(getActivity(), GroupSceneActivity.ACTION_SCENE_LIST);
+            {
+                Intent intent = new Intent(getActivity(), GroupSceneActivity.class);
+                intent.putExtra("action", GroupSceneActivity.ACTION_SCENE_LIST);
+                startActivityForResult(intent, 10);
+            }
+            break;
             case R.id.btn_clock:
                 break;
             case R.id.about_us: {
@@ -163,8 +169,11 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
     private Uri imgUri;
     private String path = null;
 
+    //Activity 不能有这个方法 否则会拦截
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
+
         //用户退出
         if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
             getActivity().finish();
@@ -208,6 +217,9 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
             setImg(data);
         } else if (requestCode == 4) {
             setImg(data);
+        } else if (requestCode == 10&&resultCode==Activity.RESULT_OK) {
+            Log.d(TAG, "get new");
+            viewModel.sceneListRequest.setValue(1);
         }
     }
 
@@ -217,14 +229,13 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
             Bundle extras = data.getExtras();
             bitmap2 = (Bitmap) extras.get("data");
         } else {
-            bitmap2 = ImageUtil.getBitmapFromUri(MoreFragment.this.getActivity(),Uri.parse(data.getData().toString()));
+            bitmap2 = ImageUtil.getBitmapFromUri(MoreFragment.this.getActivity(), Uri.parse(data.getData().toString()));
         }
         File file_upload = SDCardUtils.createPrivatePhotoFile(MoreFragment.this.getActivity(), System.currentTimeMillis() + ".png");
-        ImageUtil.compressToFile(bitmap2,file_upload);
+        ImageUtil.compressToFile(bitmap2, file_upload);
         binding.get().portrait.setImageBitmap(bitmap2);
         reportMesh.homeIcon = file_upload;
     }
-
 
 
     /**

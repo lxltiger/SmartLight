@@ -18,10 +18,11 @@ import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.databinding.FragmentGroupListBinding;
+import com.example.ledwisdom1.device.DeviceActivity;
 import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.scene.GroupSceneActivity;
-import com.example.ledwisdom1.sevice.TelinkLightService;
+import com.example.ledwisdom1.utils.BindingAdapters;
 
 import java.util.List;
 
@@ -59,23 +60,10 @@ public class GroupListFragment extends Fragment implements CallBack{
         return mBinding.getRoot();
     }
 
-    boolean on = false;
     private OnHandleGroupListener mHandleSceneListener = new OnHandleGroupListener() {
         @Override
-        public void onItemClick(Group scene) {
-            Log.d(TAG, "onItemClick() called with: scene = [" + scene + "]");
-            byte opcode = (byte) 0xD0;
-            int dstAddr = scene.getGroupId();
-            if (on) {
-                Log.d(TAG, "kai");
-                TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr,
-                        new byte[]{0x01, 0x00, 0x00});
-            } else {
-                Log.d(TAG, "guan");
-                TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr,
-                        new byte[]{0x00, 0x00, 0x00});
-            }
-            on = !on;
+        public void onItemClick(Group group) {
+            DeviceActivity.start(getActivity(),DeviceActivity.ACTION_GROUP_CONTROL,group.getGroupId(),100, BindingAdapters.LIGHT_ON);
         }
 
         @Override

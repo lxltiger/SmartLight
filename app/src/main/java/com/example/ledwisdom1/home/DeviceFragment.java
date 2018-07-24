@@ -1,12 +1,12 @@
 package com.example.ledwisdom1.home;
 
 
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 import android.support.v4.app.Fragment;
@@ -49,7 +49,6 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
     private AutoClearValue<ViewRecycleBinding> bingingHub;
     private AutoClearValue<ViewRecycleBinding> bingingLamp;
     private HomeViewModel viewModel;
-    private Handler handler = new Handler();
     //灯具
     private LampAdapter lampAdapter;
     private HubAdapter hubAdapter;
@@ -152,8 +151,6 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         SmartLightApp smartLightApp = SmartLightApp.INSTANCE();
         smartLightApp.addEventListener(NotificationEvent.ONLINE_STATUS, eventListener);
         smartLightApp.addEventListener(MeshEvent.OFFLINE, eventListener);
-        //请求灯具列表第一页
-        viewModel.lampListRequest.setValue(1);
         viewModel.hubListRequest.setValue(1);
 
     }
@@ -244,29 +241,19 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         @Override
         public void onItemClick(Lamp lamp) {
             Log.d(TAG, "lamp:" + lamp);
-            Intent intent = new Intent(getActivity(), DeviceActivity.class);
-            intent.putExtra("action", DeviceActivity.ACTION_LAMP_SETTING);
-            // TODO: 2018/7/18 0018 统一使用deviceId
-            intent.putExtra("meshAddress", lamp.getProductUuid());
-            intent.putExtra("brightness", lamp.getBrightness());
-            intent.putExtra("status", lamp.lampStatus.get());
-            startActivity(intent);
+            DeviceActivity.start(getActivity(),DeviceActivity.ACTION_LAMP_SETTING,lamp.getDevice_id(),lamp.getBrightness(),lamp.lampStatus.get());
         }
 
         @Override
         public void onEditClick(Lamp lamp) {
-            /*Intent intent = new Intent(getActivity(), GeneralActivity.class);
-            intent.putExtra(GeneralActivity.ACTION, GeneralActivity.ACTION_LAMB_DETAIL);
-            intent.putExtra("lamp", lamp);
-            startActivity(intent);*/
+
         }
 
         @Override
         public void onDeleteClick(Lamp lamp) {
             DeviceFragment.this.lamp=lamp;
+            // TODO: 2018/7/24 0024 在数据库删除
             viewModel.deleteLampRequest.setValue(lamp.getId());
-//            deleteDeviceFromRemote(lamp);
-
         }
     };
 
@@ -276,10 +263,17 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
             case R.id.iv_add:
                 Intent intent = new Intent(getActivity(), DeviceActivity.class);
                 intent.putExtra("action", DeviceActivity.ACTION_ADD_DEVICE);
-                startActivity(intent);
+                //如果添加成功会设置成功信号
+                startActivityForResult(intent,0);
                 break;
         }
     }
 
-
+//    接到成功信息 更新灯具列表
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
+            viewModel.lampListRequest.setValue(1);
+        }
+    }
 }

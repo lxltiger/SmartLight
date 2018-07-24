@@ -39,6 +39,7 @@ import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.RequestCreator;
 
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -347,7 +348,9 @@ public class HomeRepository {
     }
 
     //    获取灯具列表 todo 优化
-    public LiveData<ApiResponse<LampList>> getLampList(RequestBody requestBody) {
+    public LiveData<ApiResponse<LampList>> getLampList(int pageNo) {
+        String meshId = profileObserver.getValue().meshId;
+        RequestBody requestBody = RequestCreator.requestLampList(meshId, pageNo);
         return kimService.deviceList(requestBody);
     }
 
@@ -382,7 +385,9 @@ public class HomeRepository {
 
 
 
-    public LiveData<ApiResponse<RequestResult>> reportDevice(RequestBody requestBody) {
+    public LiveData<ApiResponse<RequestResult>> reportDevice(Map<String,String> map) {
+        map.put("meshId", defaultMeshObserver.getValue().id);
+        RequestBody requestBody = RequestCreator.requestAdLamp(map);
         return kimService.reportDevice(requestBody);
     }
 
@@ -422,42 +427,14 @@ public class HomeRepository {
         return kimService.reportHub(requestBody);
     }
 
-    //    加载mesh列表
-    public LiveData<Resource<List<Mesh>>> loadMeshListFromRemote() {
-        MediatorLiveData<Resource<List<Mesh>>> result = new MediatorLiveData<>();
-        result.setValue(Resource.loading(null));
-        boolean needLoadFromLocal = true;
-//        从数据库加载
-        LiveData<List<Mesh>> local = userDao.loadAllMesh();
-        result.addSource(local, meshes -> {
-            result.removeSource(local);
-//            如果需要从网络加载
-            if (needLoadFromLocal) {
-                RequestBody requestBody = RequestCreator.createPage(1, 40);
-                LiveData<ApiResponse<MeshList>> remote = kimService.meshList(requestBody);
-                result.addSource(local, newData -> {
-                    result.setValue(Resource.loading(newData));
-                });
-                result.addSource(remote, newData -> {
-                    result.removeSource(local);
-                    result.removeSource(remote);
-                    if (newData.isSuccessful()) {
-                        MeshList body = newData.body;
+    public  LiveData<ApiResponse<RequestResult>> getDeviceId() {
+        DefaultMesh defaultMesh = defaultMeshObserver.getValue();
+        RequestBody requestBody = RequestCreator.requestDeviceId(defaultMesh.id);
+        Log.d(TAG, "getDeviceId: "+ defaultMesh.id);
+        return kimService.getDeviceId(requestBody);
 
-                    }
-                });
-
-            } else {
-                result.addSource(local, newData -> {
-                    result.setValue(Resource.success(newData, ""));
-                });
-            }
-
-        });
-
-
-        return result;
     }
+
 
     /**
      * 先从本地获取，再判断是否需要从网络获取 ，从网络获取失败使用本地数据，否则使用网络数据

@@ -27,6 +27,7 @@ import retrofit2.http.Part;
 import retrofit2.http.QueryMap;
 
 /**
+ * 注意：如果返回的数据没有观察者 不会发生HTTP请求
  */
 public interface KimAscendService {
     @POST("user/regist")
@@ -54,7 +55,7 @@ public interface KimAscendService {
     @POST("user/setPassword")
     LiveData<ApiResponse<RequestResult>> setPassword(@Body RequestBody request);
 
-    @POST("mesh/meshList/")
+    @POST("mesh/meshList")
     LiveData<ApiResponse<MeshList>> meshList(@Body RequestBody request);
 
     @POST("mesh/getMeshById")
@@ -82,12 +83,20 @@ public interface KimAscendService {
     LiveData<Response<Profile>> deleteLampMeshByMeshAndUser(@Body RequestBody request);
 
 
+
     @POST("device/deviceList")
     LiveData<ApiResponse<LampList>> deviceList(@Body RequestBody request);
+
+    /*添加灯具的时候首先获取灯具的序号，作为mesh address 这样可以保证mesh address全局唯一*/
+
+
+    @POST("device/getAvailableDeviceId")
+    LiveData<ApiResponse<RequestResult>> getDeviceId(@Body RequestBody request);
 
     //上报灯具
     @POST("device/reportDevice")
     LiveData<ApiResponse<RequestResult>> reportDevice(@Body RequestBody request);
+
 
     @POST("gateway/reportLampGateway")
     LiveData<ApiResponse<RequestResult>> reportHub(@Body RequestBody request);

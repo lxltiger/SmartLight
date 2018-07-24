@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.example.ledwisdom1.view.ImageTransformationType" />
+
+
+        <variable
+            name="scene"
+            type="com.example.ledwisdom1.scene.Scene" />
+
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.scene.OnHandleSceneListener" />
+    </data>
+
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+
+        <ImageView
+            android:id="@+id/card"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:adjustViewBounds="true"
+            android:onClick="@{()->handler.onItemClick(scene)}"
+            android:scaleType="centerCrop"
+            app:imageUrl="@{scene.icon}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:type="@{ImageTransformationType.CIRCLE}"
+            tools:background="@mipmap/ic_launcher"
+
+            />
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:lines="1"
+            android:text="@{scene.name}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/card"
+            tools:text="123" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</layout>

@@ -52,10 +52,10 @@ public class HomeActivity extends AppCompatActivity
     private static final String TAG = HomeActivity.class.getSimpleName();
     private Handler handler = new Handler();
     private NavigatorController navigatorController;
-    private HomeViewModel viewModel;
 
     private boolean isEmptyMesh = true;
     private DefaultMesh mesh;
+    private HomeViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +71,10 @@ public class HomeActivity extends AppCompatActivity
         }
         viewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         subscribeUI(viewModel);
+        //为了防止反复更新 在此请求灯具列表
+        viewModel.lampListRequest.setValue(1);
+        //场景列表
+        viewModel.sceneListRequest.setValue(1);
 
         try {
             MQTTClient.INSTANCE().startConnect();
@@ -348,4 +352,18 @@ public class HomeActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
+
+   /* @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
+        if (resultCode!= Activity.RESULT_OK) {
+            return;
+        }
+        switch (requestCode) {
+            case 10:
+                Log.d(TAG, "set requset");
+                viewModel.sceneListRequest.setValue(1);
+                break;
+        }
+    }*/
 }

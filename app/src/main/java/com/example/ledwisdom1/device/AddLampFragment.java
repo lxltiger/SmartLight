@@ -1,6 +1,7 @@
 package com.example.ledwisdom1.device;
 
 
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
@@ -27,6 +28,7 @@ import com.example.ledwisdom1.model.Light;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.utils.ToastUtil;
 import com.telink.bluetooth.event.DeviceEvent;
 import com.telink.bluetooth.event.LeScanEvent;
 import com.telink.bluetooth.event.MeshEvent;
@@ -66,18 +68,24 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
      */
     private boolean isScan = true;
     private FragmentAddLampBinding mBinding;
-    private List<Light> mLights;
 
     /**
      * 新设备适配器
      */
     private AddLampAdapter mAdapter;
+    /**
+     * 添加状态
+     */
+    boolean isAdd = false;
 
     private Handler mHandler = new Handler();
     private DeviceViewModel viewModel;
     private String meshName = "";
     private String meshPsw = "";
-
+    /**
+     * 添加成功 通知deviceFragment刷新
+     */
+    private boolean addSucceed=false;
     public static AddLampFragment newInstance() {
         Bundle args = new Bundle();
         AddLampFragment fragment = new AddLampFragment();
@@ -112,7 +120,7 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
                              Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_lamp, container, false);
         mBinding.setHandler(this);
-        mLights = new ArrayList<>();
+        List<Light> mLights = new ArrayList<>();
         mAdapter = new AddLampAdapter(mLights, mOnHandleNewLightListener);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mBinding.recyclerView.setAdapter(mAdapter);
@@ -142,10 +150,31 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         viewModel.addLampObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
-                if (apiResponse.isSuccessful()) {
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     showToast(apiResponse.body.resultMsg);
+                    addSucceed=true;
                 } else {
-                    showToast(apiResponse.errorMsg);
+                    showToast("上报失败");
+                }
+            }
+        });
+
+        viewModel.lampMeshAddressObserver.observe(this, new Observer<Light>() {
+            @Override
+            public void onChanged(@Nullable Light light) {
+                if (light != null) {
+                    light.mAddStatus.set(BindingAdapters.ADDING);
+                    LeUpdateParameters params = Parameters.createUpdateParameters();
+                    params.setOldMeshName(Config.FACTORY_NAME);
+                    params.setOldPassword(Config.FACTORY_PASSWORD);
+                    params.setNewMeshName(meshName);
+                    params.setNewPassword(meshPsw);
+                    params.setUpdateDeviceList(light.raw);
+                    TelinkLightService.Instance().idleMode(true);
+                    //加灯
+                    TelinkLightService.Instance().updateMesh(params);
+                } else {
+                    ToastUtil.showToast("获取灯具地址失败");
                 }
             }
         });
@@ -154,6 +183,7 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
     private void showToast(String msg) {
         Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -161,6 +191,11 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         smartLightApp.removeEventListener(this);
         mHandler.removeCallbacks(null);
         TelinkLightService.Instance().idleMode(true);
+        if (addSucceed) {
+            Log.d(TAG, "onDestroy: set result ok");
+            getActivity().setResult(Activity.RESULT_OK);
+        }
+
     }
 
     /**
@@ -251,9 +286,8 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         DeviceInfo deviceInfo = event.getArgs();
         Log.d(TAG, "DeviceInfo:" + deviceInfo);
         Light light = new Light(deviceInfo);
-//        light.name = deviceInfo.meshName;
         //暂且保留不变
-        light.meshAddress = deviceInfo.meshAddress;
+//        light.meshAddress = deviceInfo.meshAddress;
         light.mDescription = String.format("%s\n%s", deviceInfo.meshName, deviceInfo.macAddress);
 //        light.mLightStatus.set(BindingAdapters.LIGHT_ON);
         mAdapter.addLight(light);
@@ -271,7 +305,8 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         Log.d(TAG, " onDeviceStatusChanged: " + deviceInfo.toString());
         switch (deviceInfo.status) {
             case LightAdapter.STATUS_UPDATE_MESH_COMPLETED: {
-                Light light = mAdapter.getLight(deviceInfo.meshAddress);
+//                Light light = mAdapter.getLight(deviceInfo.meshAddress);
+                Light light = mAdapter.getLightByMAC(deviceInfo.macAddress);
                 if (light != null) {
                     light.mAddStatus.set(BindingAdapters.ADDED);
                     light.raw.meshAddress = deviceInfo.meshAddress;
@@ -280,14 +315,16 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
                     //上传到网络
                     updateLight(light);
                 }
+                isAdd = false;
             }
             break;
             case LightAdapter.STATUS_UPDATE_MESH_FAILURE:
             case LightAdapter.STATUS_LOGOUT: {
-                Light light = mAdapter.getLight(deviceInfo.meshAddress);
+                Light light = mAdapter.getLightByMAC(deviceInfo.macAddress);
                 //如果A灯添加成功 下一次添加B灯时会收到A灯登出 更新失败的回调 防止状态被修改 判断是否已经修改成功
                 if (light != null && light.mAddStatus.get() != ADDED) {
                     light.mAddStatus.set(ADD);
+                    isAdd = false;
                 }
             }
             break;
@@ -305,49 +342,27 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
      */
     private OnHandleNewLightListener mOnHandleNewLightListener = new OnHandleNewLightListener() {
         @Override
-        public void onItemClick(Light light) {/*
-            Log.d(TAG, "onItemClick: " + light.meshAddress);
-            int dstAddr = light.meshAddress;
-            byte opcode = (byte) 0xD0;
-            switch (light.mLightStatus.get()) {
-                case LIGHT_OFF:
-//                    开灯
-                    TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr, new byte[]{0x01, 0x00, 0x00});
-                    light.mLightStatus.set(LIGHT_ON);
-                    break;
-                case BindingAdapters.LIGHT_ON:
-                    TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr, new byte[]{0x00, 0x00, 0x00});
-                    light.mLightStatus.set(LIGHT_OFF);
-                    break;
-            }*/
+        public void onItemClick(Light light) {
+
         }
 
         @Override
         public void onAddClick(Light light) {
             Log.d(TAG, "onAddClick: " + light.toString());
             if (light.mAddStatus.get() == ADD) {
-                light.mAddStatus.set(BindingAdapters.ADDING);
-                LeUpdateParameters params = Parameters.createUpdateParameters();
-                params.setOldMeshName(Config.FACTORY_NAME);
-                params.setOldPassword(Config.FACTORY_PASSWORD);
-                params.setNewMeshName(meshName);
-                params.setNewPassword(meshPsw);
-                params.setUpdateDeviceList(light.raw);
-                TelinkLightService.Instance().idleMode(true);
-                //加灯
-                TelinkLightService.Instance().updateMesh(params);
+                if (!isAdd) {
+                    //请求mesh address
+                    isAdd = true;
+                    viewModel.getDeviceMeshAddress(light);
+                } else {
+                    ToastUtil.showToast("正在添加");
+                }
             }
         }
 
         @Override
-        public boolean onItemLongClick(Light light) {/*
-            if (light.mLightStatus.get() == BindingAdapters.LIGHT_CUT) {
-                return false;
-            }
+        public boolean onItemLongClick(Light light) {
 
-            LightSettingFragment fragment = LightSettingFragment.newInstance(light.meshAddress, light.brightness, light.mLightStatus.get());
-            GeneralActivity activity = (GeneralActivity) getActivity();
-            activity.loadFragment(true, fragment);*/
             return true;
         }
     };
@@ -355,10 +370,10 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
     /**
      * 更新用户名和密码成功后上传到网络
      * 如果上传失败 是否需要恢复灯具配置
+     *
      * @param light
      */
     private void updateLight(Light light) {
-        Log.d(TAG, "updateLight: ");
         String gatewayId = "d-" + java.util.UUID.randomUUID().toString();
         String meshAddress = String.valueOf(light.raw.meshAddress);
         String factoryId = String.valueOf(light.raw.meshUUID);
@@ -371,10 +386,12 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         map.put("gatewayId", gatewayId);
         map.put("typeId", "8");
         map.put("factoryId", factoryId);
-        map.put("productUuid", meshAddress);
+        map.put("productUuid", productUuid);
         viewModel.addLampRequest.setValue(map);
 
     }
+
+
 
 
     /**
@@ -406,4 +423,5 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
                 break;
         }
     }
+
 }

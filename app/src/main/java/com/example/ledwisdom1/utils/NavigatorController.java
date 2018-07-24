@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.example.ledwisdom1.device.AddDeviceFragment;
 import com.example.ledwisdom1.device.AddHubFragment;
 import com.example.ledwisdom1.device.AddLampFragment;
+import com.example.ledwisdom1.device.GroupSceneControlFragment;
 import com.example.ledwisdom1.device.LightSettingFragment;
 import com.example.ledwisdom1.scene.EditFragment;
 import com.example.ledwisdom1.home.DeviceFragment;
@@ -96,7 +97,14 @@ public class NavigatorController {
 
     public void navigateToLampSetting(int meshAddress, int brightness, int status) {
         fm.beginTransaction()
-                .replace(container, LightSettingFragment.newInstance(meshAddress, brightness, status), AddHubFragment.TAG)
+                .replace(container, LightSettingFragment.newInstance(meshAddress, brightness, status), LightSettingFragment.TAG)
+                .commitAllowingStateLoss();
+    }
+
+
+    public void navigateToGroupSceneControl(int meshAddress, int brightness, int status) {
+        fm.beginTransaction()
+                .replace(container, GroupSceneControlFragment.newInstance(meshAddress, brightness, status), GroupSceneControlFragment.TAG)
                 .commitAllowingStateLoss();
     }
 
@@ -142,7 +150,7 @@ public class NavigatorController {
     public void navigateToAddScene() {
         fm.beginTransaction()
                 .replace(container, SceneFragment.newInstance(), SceneFragment.TAG)
-                .addToBackStack(null)
+//                .addToBackStack(null)
                 .commitAllowingStateLoss();
     }
 

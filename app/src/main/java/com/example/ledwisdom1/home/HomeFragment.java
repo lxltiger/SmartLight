@@ -2,6 +2,7 @@ package com.example.ledwisdom1.home;
 
 
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,17 +22,24 @@ import android.widget.PopupWindow;
 
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
+import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.app.SmartLightApp;
 import com.example.ledwisdom1.databinding.FragmentHomeBinding;
 import com.example.ledwisdom1.databinding.HomeLayoutDetailBinding;
 import com.example.ledwisdom1.databinding.HomeLayoutEmptyBinding;
 import com.example.ledwisdom1.databinding.HomePopMoreBinding;
+import com.example.ledwisdom1.device.DeviceActivity;
 import com.example.ledwisdom1.device.entity.LampCmd;
 import com.example.ledwisdom1.mesh.HomeAdapter;
 import com.example.ledwisdom1.mesh.MeshActivity;
 import com.example.ledwisdom1.mqtt.MQTTClient;
+import com.example.ledwisdom1.scene.GroupSceneActivity;
+import com.example.ledwisdom1.scene.OnHandleSceneListener;
+import com.example.ledwisdom1.scene.Scene;
+import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.utils.AutoClearValue;
+import com.example.ledwisdom1.utils.BindingAdapters;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -50,7 +59,7 @@ public class HomeFragment extends Fragment {
     private AutoClearValue<HomePopMoreBinding> bindingPop;
     private HomeViewModel viewModel;
     private PopupWindow popupWindow;
-    private String meshId;
+    private HomeSceneAdapter sceneAdapter;
 
 
     public static HomeFragment newInstance() {
@@ -83,6 +92,10 @@ public class HomeFragment extends Fragment {
 //        layoutDetailBinding.recyclerView.addItemDecoration(new InsetDecoration(getActivity()));
         HomeAdapter adapter = new HomeAdapter();
         layoutDetailBinding.recyclerView.setAdapter(adapter);
+
+        layoutDetailBinding.recyclerViewScene.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL,false));
+        sceneAdapter = new HomeSceneAdapter(mHandleSceneListener);
+        layoutDetailBinding.recyclerViewScene.setAdapter(sceneAdapter);
 
         boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
         layoutDetailBinding.setBle(blueTooth);
@@ -128,13 +141,36 @@ public class HomeFragment extends Fragment {
         });
 
         homeViewModel.defaultMeshObserver.observe(this, defaultMesh -> {
-            Log.d(TAG, "icon " + defaultMesh.aijiaIcon);
-//            bindingDetail.get().setHomeIcon(defaultMesh.aijiaIcon);
             bindingDetail.get().setMesh(defaultMesh);
 
         });
 
+        viewModel.sceneListObserver.observe(this, new Observer<ApiResponse<SceneList>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<SceneList> sceneListApiResponse) {
+                if (sceneListApiResponse.isSuccessful()) {
+                    SceneList body = sceneListApiResponse.body;
+                    List<Scene> list = body.getList();
+                    bindingDetail.get().setShowScene(!list.isEmpty());
+                    sceneAdapter.addScenes(list);
+                }else {
+                    bindingDetail.get().setShowScene(false);
+                }
+            }
+        });
+
     }
+
+    private OnHandleSceneListener mHandleSceneListener = new OnHandleSceneListener() {
+        @Override
+        public void onItemClick(Scene scene) {
+            DeviceActivity.start(getActivity(),DeviceActivity.ACTION_GROUP_CONTROL,scene.getSceneId(),100, BindingAdapters.LIGHT_ON);
+        }
+
+        @Override
+        public void onEditClick(Scene scene) {
+        }
+    };
 
 
     private CompoundButton.OnCheckedChangeListener checkedChangeListener = (buttonView, isChecked) -> {
@@ -212,7 +248,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
-
+    /*扫描mesh二维码的返回结果*/
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {

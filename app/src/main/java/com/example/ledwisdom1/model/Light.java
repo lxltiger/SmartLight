@@ -53,7 +53,6 @@ public final class Light {
                 ", meshAddress=" + meshAddress +
                 ", brightness=" + brightness +
                 ", mAddStatus=" + mAddStatus.get() +
-                ", mLightStatus=" + mLightStatus.get() +
                 '}';
     }
 }

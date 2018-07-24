@@ -1,22 +1,21 @@
 package com.example.ledwisdom1.home;
 
 import android.app.Application;
-import android.arch.core.util.Function;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.device.entity.LampList;
-import com.example.ledwisdom1.home.entity.HubList;
 import com.example.ledwisdom1.home.entity.GroupList;
+import com.example.ledwisdom1.home.entity.HubList;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
+import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.RequestCreator;
 
@@ -60,6 +59,9 @@ public class HomeViewModel extends AndroidViewModel {
     //场景列表监听
     public final LiveData<ApiResponse<GroupList>> groupListObserver;
 
+    //情景列表
+    public final MutableLiveData<Integer> sceneListRequest = new MutableLiveData<>();
+    public final LiveData<ApiResponse<SceneList>> sceneListObserver;
 
     public HomeViewModel(@NonNull Application application) {
         super(application);
@@ -72,28 +74,15 @@ public class HomeViewModel extends AndroidViewModel {
             return repository.shareMesh(requestBody);
         });
 
-        lampListObserver = Transformations.switchMap(lampListRequest, input -> {
-            if (profile.getValue() != null) {
-                String meshId = profile.getValue().meshId;
-                RequestBody requestBody = RequestCreator.requestLampList(meshId, input);
-                return repository.getLampList(requestBody);
-            }else{
-                Log.d(TAG, "profile is null");
-                return null;
-            }
-        });
+        lampListObserver = Transformations.switchMap(lampListRequest, input -> repository.getLampList(input));
 
         hubListObserver = Transformations.switchMap(hubListRequest, input -> repository.getHubList(input));
 
         groupListObserver= Transformations.switchMap(groupListRequest, input -> repository.getGroupList(input));
 
-        deleteLampObserver=Transformations.switchMap(deleteLampRequest, new Function<String, LiveData<Resource<Boolean>>>() {
-            @Override
-            public LiveData<Resource<Boolean>> apply(String input) {
-                return repository.deleteDevice(input);
-            }
-        });
+        deleteLampObserver=Transformations.switchMap(deleteLampRequest, input -> repository.deleteDevice(input));
 
+        sceneListObserver=Transformations.switchMap(sceneListRequest, repository::getSceneList);
 
     }
 

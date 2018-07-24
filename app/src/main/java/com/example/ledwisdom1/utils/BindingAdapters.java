@@ -4,6 +4,7 @@ import android.content.Context;
 import android.databinding.BindingAdapter;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -133,7 +134,7 @@ public class BindingAdapters {
                     Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new RoundTransform(context,2)).crossFade(1000).into(view);
                     break;
                 case CIRCLE:
-                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new CircleTransform(context)).into(view);
+                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new CircleTransform(context)).crossFade(1000).into(view);
                     break;
                 case NONE:
                 default:
@@ -161,6 +162,7 @@ public class BindingAdapters {
 
     @BindingAdapter("visibleGone")
     public static void setVisible(View view, boolean show) {
+        Log.d("BindingAdapters", "show:" + show);
         view.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 }

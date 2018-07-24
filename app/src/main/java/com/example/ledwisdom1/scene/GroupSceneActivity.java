@@ -1,5 +1,6 @@
 package com.example.ledwisdom1.scene;
 
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
@@ -36,6 +38,10 @@ public class GroupSceneActivity extends AppCompatActivity {
 
     private NavigatorController navigatorController;
     private GroupSceneViewModel viewModel;
+    /**
+     * 情景列表发生改变的标志
+     */
+    private boolean changed=false;
 
     public static Intent newIntent(Context context, String action, Group group) {
         Intent intent = new Intent(context, GroupSceneActivity.class);
@@ -83,6 +89,7 @@ public class GroupSceneActivity extends AppCompatActivity {
                     if (viewModel.groupSceneRequest.isGroup) {
                         finish();
                     } else {
+                        sendResult();
                         navigatorController.navigateToScene();
                     }
                 } else {
@@ -120,12 +127,13 @@ public class GroupSceneActivity extends AppCompatActivity {
                 if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     List<Lamp> lamps = viewModel.groupSceneLamps;
                     for (Lamp lamp : lamps) {
-                        allocDeviceGroup(viewModel.groupSceneRequest.groupAddress, lamp.getProductUuid(), BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get());
+                        allocDeviceGroup(viewModel.groupSceneRequest.groupAddress, lamp.getDevice_id(), BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get());
                     }
                     showToast(apiResponse.body.resultMsg);
                     if (viewModel.groupSceneRequest.isGroup) {
                         finish();
                     } else {
+                        sendResult();
                         navigatorController.navigateToScene();
                     }
                 } else {
@@ -143,6 +151,7 @@ public class GroupSceneActivity extends AppCompatActivity {
                     if (viewModel.groupSceneRequest.isGroup) {
                         finish();
                     } else {
+                        sendResult();
                         navigatorController.navigateToScene();
                     }
                 } else {
@@ -212,6 +221,19 @@ public class GroupSceneActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         handleNavigate(intent);
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+    }
+
+    private void sendResult() {
+        Log.d(TAG, "onStop: ok");
+        setResult(Activity.RESULT_OK);
+
+    }
+
 
 
     /**
