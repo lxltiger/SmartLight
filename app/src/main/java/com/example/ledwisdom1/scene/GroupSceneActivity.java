@@ -228,13 +228,12 @@ public class GroupSceneActivity extends AppCompatActivity {
 
     }
 
+    /*通知情景发生变化，首页需要请求新的数据*/
     private void sendResult() {
         Log.d(TAG, "onStop: ok");
         setResult(Activity.RESULT_OK);
 
     }
-
-
 
     /**
      * 添加灯具到场景

@@ -12,12 +12,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.databinding.FragmentMeshBinding;
-import com.example.ledwisdom1.model.QRCode;
-import com.google.gson.Gson;
 
 import ledwisdom1.example.com.zxinglib.camera.CaptureActivity;
 
@@ -116,13 +113,7 @@ public class MeshFragment extends Fragment {
             String result = data.getStringExtra("result");
             Log.d(TAG, result);
 
-            QRCode qrCode = new Gson().fromJson(result, QRCode.class);
-            if (qrCode != null) {
-//            上传到网络
-                //uploadMesh(qrCode.getMeshName(), qrCode.getMeshPassword(), qrCode.getOthersId());
-            } else {
-                Toast.makeText(getActivity(), "没能正确获取二维码结构", Toast.LENGTH_SHORT).show();
-            }
+
 
         }
 

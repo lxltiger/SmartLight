@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+
+        <variable
+            name="clock"
+            type="com.example.ledwisdom1.clock.Clock" />
+
+        <variable
+            name="listener"
+            type="com.example.ledwisdom1.clock.OnHandleClockListener" />
+
+
+
+    </data>
+
+    <com.mcxtzhang.swipemenulib.SwipeMenuLayout
+        android:id="@+id/swipeMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:swipeEnable="false">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:onClick="@{()->listener.onItemClick(clock)}">
+
+
+            <ImageView
+                android:id="@+id/iv_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/icon_light" />
+
+
+            <TextView
+                android:id="@+id/tv_name_mac"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toEndOf="@+id/iv_icon"
+                android:gravity="center_vertical"
+                android:lineSpacingMultiplier="1.5"
+                android:lines="2"
+                android:paddingEnd="8dp"
+                android:paddingStart="8dp"
+                android:text='@{String.format("%s\n%s",clock.time,clock.days)}'
+                tools:text="hei\nzhng" />
+
+            <View
+                style="@style/divider"
+                android:layout_alignParentBottom="true" />
+
+
+        </RelativeLayout>
+
+
+        <Button
+            android:id="@+id/delete"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:background="#FF00"
+            android:text="@string/delete"
+            android:textColor="@android:color/white" />
+
+    </com.mcxtzhang.swipemenulib.SwipeMenuLayout>
+</layout>

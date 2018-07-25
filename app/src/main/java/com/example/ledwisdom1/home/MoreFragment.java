@@ -26,6 +26,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.clock.ClockActivity;
 import com.example.ledwisdom1.databinding.FragmentMoreBinding;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.mesh.ReportMesh;
@@ -104,7 +105,9 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
             }
             break;
             case R.id.btn_clock:
-                break;
+
+            ClockActivity.start(getActivity(),ClockActivity.ACTION_CLOCK_LIST,null);
+            break;
             case R.id.about_us: {
                 Intent intent = new Intent(getActivity(), UserActivity.class);
                 intent.putExtra("action", UserActivity.ACTION_ABOUT_US);

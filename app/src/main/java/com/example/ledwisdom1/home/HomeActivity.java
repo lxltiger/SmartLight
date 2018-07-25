@@ -73,8 +73,6 @@ public class HomeActivity extends AppCompatActivity
         subscribeUI(viewModel);
         //为了防止反复更新 在此请求灯具列表
         viewModel.lampListRequest.setValue(1);
-        //场景列表
-        viewModel.sceneListRequest.setValue(1);
 
         try {
             MQTTClient.INSTANCE().startConnect();
@@ -99,6 +97,10 @@ public class HomeActivity extends AppCompatActivity
             if (defaultMesh != null) {
                 Log.d(TAG, "mesh " + defaultMesh.toString());
                 mesh = defaultMesh;
+                if (!TextUtils.isEmpty(defaultMesh.id)) {
+                    //情景景列表
+                    viewModel.sceneListRequest.setValue(1);
+                }
                 TelinkLightService.Instance().idleMode(true);
                 autoConnect();
             }

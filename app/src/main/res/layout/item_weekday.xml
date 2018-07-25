@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+
+        <variable
+            name="weekday"
+            type="com.example.ledwisdom1.clock.WeekDay" />
+    </data>
+
+   <CheckBox
+       android:id="@+id/day"
+       android:layout_width="match_parent"
+       android:layout_height="48dp"
+       android:text="@{weekday.day}"
+       android:checked="@={weekday.checked}"
+       tools:text="mind"/>
+</layout>

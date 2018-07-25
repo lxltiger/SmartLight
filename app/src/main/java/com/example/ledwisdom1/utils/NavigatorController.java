@@ -4,21 +4,24 @@ import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
+import com.example.ledwisdom1.clock.Clock;
+import com.example.ledwisdom1.clock.ClockFragment;
+import com.example.ledwisdom1.clock.ClockListFragment;
 import com.example.ledwisdom1.device.AddDeviceFragment;
 import com.example.ledwisdom1.device.AddHubFragment;
 import com.example.ledwisdom1.device.AddLampFragment;
 import com.example.ledwisdom1.device.GroupSceneControlFragment;
 import com.example.ledwisdom1.device.LightSettingFragment;
-import com.example.ledwisdom1.scene.EditFragment;
 import com.example.ledwisdom1.home.DeviceFragment;
 import com.example.ledwisdom1.home.GroupListFragment;
 import com.example.ledwisdom1.home.HomeActivity;
 import com.example.ledwisdom1.home.HomeFragment;
 import com.example.ledwisdom1.home.MoreFragment;
 import com.example.ledwisdom1.mesh.MeshFragment;
+import com.example.ledwisdom1.scene.EditFragment;
 import com.example.ledwisdom1.scene.GroupFragment;
-import com.example.ledwisdom1.scene.SceneFragment;
 import com.example.ledwisdom1.scene.LampListDialogFragment;
+import com.example.ledwisdom1.scene.SceneFragment;
 import com.example.ledwisdom1.scene.SceneListFragment;
 import com.example.ledwisdom1.scene.SelectedLampListFragment;
 import com.example.ledwisdom1.user.AboutUSFragment;
@@ -117,6 +120,20 @@ public class NavigatorController {
     public void navigateToScene() {
         fm.beginTransaction()
                 .replace(container, SceneListFragment.newInstance(), SceneListFragment.TAG)
+                .commitAllowingStateLoss();
+    }
+
+    public void navigateToClockList() {
+        fm.beginTransaction()
+                .replace(container, ClockListFragment.newInstance(), ClockListFragment.TAG)
+                .commitAllowingStateLoss();
+    }
+
+    /*闹钟的添加和编辑*/
+    public void navigateToClock(Clock clock) {
+        fm.beginTransaction()
+                .replace(container, ClockFragment.newInstance(clock), ClockFragment.TAG)
+                .addToBackStack(null)
                 .commitAllowingStateLoss();
     }
 

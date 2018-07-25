@@ -8,9 +8,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -92,4 +96,17 @@ public class ExampleUnitTest {
         String s = new Gson().toJson(deviceIds);
         System.out.println(s);
     }
+
+    @Test
+    public void testWeek() {
+        Calendar instance = Calendar.getInstance();
+        DateFormat dateFormat = new SimpleDateFormat("EEE", Locale.CHINA);
+        instance.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        for (int i = 0; i < 7; i++) {
+            String format = dateFormat.format(instance.getTimeInMillis());
+            System.out.println(format);
+            instance.add(Calendar.DAY_OF_WEEK, 1);
+        }
+    }
+
 }
