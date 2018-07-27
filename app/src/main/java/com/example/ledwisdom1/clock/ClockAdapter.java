@@ -28,7 +28,7 @@ public class ClockAdapter extends RecyclerView.Adapter<ClockAdapter.ViewHolder> 
     }
 
 
-    public List<Clock> getLampList() {
+    public List<Clock> getClockList() {
         return clockList;
     }
 
@@ -37,7 +37,7 @@ public class ClockAdapter extends RecyclerView.Adapter<ClockAdapter.ViewHolder> 
      * 刷新添加 先情况再更新
      *
      */
-    public void addLamps(List<Clock> clocks) {
+    public void addClocks(List<Clock> clocks) {
         clockList.clear();
         clockList.addAll(clocks);
         notifyDataSetChanged();
@@ -47,7 +47,7 @@ public class ClockAdapter extends RecyclerView.Adapter<ClockAdapter.ViewHolder> 
 
 
 
-    public void removeLamp(Clock c) {
+    public void removeClock(Clock c) {
         clockList.remove(c);
         notifyDataSetChanged();
     }
@@ -66,6 +66,7 @@ public class ClockAdapter extends RecyclerView.Adapter<ClockAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Clock clock = clockList.get(position);
+        clock.parseCycle();
         holder.mBinding.setClock(clock);
         holder.mBinding.executePendingBindings();
 

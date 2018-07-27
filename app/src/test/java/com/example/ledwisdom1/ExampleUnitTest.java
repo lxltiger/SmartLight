@@ -109,4 +109,34 @@ public class ExampleUnitTest {
         }
     }
 
+    @Test
+    public void testBits() {
+        String[] days = {"2", "3", "5"};
+        int origin = 0x00;
+        for (String day : days) {
+            int bit = Integer.parseInt(day);
+            origin |= (0x01 << bit);
+        }
+
+        System.out.println(Integer.toBinaryString(origin));
+    }
+
+    @Test
+    public void testTimeSet() {
+        byte[] params = {7, (byte) 0xdf, 6, 27, 11, 3, 5, -1, -1, -1};
+        int offset = 0;
+        int year = ((params[offset++] & 0xFF) << 8)+ (params[offset++] & 0xff);
+
+        int test=2015;
+        byte one = (byte) (test >> 8 & 0xff);
+        byte two= (byte) (test&0xff);
+//        assert (byte) 0xdf == two;
+        System.out.println(Integer.toHexString(two));
+
+
+        System.out.println(one);
+//        System.out.println(b);
+
+    }
+
 }

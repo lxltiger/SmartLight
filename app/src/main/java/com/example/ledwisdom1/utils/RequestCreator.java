@@ -1,5 +1,6 @@
 package com.example.ledwisdom1.utils;
 
+import com.example.ledwisdom1.clock.ClockRequest;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
 import com.example.ledwisdom1.model.CommonRequest;
 import com.example.ledwisdom1.scene.GroupSceneRequest;
@@ -65,7 +66,7 @@ public class RequestCreator {
     }
 
     public static RequestBody requestDeleteLamp(String id) {
-        DeviceRequest request = new DeviceRequest(null,id);
+        DeviceRequest request = new DeviceRequest(null, id);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
@@ -83,11 +84,7 @@ public class RequestCreator {
      *
      * @return
      */
-    @Deprecated
-    public static RequestBody requestAddLampToGroup(String groupId, String deviceIds) {
-        GroupSceneRequest addDeviceToGroup = new GroupSceneRequest(groupId, null, deviceIds);
-        return RequestBody.create(MEDIATYPE, new Gson().toJson(addDeviceToGroup));
-    }
+
 
     public static RequestBody requestAddLampToGroupScene(GroupSceneRequest request) {
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
@@ -129,15 +126,28 @@ public class RequestCreator {
         return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
     }
 
+    public static RequestBody requestClockDevices(String clockId) {
+        ClockRequest clockRequest = new ClockRequest(clockId);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(clockRequest));
+    }
+    public static RequestBody requestDeleteClock(String clockId) {
+        ClockRequest clockRequest = new ClockRequest(clockId);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(clockRequest));
+    }
+
 
     public static RequestBody createAddHub(AddHubRequest addHubRequest) {
         return RequestBody.create(MEDIATYPE, new Gson().toJson(addHubRequest));
     }
 
+    public static RequestBody requestClock(ClockRequest clockRequest) {
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(clockRequest));
+    }
+
     public static RequestBody requestDeviceId(String meshId) {
-        DeviceRequest deviceRequest=new DeviceRequest(meshId,null);
+        DeviceRequest deviceRequest = new DeviceRequest(meshId, null);
         String s = new Gson().toJson(deviceRequest);
-        return RequestBody.create(MEDIATYPE,s);
+        return RequestBody.create(MEDIATYPE, s);
     }
 
 
@@ -197,16 +207,8 @@ public class RequestCreator {
         }
 
     }
- private static class TempRequest {
-        private String meshId;
 
 
-
-        public TempRequest(String meshId) {
-            this.meshId = meshId;
-        }
-
-    }
 
 
 }

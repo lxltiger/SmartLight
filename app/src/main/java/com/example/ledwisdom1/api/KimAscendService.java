@@ -2,6 +2,8 @@ package com.example.ledwisdom1.api;
 
 import android.arch.lifecycle.LiveData;
 
+import com.example.ledwisdom1.clock.ClockList;
+import com.example.ledwisdom1.clock.ClockResult;
 import com.example.ledwisdom1.device.entity.LampList;
 import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.home.entity.GroupList;
@@ -169,23 +171,28 @@ public interface KimAscendService {
     LiveData<ApiResponse<GroupDevice>> getDevicesBySceneId(@Body RequestBody request);
 
     @POST("clock/getClockList")
-    LiveData<Response<Profile>> getClockList(@Body RequestBody request);
+    LiveData<ApiResponse<ClockList>> getClockList(@Body RequestBody request);
 
     @POST("clock/createClock")
-    LiveData<Response<Profile>> createClock(@Body RequestBody request);
+    LiveData<ApiResponse<ClockResult>> createClock(@QueryMap Map<String, String> map);
 
     @POST("clock/updateClock")
-    LiveData<Response<Profile>> updateClock(@Body RequestBody request);
+    LiveData<ApiResponse<RequestResult>> updateClock(@QueryMap Map<String, String> map);
 
     @POST("clock/deleteClock")
-    LiveData<Response<Profile>> deleteClock(@Body RequestBody request);
+    LiveData<ApiResponse<RequestResult>> deleteClock(@Body RequestBody request);
 
     @POST("clock/addDeviceToClock")
-    LiveData<Response<Profile>> addDeviceToClock(@Body RequestBody request);
+    LiveData<ApiResponse<RequestResult>> addDeviceToClock(@Body RequestBody request);
+//    LiveData<ApiResponse<RequestResult>> addDeviceToClock(@QueryMap Map<String, String> map);
+
+
+    @POST("clock/deleteDeviceFromClock")
+    LiveData<ApiResponse<RequestResult>> deleteDeviceToClock(@Body RequestBody request);
 
 
     @POST("clock/getDevicesByClockId")
-    LiveData<Response<Profile>> getDevicesByClockId(@Body RequestBody request);
+    LiveData<ApiResponse<GroupDevice>> getDevicesByClockId(@Body RequestBody request);
 
     @POST("feedback/createFeedback")
     LiveData<ApiResponse<RequestResult>> feedBack(@Body RequestBody request);

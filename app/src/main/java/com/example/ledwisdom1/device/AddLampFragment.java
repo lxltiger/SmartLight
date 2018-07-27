@@ -384,7 +384,7 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         map.put("deviceId", meshAddress);
         map.put("mac", light.raw.macAddress);
         map.put("gatewayId", gatewayId);
-        map.put("typeId", "8");
+        map.put("typeId", "256");
         map.put("factoryId", factoryId);
         map.put("productUuid", productUuid);
         viewModel.addLampRequest.setValue(map);

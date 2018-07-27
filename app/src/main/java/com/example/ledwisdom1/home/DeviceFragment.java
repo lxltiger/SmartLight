@@ -29,14 +29,20 @@ import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.device.entity.LampList;
 import com.example.ledwisdom1.home.entity.Hub;
 import com.example.ledwisdom1.home.entity.HubList;
+import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.utils.AutoClearValue;
 import com.telink.bluetooth.event.MeshEvent;
 import com.telink.bluetooth.event.NotificationEvent;
+import com.telink.bluetooth.light.NotificationInfo;
 import com.telink.bluetooth.light.OnlineStatusNotificationParser;
+import com.telink.bluetooth.light.Opcode;
 import com.telink.util.Event;
 import com.telink.util.EventListener;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -150,6 +156,8 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         super.onStart();
         SmartLightApp smartLightApp = SmartLightApp.INSTANCE();
         smartLightApp.addEventListener(NotificationEvent.ONLINE_STATUS, eventListener);
+        smartLightApp.addEventListener(NotificationEvent.GET_ALARM, eventListener);
+        smartLightApp.addEventListener(NotificationEvent.GET_TIME, eventListener);
         smartLightApp.addEventListener(MeshEvent.OFFLINE, eventListener);
         viewModel.hubListRequest.setValue(1);
 
@@ -165,9 +173,23 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
     private EventListener<String> eventListener = new EventListener<String>() {
         @Override
         public void performed(Event<String> event) {
+            Log.d(TAG,"event type"+ event.getType());
             switch (event.getType()) {
                 case NotificationEvent.ONLINE_STATUS:
                     onOnlineStatusNotify((NotificationEvent) event);
+                    break;
+                case NotificationEvent.GET_TIME:
+                    NotificationEvent notificationEvent = (NotificationEvent) event;
+                    NotificationInfo args = notificationEvent.getArgs();
+                    byte[] params = args.params;
+                    String s = Arrays.toString(params);
+                    Log.d(TAG, "param "+s);
+                    Calendar calendar = (Calendar) notificationEvent.parse();
+                    String format = DateFormat.getDateTimeInstance().format(calendar.getTimeInMillis());
+                    Log.d(TAG, format);
+                    break;
+                case NotificationEvent.GET_ALARM:
+
                     break;
                 case MeshEvent.OFFLINE:
                     Log.d(TAG, "performed: on mesh off");
@@ -257,6 +279,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         }
     };
 
+    boolean set=true;
     @Override
     public void handleClick(View view) {
         switch (view.getId()) {
@@ -265,6 +288,27 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
                 intent.putExtra("action", DeviceActivity.ACTION_ADD_DEVICE);
                 //如果添加成功会设置成功信号
                 startActivityForResult(intent,0);
+                break;
+            case R.id.temp:
+//                byte[] params = { 0x07,(byte)0xdf,0x06,0x1b,0x0b,0x03,0x04};
+                byte[] params =new byte[7];
+                Calendar instance = Calendar.getInstance();
+                int year = instance.get(Calendar.YEAR);
+                int offset=0;
+                params[offset++] = (byte) (year >> 8 & 0xff);
+                params[offset++] = (byte) (year & 0xff);
+                params[offset++] = (byte) instance.get(Calendar.MONTH);
+                params[offset++] = (byte) instance.get(Calendar.DAY_OF_MONTH);
+                params[offset++] = (byte) instance.get(Calendar.HOUR_OF_DAY);
+                params[offset++] = (byte) instance.get(Calendar.MINUTE);
+                params[offset++] = (byte) instance.get(Calendar.SECOND);
+                if (set) {
+                    TelinkLightService.Instance().sendCommand(Opcode.BLE_GATT_OP_CTRL_E4.getValue(), 0xffff, params);
+                }else{
+
+                TelinkLightService.Instance().sendCommand(Opcode.BLE_GATT_OP_CTRL_E8.getValue(), 0x0000, new byte[]{0x10});
+                }
+                set = !set;
                 break;
         }
     }

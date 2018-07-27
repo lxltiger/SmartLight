@@ -9,6 +9,8 @@ import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,33 +25,27 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class WeekDayFragment extends BottomSheetDialogFragment  {
+public class WeekDayFragment extends BottomSheetDialogFragment {
     public static final String TAG = WeekDayFragment.class.getSimpleName();
     private Listener listener;
     private WeekDayAdapter adapter;
 
-    public static WeekDayFragment newInstance(int hour, int min) {
+    public static WeekDayFragment newInstance(String repeat) {
         Bundle args = new Bundle();
-        args.putInt("hour", hour);
-        args.putInt("min", min);
+        args.putString("repeat", repeat);
         WeekDayFragment fragment = new WeekDayFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static WeekDayFragment newInstance() {
-        WeekDayFragment fragment = new WeekDayFragment();
-        fragment.setArguments(null);
-        return fragment;
-    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        final  Fragment parentFragment = getParentFragment();
+        final Fragment parentFragment = getParentFragment();
         if (parentFragment != null) {
             listener = (Listener) parentFragment;
-        }else{
+        } else {
             listener = (Listener) context;
         }
     }
@@ -67,16 +63,26 @@ public class WeekDayFragment extends BottomSheetDialogFragment  {
 
     }
 
+    //生成星期集合，如果以前有选择 需要标注
     private List<WeekDay> populate() {
         List<WeekDay> weekDays = new ArrayList<>();
         Calendar instance = Calendar.getInstance();
         DateFormat dateFormat = new SimpleDateFormat("EEE", Locale.CHINA);
-        instance.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        for (int i = 0; i < 7; i++) {
+        Bundle arguments = getArguments();
+        String repeat = arguments.getString("repeat", "");
+        List<Integer> selectDays=new ArrayList<>();
+        if (!TextUtils.isEmpty(repeat)) {
+            Log.d(TAG, repeat);
+            String[] days = repeat.split(",");
+            for (String day : days) {
+                selectDays.add(Integer.parseInt(day));
+            }
+        }
+//        周日=1  周六=7
+        for (int i = 1; i <= 7; i++) {
+            instance.set(Calendar.DAY_OF_WEEK, i);
             String format = dateFormat.format(instance.getTimeInMillis());
-//            System.out.println(format);
-            instance.add(Calendar.DAY_OF_WEEK, 1);
-            weekDays.add(new WeekDay(format));
+            weekDays.add(new WeekDay(format, selectDays.contains(i)));
         }
         return weekDays;
     }
@@ -89,15 +95,21 @@ public class WeekDayFragment extends BottomSheetDialogFragment  {
         final List<WeekDay> weekDays = populate();
         adapter = new WeekDayAdapter(weekDays);
         recyclerView.setAdapter(adapter);
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-
-        }
         view.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {
-                    listener.onWeekDaySet(weekDays);
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = 0; i < weekDays.size(); i++) {
+                        if (weekDays.get(i).checked) {
+                            stringBuilder.append(',').append(i + 1);
+                        }
+                    }
+                    if (stringBuilder.length() > 0) {
+
+                        stringBuilder.deleteCharAt(0);
+                    }
+                    listener.onWeekDaySet(stringBuilder.toString());
                 }
                 dismiss();
             }
@@ -105,12 +117,11 @@ public class WeekDayFragment extends BottomSheetDialogFragment  {
     }
 
 
-
     public interface Listener {
-        void onWeekDaySet(List<WeekDay> weekDays);
+        void onWeekDaySet(String weekDays);
     }
 
-    private static class WeekDayAdapter extends RecyclerView.Adapter<WeekDayAdapter.WeekDayViewHolder>{
+    private static class WeekDayAdapter extends RecyclerView.Adapter<WeekDayAdapter.WeekDayViewHolder> {
 
         private List<WeekDay> weekDays;
 
@@ -122,11 +133,12 @@ public class WeekDayFragment extends BottomSheetDialogFragment  {
             return weekDays;
         }
 
-        public static class WeekDayViewHolder extends RecyclerView.ViewHolder{
+        public static class WeekDayViewHolder extends RecyclerView.ViewHolder {
             public final ItemWeekdayBinding binding;
+
             public WeekDayViewHolder(ItemWeekdayBinding itemWeekdayBinding) {
                 super(itemWeekdayBinding.getRoot());
-                binding=itemWeekdayBinding;
+                binding = itemWeekdayBinding;
             }
         }
 
@@ -148,7 +160,7 @@ public class WeekDayFragment extends BottomSheetDialogFragment  {
 
         @Override
         public int getItemCount() {
-            return weekDays==null?0:weekDays.size();
+            return weekDays == null ? 0 : weekDays.size();
         }
     }
 

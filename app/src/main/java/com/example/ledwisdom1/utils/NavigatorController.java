@@ -150,6 +150,7 @@ public class NavigatorController {
                 .commitAllowingStateLoss();
     }
 
+//    场景 、情景灯具列表
     public void navigateToLampList() {
         fm.beginTransaction()
                 .replace(container, LampListDialogFragment.newInstance(), LampListDialogFragment.TAG)
@@ -157,9 +158,25 @@ public class NavigatorController {
                 .commitAllowingStateLoss();
     }
 
+    //闹钟的灯具列表 todo  优化
+    public void navigateToClockLampList() {
+        fm.beginTransaction()
+                .replace(container, com.example.ledwisdom1.clock.LampListDialogFragment.newInstance(), LampListDialogFragment.TAG)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+    }
+
     public void navigateToSelectedLamps() {
         fm.beginTransaction()
                 .replace(container, SelectedLampListFragment.newInstance(), SelectedLampListFragment.TAG)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+    }
+
+//    闹钟已选择灯具
+    public void navigateToClockSelectedLamps() {
+        fm.beginTransaction()
+                .replace(container, com.example.ledwisdom1.clock.SelectedLampListFragment.newInstance(), SelectedLampListFragment.TAG)
                 .addToBackStack(null)
                 .commitAllowingStateLoss();
     }

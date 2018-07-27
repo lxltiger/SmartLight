@@ -26,8 +26,7 @@
             android:padding="8dp"
             android:text="扫 一 扫"
             android:onClick="@{handler::handleClick}"
-            android:textColor="@color/colorPrimary"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
         <View
             android:layout_width="match_parent"
@@ -43,7 +42,6 @@
             android:drawableStart="@drawable/icon_list"
             android:padding="8dp"
             android:text="家庭列表"
-            android:textColor="@color/colorPrimary"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
     </LinearLayout>
 </layout>

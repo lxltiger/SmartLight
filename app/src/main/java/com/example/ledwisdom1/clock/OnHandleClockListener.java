@@ -7,6 +7,7 @@ package com.example.ledwisdom1.clock;
 public interface OnHandleClockListener {
 
     void onItemClick(Clock clock);
+    void onItemDelete(Clock clock);
 
 
 }

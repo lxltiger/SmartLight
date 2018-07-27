@@ -1,6 +1,7 @@
 package com.example.ledwisdom1.clock;
 
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -14,13 +15,16 @@ import android.view.ViewGroup;
 
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.databinding.FragmentClockListBinding;
+import com.example.ledwisdom1.utils.ToastUtil;
+
+import java.util.List;
 
 /**
- *
  * 闹钟列表
  */
-public class ClockListFragment extends Fragment implements CallBack{
+public class ClockListFragment extends Fragment implements CallBack {
     public static final String TAG = ClockListFragment.class.getSimpleName();
     private ClockAdapter clockAdapter;
     private ClockViewModel viewModel;
@@ -48,38 +52,56 @@ public class ClockListFragment extends Fragment implements CallBack{
         return mBinding.getRoot();
     }
 
-    private OnHandleClockListener handleClockListener = clock -> ClockActivity.start(getContext(),ClockActivity.ACTION_CLOCK,clock);
+    private OnHandleClockListener handleClockListener = new OnHandleClockListener() {
+        @Override
+        public void onItemClick(Clock clock) {
+            ClockActivity.start(getContext(), ClockActivity.ACTION_CLOCK, clock);
+        }
+
+        @Override
+        public void onItemDelete(Clock clock) {
+            viewModel.deleteClick(clock);
+        }
+    };
 
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity()).get(ClockViewModel.class);
-        /*viewModel.sceneListObserver.observe(this, new Observer<ApiResponse<SceneList>>() {
+        viewModel.clockListObserver.observe(this, new Observer<ApiResponse<ClockList>>() {
             @Override
-            public void onChanged(@Nullable ApiResponse<SceneList> apiResponse) {
+            public void onChanged(@Nullable ApiResponse<ClockList> apiResponse) {
                 if (apiResponse.isSuccessful()) {
                     if (apiResponse.body != null) {
-                        List<Scene> list = apiResponse.body.getList();
+                        List<Clock> list = apiResponse.body.getList();
                         if (list != null) {
-                            clockAdapter.addScenes(list);
+                            clockAdapter.addClocks(list);
                         }
                     }
                 }
             }
-        });*/
+        });
+
+        viewModel.deleteClockObserver.observe(this, new Observer<Clock>() {
+            @Override
+            public void onChanged(@Nullable Clock clock) {
+                if (clock != null) {
+                    clockAdapter.removeClock(clock);
+                } else {
+                    ToastUtil.showToast("删除失败");
+                }
+            }
+        });
     }
-
-
 
 
     @Override
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: ");
-//        viewModel.sceneListRequest.setValue(1);
+        viewModel.clockListRequest.setValue(1);
     }
-
 
 
     @Override
@@ -89,7 +111,7 @@ public class ClockListFragment extends Fragment implements CallBack{
                 getActivity().finish();
                 break;
             case R.id.btn_add:
-                ClockActivity.start(getContext(),ClockActivity.ACTION_CLOCK,null);
+                ClockActivity.start(getContext(), ClockActivity.ACTION_CLOCK, null);
                 break;
 
         }

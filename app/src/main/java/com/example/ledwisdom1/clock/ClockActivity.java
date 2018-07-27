@@ -1,13 +1,18 @@
 package com.example.ledwisdom1.clock;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.utils.NavigatorController;
+
+import static com.example.ledwisdom1.utils.ToastUtil.showToast;
 
 public class ClockActivity extends AppCompatActivity {
     public static final String ACTION_CLOCK = "action_clock";
@@ -37,12 +42,39 @@ public class ClockActivity extends AppCompatActivity {
 
         subscribeUI(viewModel);
         //当前mesh下的灯具
-//        viewModel.lampListRequest.setValue(1);
-
+        viewModel.lampListRequest.setValue(1);
     }
 
     private void subscribeUI(ClockViewModel viewModel) {
+        viewModel.clockObserver.observe(this, new Observer<ClockResult>() {
+            @Override
+            public void onChanged(@Nullable ClockResult clockResult) {
+                viewModel.isLoading.set(false);
+                if (null != clockResult ) {
+                    // TODO: 2018/7/26 0026 闹钟处理
+                    onBackPressed();
 
+                } else {
+                    viewModel.isLoading.set(false);
+                    showToast("创建闹钟失败");
+                }
+            }
+        });
+
+        viewModel.updateClockObserver.observe(this, new Observer<RequestResult>() {
+            @Override
+            public void onChanged(@Nullable RequestResult requestResult) {
+                viewModel.isLoading.set(false);
+
+                if (requestResult != null && requestResult.succeed()) {
+                    // TODO: 2018/7/26 0026 闹钟处理
+                    onBackPressed();
+                }else{
+                    viewModel.isLoading.set(false);
+                    showToast("更新闹钟失败");
+                }
+            }
+        });
     }
 
     private void handleNavigate(Intent intent) {
@@ -58,10 +90,10 @@ public class ClockActivity extends AppCompatActivity {
                     navigatorController.navigateToClockList();
                     break;
                 case ACTION_LAMP_LIST:
-                    navigatorController.navigateToLampList();
+                    navigatorController.navigateToClockLampList();
                     break;
                 case ACTION_SELECTED_LAMP:
-                    navigatorController.navigateToSelectedLamps();
+                    navigatorController.navigateToClockSelectedLamps();
                     break;
             }
         }
