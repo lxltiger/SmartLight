@@ -93,3 +93,7 @@
                 android:layout_margin="10dp"
                 />
         </android.support.v7.widget.CardView>
+        
+        
+ 11. switch的方法引用          
+ android:onCheckedChanged="@{(v,checked)->listener.onCheckedChanged(v,checked,clock)}"

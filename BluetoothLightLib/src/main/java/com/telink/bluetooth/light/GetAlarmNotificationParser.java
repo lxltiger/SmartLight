@@ -27,7 +27,7 @@ public final class GetAlarmNotificationParser extends NotificationParser<GetAlar
     public AlarmInfo parse(NotificationInfo notifyInfo) {
 
         byte[] params = notifyInfo.params;
-        int offset = 8;
+        int offset = 9;
         int total = params[offset] & 0xFF;
 
         if (total == 0)
@@ -163,5 +163,20 @@ public final class GetAlarmNotificationParser extends NotificationParser<GetAlar
         public int getSecond() {
             return (int) (this.time & 0xFF);
         }
+
+        @Override
+        public String toString() {
+            return "AlarmInfo{" +
+                    "index=" + index +
+                    ", total=" + total +
+                    ", action=" + action +
+                    ", type=" + type +
+                    ", status=" + status +
+                    ", time=" + time +
+                    ", sceneId=" + sceneId +
+                    '}';
+        }
     }
+
+
 }

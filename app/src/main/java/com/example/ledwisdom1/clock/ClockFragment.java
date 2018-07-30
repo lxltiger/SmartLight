@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +18,6 @@ import com.example.ledwisdom1.databinding.FragmentClockBinding;
 import com.google.gson.Gson;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.example.ledwisdom1.utils.ToastUtil.showToast;
 
@@ -72,7 +70,7 @@ public class ClockFragment extends Fragment implements TimePickerFragment.Listen
                 clockRequest.repeat = clock.repeat;
                 clockRequest.time=clock.cronTime;
                 //获取
-                viewModel.clockId.setValue(clock.getId());
+//                viewModel.clockId.setValue(clock.getId());
 //                clockRequest.name = clock.getName();
 //                clockRequest.type = clock.getType() + "";
                 switch (clock.getType()) {
@@ -125,6 +123,11 @@ public class ClockFragment extends Fragment implements TimePickerFragment.Listen
             showToast("重复周期没有设定");
             return;
         }
+        List<String> ids = viewModel.getSelectedLampIds();
+        if (ids.isEmpty()) {
+            showToast("还没有选择灯具");
+            return;
+        }
         viewModel.isLoading.set(true);
         clockRequest.cycle = String.format("0 %s ? * %s", clockRequest.time, clockRequest.repeat);
         viewModel.updateClockRequest.setValue(clockRequest);
@@ -146,6 +149,7 @@ public class ClockFragment extends Fragment implements TimePickerFragment.Listen
             return;
         }
         viewModel.isLoading.set(true);
+        //添加设备时需要
         clockRequest.deviceId = new Gson().toJson(ids);
         //cron 格式 Seconds Minutes Hours Day-of-Month Month Day-of-Week Year ? ：表示每月的某一天，或第几周的某一天
         clockRequest.cycle = String.format("0 %s ? * %s", clockRequest.time, clockRequest.repeat);

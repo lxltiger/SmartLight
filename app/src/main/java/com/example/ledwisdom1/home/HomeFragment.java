@@ -33,7 +33,6 @@ import com.example.ledwisdom1.device.entity.LampCmd;
 import com.example.ledwisdom1.mesh.HomeAdapter;
 import com.example.ledwisdom1.mesh.MeshActivity;
 import com.example.ledwisdom1.mqtt.MQTTClient;
-import com.example.ledwisdom1.scene.GroupSceneActivity;
 import com.example.ledwisdom1.scene.OnHandleSceneListener;
 import com.example.ledwisdom1.scene.Scene;
 import com.example.ledwisdom1.scene.SceneList;
@@ -151,8 +150,10 @@ public class HomeFragment extends Fragment {
                 if (sceneListApiResponse.isSuccessful()) {
                     SceneList body = sceneListApiResponse.body;
                     List<Scene> list = body.getList();
-                    bindingDetail.get().setShowScene(!list.isEmpty());
-                    sceneAdapter.addScenes(list);
+                    if (list != null) {
+                        bindingDetail.get().setShowScene(!list.isEmpty());
+                        sceneAdapter.addScenes(list);
+                    }
                 }else {
                     bindingDetail.get().setShowScene(false);
                 }
@@ -178,6 +179,7 @@ public class HomeFragment extends Fragment {
         bindingDetail.get().setBle(isChecked);
 
     };
+
 
 
     public void handleClick(View v) {

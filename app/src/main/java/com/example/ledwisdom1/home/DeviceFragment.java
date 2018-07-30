@@ -29,13 +29,13 @@ import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.device.entity.LampList;
 import com.example.ledwisdom1.home.entity.Hub;
 import com.example.ledwisdom1.home.entity.HubList;
-import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.utils.AutoClearValue;
+import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.telink.bluetooth.event.MeshEvent;
 import com.telink.bluetooth.event.NotificationEvent;
+import com.telink.bluetooth.light.GetAlarmNotificationParser;
 import com.telink.bluetooth.light.NotificationInfo;
 import com.telink.bluetooth.light.OnlineStatusNotificationParser;
-import com.telink.bluetooth.light.Opcode;
 import com.telink.util.Event;
 import com.telink.util.EventListener;
 
@@ -88,7 +88,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         CommonPagerAdapter pagerAdapter = new CommonPagerAdapter(viewList);
         fragmentDeviceBinding.viewPager.setAdapter(pagerAdapter);
 
-        hubAdapter=new HubAdapter(mHandleHubListener);
+        hubAdapter = new HubAdapter(mHandleHubListener);
         viewHubBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         viewHubBinding.recyclerView.setAdapter(hubAdapter);
 
@@ -112,7 +112,6 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         subscribeUI(viewModel);
 
     }
-
 
 
     private void subscribeUI(HomeViewModel viewModel) {
@@ -143,7 +142,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         viewModel.deleteLampObserver.observe(this, new Observer<Resource<Boolean>>() {
             @Override
             public void onChanged(@Nullable Resource<Boolean> resource) {
-                if (resource.data!=null&&resource.data) {
+                if (resource.data != null && resource.data) {
                     lampAdapter.removeLamp(lamp);
                 }
             }
@@ -157,9 +156,18 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         SmartLightApp smartLightApp = SmartLightApp.INSTANCE();
         smartLightApp.addEventListener(NotificationEvent.ONLINE_STATUS, eventListener);
         smartLightApp.addEventListener(NotificationEvent.GET_ALARM, eventListener);
-        smartLightApp.addEventListener(NotificationEvent.GET_TIME, eventListener);
+//        smartLightApp.addEventListener(NotificationEvent.GET_TIME, eventListener);
         smartLightApp.addEventListener(MeshEvent.OFFLINE, eventListener);
         viewModel.hubListRequest.setValue(1);
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //获取灯具的时间
+//        LightCommandUtils.getLampTime();
+        LightCommandUtils.getAlarm();
 
     }
 
@@ -173,24 +181,35 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
     private EventListener<String> eventListener = new EventListener<String>() {
         @Override
         public void performed(Event<String> event) {
-            Log.d(TAG,"event type"+ event.getType());
+            Log.d(TAG, "event type" + event.getType());
             switch (event.getType()) {
                 case NotificationEvent.ONLINE_STATUS:
                     onOnlineStatusNotify((NotificationEvent) event);
                     break;
-                case NotificationEvent.GET_TIME:
+                case NotificationEvent.GET_TIME: {
                     NotificationEvent notificationEvent = (NotificationEvent) event;
                     NotificationInfo args = notificationEvent.getArgs();
                     byte[] params = args.params;
                     String s = Arrays.toString(params);
-                    Log.d(TAG, "param "+s);
+                    Log.d(TAG, "param " + s);
                     Calendar calendar = (Calendar) notificationEvent.parse();
                     String format = DateFormat.getDateTimeInstance().format(calendar.getTimeInMillis());
                     Log.d(TAG, format);
                     break;
-                case NotificationEvent.GET_ALARM:
+                }
+                case NotificationEvent.GET_ALARM: {
+                    NotificationEvent notificationEvent = (NotificationEvent) event;
+                    NotificationInfo args = notificationEvent.getArgs();
+                    byte[] params = args.params;
+                    String s = Arrays.toString(params);
+                    Log.d(TAG, "param " + s);
+                    GetAlarmNotificationParser.AlarmInfo alarmInfo = (GetAlarmNotificationParser.AlarmInfo) notificationEvent.parse();
+                    if (alarmInfo != null) {
+                        Log.d(TAG, "alarm info" + alarmInfo.toString());
+                    }
+                }
 
-                    break;
+                break;
                 case MeshEvent.OFFLINE:
                     Log.d(TAG, "performed: on mesh off");
                     lampAdapter.meshOff();
@@ -211,7 +230,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         for (OnlineStatusNotificationParser.DeviceNotificationInfo notificationInfo : notificationInfoList) {
             int meshAddress = notificationInfo.meshAddress;
             int brightness = notificationInfo.brightness;
-            Log.d(TAG, meshAddress+"meshAddress:" + brightness);
+            Log.d(TAG, meshAddress + "meshAddress:" + brightness);
             //根据meshAddress查找
             Lamp lamp = lampAdapter.getLamp(meshAddress);
             if (lamp != null) {
@@ -219,9 +238,8 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
                 // 修改灯状态
                 lamp.lampStatus.set(notificationInfo.connectStatus.getValue());
             }
-//            light.mDescription=String.format(Locale.getDefault(),"%d\n%d",meshAddress,brightness);
         }
-       /* handler.post(() -> lampAdapter.notifyDataSetChanged());*/
+        /* handler.post(() -> lampAdapter.notifyDataSetChanged());*/
     }
 
     @Override
@@ -263,7 +281,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         @Override
         public void onItemClick(Lamp lamp) {
             Log.d(TAG, "lamp:" + lamp);
-            DeviceActivity.start(getActivity(),DeviceActivity.ACTION_LAMP_SETTING,lamp.getDevice_id(),lamp.getBrightness(),lamp.lampStatus.get());
+            DeviceActivity.start(getActivity(), DeviceActivity.ACTION_LAMP_SETTING, lamp.getDevice_id(), lamp.getBrightness(), lamp.lampStatus.get());
         }
 
         @Override
@@ -273,13 +291,14 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
 
         @Override
         public void onDeleteClick(Lamp lamp) {
-            DeviceFragment.this.lamp=lamp;
+            DeviceFragment.this.lamp = lamp;
             // TODO: 2018/7/24 0024 在数据库删除
             viewModel.deleteLampRequest.setValue(lamp.getId());
         }
     };
 
-    boolean set=true;
+    boolean toggle = true;
+
     @Override
     public void handleClick(View view) {
         switch (view.getId()) {
@@ -287,35 +306,23 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
                 Intent intent = new Intent(getActivity(), DeviceActivity.class);
                 intent.putExtra("action", DeviceActivity.ACTION_ADD_DEVICE);
                 //如果添加成功会设置成功信号
-                startActivityForResult(intent,0);
+                startActivityForResult(intent, 0);
                 break;
             case R.id.temp:
-//                byte[] params = { 0x07,(byte)0xdf,0x06,0x1b,0x0b,0x03,0x04};
-                byte[] params =new byte[7];
-                Calendar instance = Calendar.getInstance();
-                int year = instance.get(Calendar.YEAR);
-                int offset=0;
-                params[offset++] = (byte) (year >> 8 & 0xff);
-                params[offset++] = (byte) (year & 0xff);
-                params[offset++] = (byte) instance.get(Calendar.MONTH);
-                params[offset++] = (byte) instance.get(Calendar.DAY_OF_MONTH);
-                params[offset++] = (byte) instance.get(Calendar.HOUR_OF_DAY);
-                params[offset++] = (byte) instance.get(Calendar.MINUTE);
-                params[offset++] = (byte) instance.get(Calendar.SECOND);
-                if (set) {
-                    TelinkLightService.Instance().sendCommand(Opcode.BLE_GATT_OP_CTRL_E4.getValue(), 0xffff, params);
-                }else{
-
-                TelinkLightService.Instance().sendCommand(Opcode.BLE_GATT_OP_CTRL_E8.getValue(), 0x0000, new byte[]{0x10});
+                if (toggle) {
+                    LightCommandUtils.addAlarm();
+                } else {
+                    LightCommandUtils.getAlarm();
                 }
-                set = !set;
+                toggle = !toggle;
                 break;
         }
     }
 
-//    接到成功信息 更新灯具列表
+    //    接到成功信息 更新灯具列表
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
         if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
             viewModel.lampListRequest.setValue(1);
         }

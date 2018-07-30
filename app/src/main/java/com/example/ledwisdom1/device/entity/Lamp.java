@@ -197,7 +197,7 @@ public class Lamp implements Parcelable {
                 ", brightness=" + brightness +
                 ", color=" + color +
                 ", temperature=" + temperature +
-                ", lampStatus=" + lampStatus +
+                ", lampStatus=" + lampStatus.get() +
                 '}';
     }
 }

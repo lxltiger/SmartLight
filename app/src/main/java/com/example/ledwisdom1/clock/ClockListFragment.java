@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
@@ -62,6 +63,17 @@ public class ClockListFragment extends Fragment implements CallBack {
         public void onItemDelete(Clock clock) {
             viewModel.deleteClick(clock);
         }
+
+
+        @Override
+        public void onSwitchClick(Clock clock) {
+            viewModel.switchClock(clock);
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked, Clock clock) {
+            Log.d(TAG, "onCheckedChanged() calle, isChecked = [" + isChecked + "], clock = [" + clock + "]");
+        }
     };
 
 
@@ -93,13 +105,23 @@ public class ClockListFragment extends Fragment implements CallBack {
                 }
             }
         });
+
+        viewModel.switchClockObserver.observe(this, new Observer<Clock>() {
+            @Override
+            public void onChanged(@Nullable Clock clock) {
+                if (clock != null) {
+                    clockAdapter.notifyDataSetChanged();
+                }else{
+                    ToastUtil.showToast("切换失败");
+                }
+            }
+        });
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: ");
         viewModel.clockListRequest.setValue(1);
     }
 
@@ -113,7 +135,6 @@ public class ClockListFragment extends Fragment implements CallBack {
             case R.id.btn_add:
                 ClockActivity.start(getContext(), ClockActivity.ACTION_CLOCK, null);
                 break;
-
         }
     }
 }

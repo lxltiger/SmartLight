@@ -10,10 +10,15 @@ public class ClockRequest {
     public String repeat;
     public String cycle;
     public String deviceId;
-
+    public int isOpen;
 
     public ClockRequest(String clockId) {
         this.clockId = clockId;
+    }
+
+    public ClockRequest(String clockId, int isOpen) {
+        this.clockId = clockId;
+        this.isOpen = isOpen;
     }
 
     public ClockRequest() {

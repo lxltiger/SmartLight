@@ -14,7 +14,6 @@ import android.support.annotation.Nullable;
 
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.device.entity.Lamp;
-import com.example.ledwisdom1.device.entity.LampList;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
 import com.example.ledwisdom1.utils.BindingAdapters;
@@ -25,97 +24,101 @@ import java.util.List;
 public class ClockViewModel extends AndroidViewModel {
     private HomeRepository repository;
 
-    public MutableLiveData<String> clockId = new MutableLiveData<>();
-    public final MediatorLiveData<List<Lamp>> clockDevicesObserver=new MediatorLiveData<>();
-
-
     /**
-     * 闹钟中添加或修改灯所有的数据
-     * 选中的需要组灯 没有选中的从组中去除
-     *
+     * lamp列表请求 如果Clockid不为空从中标记已选择的灯具，此方法暂不支持分页
      */
-    public final List<Lamp> allLamps=new ArrayList<>();
-    // lamp列表请求
-    public MutableLiveData<Integer> lampListRequest = new MutableLiveData<>();
+    public MutableLiveData<String> lampListRequest = new MutableLiveData<>();
     // lamp列表监听
-    public final LiveData<ApiResponse<LampList>> lampListObserver;
+    public final LiveData<List<Lamp>> lampListObserver;
 
-    // 创建修改闹钟请求
+    // 添加修改闹钟请求
     public MutableLiveData<ClockRequest> clockRequest = new MutableLiveData<>();
     public final LiveData<ClockResult> clockObserver;
 
-
+    // 创建修改闹钟请求
     public MutableLiveData<ClockRequest> updateClockRequest = new MutableLiveData<>();
     public final LiveData<RequestResult> updateClockObserver;
 
-    public final ObservableBoolean isLoading=new ObservableBoolean(false);
+    public final ObservableBoolean isLoading = new ObservableBoolean(false);
 
 
     public final MutableLiveData<Integer> clockListRequest = new MutableLiveData<>();
     public final LiveData<ApiResponse<ClockList>> clockListObserver;
 
-    public final MediatorLiveData<Clock> deleteClockObserver=new MediatorLiveData<>();
+    public final MediatorLiveData<Clock> deleteClockObserver = new MediatorLiveData<>();
+    public final MediatorLiveData<Clock> switchClockObserver = new MediatorLiveData<>();
 
     public ClockViewModel(@NonNull Application application) {
         super(application);
         repository = HomeRepository.INSTANCE(application);
-        lampListObserver = Transformations.switchMap(lampListRequest, repository::lampList);
-        clockListObserver=Transformations.switchMap(clockListRequest, repository::getClockList);
+        lampListObserver = Transformations.switchMap(lampListRequest, new Function<String, LiveData<List<Lamp>>>() {
+            @Override
+            public LiveData<List<Lamp>> apply(String input) {
+                return repository.loadLampsForClock(input);
+            }
+        });
 
-        clockObserver=Transformations.switchMap(clockRequest, new Function<ClockRequest, LiveData<ClockResult>>() {
+        clockListObserver = Transformations.switchMap(clockListRequest, repository::getClockList);
+
+        clockObserver = Transformations.switchMap(clockRequest, new Function<ClockRequest, LiveData<ClockResult>>() {
             @Override
             public LiveData<ClockResult> apply(ClockRequest input) {
-                return repository.addOrUpdateClock(input);
+                return repository.addClock(input);
             }
         });
 
-        updateClockObserver=Transformations.switchMap(updateClockRequest, new Function<ClockRequest, LiveData<RequestResult>>() {
+        updateClockObserver = Transformations.switchMap(updateClockRequest, new Function<ClockRequest, LiveData<RequestResult>>() {
             @Override
             public LiveData<RequestResult> apply(ClockRequest input) {
-                return repository.updateClock(input);
+                return repository.updateClockAndDevice(input, lampListObserver.getValue());
             }
         });
 
-        clockDevicesObserver.addSource(clockId, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                LiveData<List<Lamp>> devicesInGroup = repository.getDevicesInClock(s);
-                clockDevicesObserver.addSource(devicesInGroup, new Observer<List<Lamp>>() {
-                    @Override
-                    public void onChanged(@Nullable List<Lamp> lamps) {
-                        clockDevicesObserver.removeSource(devicesInGroup);
-                        clockDevicesObserver.setValue(lamps);
-                    }
-                });
-            }
-        });
     }
 
 
     public void deleteClick(Clock clock) {
-        LiveData<ApiResponse<RequestResult>> responseLiveData =  repository.deleteClock(clock.getId());
+        LiveData<ApiResponse<RequestResult>> responseLiveData = repository.deleteClock(clock.getId());
         deleteClockObserver.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 deleteClockObserver.removeSource(responseLiveData);
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     deleteClockObserver.setValue(clock);
-                }else {
+                } else {
                     deleteClockObserver.setValue(null);
                 }
             }
         });
-
-
     }
+
+    public void switchClock(Clock clock) {
+        LiveData<ApiResponse<RequestResult>> responseLiveData = repository.switchClock(clock);
+        switchClockObserver.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                switchClockObserver.removeSource(responseLiveData);
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    clock.setIsOpen(1 - clock.getIsOpen());
+                    switchClockObserver.setValue(clock);
+                } else {
+                    switchClockObserver.setValue(null);
+                }
+            }
+        });
+    }
+
+    //获取选中设备的id
     public List<String> getSelectedLampIds() {
-        List<String> deviceIds=new ArrayList<>();
-        for (Lamp lamp : allLamps) {
-            if (BindingAdapters.LIGHT_SELECTED==lamp.lampStatus.get()) {
-                deviceIds.add(lamp.getId());
+        List<String> deviceIds = new ArrayList<>();
+        List<Lamp> allLamps = lampListObserver.getValue();
+        if (allLamps != null) {
+            for (Lamp lamp : allLamps) {
+                if (BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get()) {
+                    deviceIds.add(lamp.getId());
+                }
             }
         }
-
         return deviceIds;
     }
 }

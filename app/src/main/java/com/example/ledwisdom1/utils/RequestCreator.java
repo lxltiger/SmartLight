@@ -56,7 +56,7 @@ public class RequestCreator {
     }
 
     public static RequestBody requestLampList(String meshId, int pageNo) {
-        DeviceRequest request = new DeviceRequest(meshId, pageNo, 10, 8);
+        DeviceRequest request = new DeviceRequest(meshId, pageNo, 20, 256);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
@@ -132,6 +132,11 @@ public class RequestCreator {
     }
     public static RequestBody requestDeleteClock(String clockId) {
         ClockRequest clockRequest = new ClockRequest(clockId);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(clockRequest));
+    }
+
+    public static RequestBody requestSwitchClock(String clockId,int isOpen) {
+        ClockRequest clockRequest = new ClockRequest(clockId,isOpen);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(clockRequest));
     }
 

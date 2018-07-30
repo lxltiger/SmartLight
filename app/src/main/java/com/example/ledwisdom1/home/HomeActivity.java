@@ -26,6 +26,7 @@ import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.user.Profile;
+import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.example.ledwisdom1.utils.NavigatorController;
 import com.example.ledwisdom1.utils.ToastUtil;
 import com.telink.bluetooth.LeBluetooth;
@@ -42,6 +43,8 @@ import com.telink.util.Event;
 import com.telink.util.EventListener;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Calendar;
 
 /**
  * 主页含4个UI
@@ -80,7 +83,6 @@ public class HomeActivity extends AppCompatActivity
             Log.d(TAG, "fail to start mqtt");
             e.printStackTrace();
         }
-
     }
 
     private void subscribeUI(HomeViewModel viewModel) {
@@ -172,10 +174,10 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         unregisterReceiver(mBlueToothStatusReceiver);
         handler.removeCallbacks(null);
         MQTTClient.INSTANCE().exit();
+        super.onDestroy();
     }
 
     private void requireBlueTooth() {
@@ -208,6 +210,7 @@ public class HomeActivity extends AppCompatActivity
     private void addEventListener() {
         SmartLightApp smartLightApp = SmartLightApp.INSTANCE();
         smartLightApp.addEventListener(DeviceEvent.STATUS_CHANGED, this);
+        smartLightApp.addEventListener(NotificationEvent.GET_TIME, this);
 //        smartLightApp.addEventListener(NotificationEvent.ONLINE_STATUS, this);
         smartLightApp.addEventListener(ServiceEvent.SERVICE_CONNECTED, this);
         smartLightApp.addEventListener(MeshEvent.OFFLINE, this);
@@ -241,8 +244,11 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
+
+
     @Override
     public void performed(Event<String> event) {
+        Log.d(TAG, "event type" + event.getType());
         switch (event.getType()) {
             case NotificationEvent.ONLINE_STATUS:
 //                onOnlineStatusNotify((NotificationEvent) event);
@@ -250,6 +256,16 @@ public class HomeActivity extends AppCompatActivity
             case DeviceEvent.STATUS_CHANGED:
                 onDeviceStatusChanged((DeviceEvent) event);
                 break;
+            case NotificationEvent.GET_TIME: {
+                NotificationEvent notificationEvent = (NotificationEvent) event;
+                Calendar calendar = (Calendar) notificationEvent.parse();
+                if (Math.abs(Calendar.getInstance().getTimeInMillis() - calendar.getTimeInMillis()) > 60 * 1000) {
+                    LightCommandUtils.synLampTime();
+                }
+                String format = DateFormat.getDateTimeInstance().format(calendar.getTimeInMillis());
+                Log.d(TAG, format);
+                break;
+            }
             case MeshEvent.OFFLINE:
 //                onMeshOffline((MeshEvent) event);
                 break;
@@ -311,7 +327,9 @@ public class HomeActivity extends AppCompatActivity
             case LightAdapter.STATUS_LOGIN:
                 Log.d(TAG, "connecting success");
                 Toast.makeText(this, "连接成功 " + meshName, Toast.LENGTH_SHORT).show();
-                handler.postDelayed(() -> TelinkLightService.Instance().sendCommandNoResponse((byte) 0xE4, 0xFFFF, new byte[]{}), 3 * 1000);
+                //        获取灯具时间
+                handler.postDelayed(LightCommandUtils::getLampTime, 3 * 1000);
+//                handler.postDelayed(() -> TelinkLightService.Instance().sendCommandNoResponse((byte) 0xE4, 0xFFFF, new byte[]{}), 3 * 1000);
                 break;
             case LightAdapter.STATUS_CONNECTING:
                 Toast.makeText(this, "正在连接 " + meshName, Toast.LENGTH_SHORT).show();

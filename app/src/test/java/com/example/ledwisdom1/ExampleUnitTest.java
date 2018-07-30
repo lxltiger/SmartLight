@@ -1,6 +1,7 @@
 package com.example.ledwisdom1;
 
 import com.google.gson.Gson;
+import com.telink.util.NumberUtils;
 
 import org.junit.Test;
 
@@ -123,19 +124,27 @@ public class ExampleUnitTest {
 
     @Test
     public void testTimeSet() {
-        byte[] params = {7, (byte) 0xdf, 6, 27, 11, 3, 5, -1, -1, -1};
+        byte[] params = {7, (byte) 0xa5, 6, 27, 11, 3, 5, -1, -1, -1};
         int offset = 0;
         int year = ((params[offset++] & 0xFF) << 8)+ (params[offset++] & 0xff);
-
         int test=2015;
         byte one = (byte) (test >> 8 & 0xff);
         byte two= (byte) (test&0xff);
 //        assert (byte) 0xdf == two;
         System.out.println(Integer.toHexString(two));
+        System.out.println((byte) 0xa5);
 
+       /* for (int i = -128; i < 128; i++) {
 
-        System.out.println(one);
-//        System.out.println(b);
+            int type = NumberUtils.byteToInt((byte) i, 4, 6);
+            if (type == 1) {
+                System.out.println(i);
+
+            }
+        }*/
+        int action = NumberUtils.byteToInt((byte) 0x82, 0, 3);
+
+        System.out.println(action);
 
     }
 

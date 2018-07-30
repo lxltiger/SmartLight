@@ -85,7 +85,7 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
     /**
      * 添加成功 通知deviceFragment刷新
      */
-    private boolean addSucceed=false;
+//    private boolean addSucceed=false;
     public static AddLampFragment newInstance() {
         Bundle args = new Bundle();
         AddLampFragment fragment = new AddLampFragment();
@@ -152,7 +152,8 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     showToast(apiResponse.body.resultMsg);
-                    addSucceed=true;
+                    getActivity().setResult(Activity.RESULT_OK);
+//                    addSucceed=true;
                 } else {
                     showToast("上报失败");
                 }
@@ -191,10 +192,10 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         smartLightApp.removeEventListener(this);
         mHandler.removeCallbacks(null);
         TelinkLightService.Instance().idleMode(true);
-        if (addSucceed) {
+        /*if (addSucceed) {
             Log.d(TAG, "onDestroy: set result ok");
             getActivity().setResult(Activity.RESULT_OK);
-        }
+        }*/
 
     }
 

@@ -14,6 +14,7 @@ import com.example.ledwisdom1.app.SmartLightApp;
 import com.example.ledwisdom1.database.SmartLightDataBase;
 import com.example.ledwisdom1.database.UserDao;
 import com.example.ledwisdom1.model.RequestResult;
+import com.example.ledwisdom1.repository.HomeRepository;
 
 import okhttp3.RequestBody;
 
@@ -48,6 +49,7 @@ public class UserRepository {
                 Profile profile = apiResponse.body;
                 if (profile.succeed()) {
                     executors.diskIO().execute(()->{
+                        HomeRepository.INSTANCE(SmartLightApp.INSTANCE()).setSessionId(profile.sessionid);
                         userDao.insert(profile);
                         result.postValue(Resource.success(true, profile.resultMsg));
                     });
@@ -114,10 +116,14 @@ public class UserRepository {
     }
 
 
-    // TODO: 2018/7/13 0013 使用transaction
     public void clearLocalData() {
-        userDao.deleteProfile();
-        userDao.deleteAllMeshes();
+        //清空session
+        HomeRepository.INSTANCE(SmartLightApp.INSTANCE()).setSessionId("");
+        db.runInTransaction(()->{
+            userDao.deleteProfile();
+            userDao.deleteAllMeshes();
+        });
+
     }
 
 

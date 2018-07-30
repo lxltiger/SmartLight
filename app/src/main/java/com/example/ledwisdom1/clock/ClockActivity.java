@@ -42,7 +42,6 @@ public class ClockActivity extends AppCompatActivity {
 
         subscribeUI(viewModel);
         //当前mesh下的灯具
-        viewModel.lampListRequest.setValue(1);
     }
 
     private void subscribeUI(ClockViewModel viewModel) {
@@ -65,12 +64,10 @@ public class ClockActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable RequestResult requestResult) {
                 viewModel.isLoading.set(false);
-
-                if (requestResult != null && requestResult.succeed()) {
+                if (requestResult != null) {
                     // TODO: 2018/7/26 0026 闹钟处理
                     onBackPressed();
                 }else{
-                    viewModel.isLoading.set(false);
                     showToast("更新闹钟失败");
                 }
             }
@@ -84,6 +81,8 @@ public class ClockActivity extends AppCompatActivity {
             switch (action) {
                 case ACTION_CLOCK:
                     Clock clock = intent.getParcelableExtra("clock");
+                    //如果是修改闹钟 需要获取已选择的灯具，
+                    viewModel.lampListRequest.setValue(null!=clock?clock.getId():"");
                     navigatorController.navigateToClock(clock);
                     break;
                 case ACTION_CLOCK_LIST:

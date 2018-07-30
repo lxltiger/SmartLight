@@ -13,23 +13,22 @@ import android.view.ViewGroup;
 
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.api.ApiResponse;
+import com.example.ledwisdom1.adapter.UnSelectedLampAdapter;
 import com.example.ledwisdom1.databinding.FragmentLampListDialogBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
-import com.example.ledwisdom1.device.entity.LampList;
-import com.example.ledwisdom1.home.LampAdapter;
-import com.example.ledwisdom1.home.OnHandleLampListener;
 import com.example.ledwisdom1.utils.AutoClearValue;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.utils.ToastUtil;
+
+import java.util.List;
 
 /**
- * 闹钟页面的灯具列表，可以作为对话框 从页面底部弹出，目前作为fragment
+ * 闹钟页面没有被选中的灯具列表，可以作为对话框 从页面底部弹出，目前作为fragment
  */
 public class LampListDialogFragment extends BottomSheetDialogFragment implements CallBack {
     public static final String TAG = LampListDialogFragment.class.getSimpleName();
     private ClockViewModel viewModel;
     private AutoClearValue<FragmentLampListDialogBinding> binding;
-    private LampAdapter lampAdapter;
+    private UnSelectedLampAdapter lampAdapter;
 
     public static LampListDialogFragment newInstance(/*int itemCount*/) {
         final LampListDialogFragment fragment = new LampListDialogFragment();
@@ -46,9 +45,7 @@ public class LampListDialogFragment extends BottomSheetDialogFragment implements
         FragmentLampListDialogBinding lampListDialogBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_lamp_list_dialog, null, false);
         lampListDialogBinding.setHandler(this);
         lampListDialogBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        lampAdapter = new LampAdapter(mOnHandleLampListener);
-        //显示是否选中图片
-        lampAdapter.setShowSelectIcon(true);
+        lampAdapter = new UnSelectedLampAdapter();
         lampListDialogBinding.recyclerView.setAdapter(lampAdapter);
         binding = new AutoClearValue<>(this, lampListDialogBinding);
         return lampListDialogBinding.getRoot();
@@ -64,69 +61,29 @@ public class LampListDialogFragment extends BottomSheetDialogFragment implements
     }
 
     private void subscribeUI(ClockViewModel viewModel) {
-        viewModel.lampListObserver.observe(this, new Observer<ApiResponse<LampList>>() {
+        viewModel.lampListObserver.observe(this, new Observer<List<Lamp>>() {
             @Override
-            public void onChanged(@Nullable ApiResponse<LampList> apiResponse) {
-                if (apiResponse.isSuccessful()) {
-                    LampList body = apiResponse.body;
-                    lampAdapter.addLampsForSelection(body.getList());
+            public void onChanged(@Nullable List<Lamp> lamps) {
+                if (lamps != null) {
+                    lampAdapter.addLamps(lamps);
+                }else{
+                    ToastUtil.showToast("没有数据");
                 }
             }
         });
-
-        //场景或情景已有灯具 标记出来
-       /* viewModel.groupDevicesObserver.observe(this, new Observer<List<Lamp>>() {
-            @Override
-            public void onChanged(@Nullable List<Lamp> selectedLamps) {
-                if (selectedLamps != null) {
-                    List<Lamp> lampList = lampAdapter.getLampList();
-                    for (Lamp lamp : lampList) {
-                        if (selectedLamps.contains(lamp)) {
-                            lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
-                        }
-                    }
-                }
-            }
-        });*/
-
-
     }
-
-    private OnHandleLampListener mOnHandleLampListener = new OnHandleLampListener() {
-        @Override
-        public void onItemClick(Lamp lamp) {
-//            切换选择状态
-            int status = lamp.lampStatus.get();
-            if (BindingAdapters.LIGHT_HIDE == status) {
-                lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
-            } else {
-                lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
-            }
-        }
-
-        @Override
-        public void onEditClick(Lamp lamp) {
-
-        }
-
-        @Override
-        public void onDeleteClick(Lamp lamp) {
-
-        }
-    };
 
 
 
     @Override
     public void handleClick(View v) {
-
         switch (v.getId()) {
             case R.id.iv_cancel:
                 getActivity().onBackPressed();
                 break;
             case R.id.iv_select:
-                viewModel.allLamps.clear();
-                viewModel.allLamps.addAll(lampAdapter.getLampList());
+//                viewModel.allLamps.clear();
+//                viewModel.allLamps.addAll(lampAdapter.getLampList());
                 //更新已选择灯具页面
                 /*if (!viewModel.MODE_ADD) {
                     List<Lamp> selectedLamps = lampAdapter.getSelectedLamps();

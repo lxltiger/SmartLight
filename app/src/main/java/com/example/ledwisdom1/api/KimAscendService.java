@@ -179,6 +179,10 @@ public interface KimAscendService {
     @POST("clock/updateClock")
     LiveData<ApiResponse<RequestResult>> updateClock(@QueryMap Map<String, String> map);
 
+    @POST("clock/setClockSwitch")
+    LiveData<ApiResponse<RequestResult>> switchClock(@Body RequestBody request);
+
+
     @POST("clock/deleteClock")
     LiveData<ApiResponse<RequestResult>> deleteClock(@Body RequestBody request);
 
@@ -188,7 +192,7 @@ public interface KimAscendService {
 
 
     @POST("clock/deleteDeviceFromClock")
-    LiveData<ApiResponse<RequestResult>> deleteDeviceToClock(@Body RequestBody request);
+    LiveData<ApiResponse<RequestResult>> deleteDeviceFromClock(@Body RequestBody request);
 
 
     @POST("clock/getDevicesByClockId")

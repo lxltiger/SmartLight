@@ -14,22 +14,21 @@ import android.view.ViewGroup;
 
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.adapter.SelectedLampAdapter;
 import com.example.ledwisdom1.databinding.FragmentSelectedLampsBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
-import com.example.ledwisdom1.home.LampAdapter;
-import com.example.ledwisdom1.scene.GroupSceneActivity;
+import com.example.ledwisdom1.utils.ToastUtil;
 
 import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
- * 灯具已选的灯具列表
+ * 已选的灯具已选的灯具列表
  */
 public class SelectedLampListFragment extends Fragment implements CallBack {
     public static final String TAG = SelectedLampListFragment.class.getSimpleName();
     private ClockViewModel viewModel;
     private FragmentSelectedLampsBinding binding;
-    private LampAdapter lampAdapter;
+    private SelectedLampAdapter lampAdapter;
 
 
     public static SelectedLampListFragment newInstance(/**String param1, String param2*/) {
@@ -46,8 +45,7 @@ public class SelectedLampListFragment extends Fragment implements CallBack {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_selected_lamps, container, false);
-        lampAdapter = new LampAdapter(null);
-        lampAdapter.setShowSelectIcon(true);
+        lampAdapter = new SelectedLampAdapter();
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.recyclerView.setAdapter(lampAdapter);
         binding.setHandler(this);
@@ -58,17 +56,18 @@ public class SelectedLampListFragment extends Fragment implements CallBack {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity()).get(ClockViewModel.class);
-        //场景已选设备
-        viewModel.clockDevicesObserver.observe(this, new Observer<List<Lamp>>() {
+        viewModel.lampListObserver.observe(this, new Observer<List<Lamp>>() {
             @Override
             public void onChanged(@Nullable List<Lamp> lamps) {
                 if (lamps != null) {
-                    lampAdapter.addLampsForSelection(lamps);
+                    lampAdapter.addLamps(lamps);
+                } else {
+                    ToastUtil.showToast("没有数据");
                 }
             }
         });
-
     }
+
 
     @Override
     public void handleClick(View v) {
@@ -77,11 +76,9 @@ public class SelectedLampListFragment extends Fragment implements CallBack {
                 getActivity().onBackPressed();
                 break;
             case R.id.iv_add:
-                ClockActivity.start(getActivity(), ClockActivity.ACTION_LAMP_LIST,null);
+                ClockActivity.start(getActivity(), ClockActivity.ACTION_LAMP_LIST, null);
                 break;
-
         }
     }
-
 
 }

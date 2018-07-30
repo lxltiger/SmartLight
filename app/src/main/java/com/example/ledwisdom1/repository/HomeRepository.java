@@ -16,6 +16,7 @@ import com.example.ledwisdom1.api.NetWork;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.app.AppExecutors;
 import com.example.ledwisdom1.app.SmartLightApp;
+import com.example.ledwisdom1.clock.Clock;
 import com.example.ledwisdom1.clock.ClockList;
 import com.example.ledwisdom1.clock.ClockRequest;
 import com.example.ledwisdom1.clock.ClockResult;
@@ -38,8 +39,11 @@ import com.example.ledwisdom1.scene.GroupDevice;
 import com.example.ledwisdom1.scene.GroupSceneRequest;
 import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.user.Profile;
+import com.example.ledwisdom1.utils.BindingAdapters;
 import com.example.ledwisdom1.utils.RequestCreator;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -65,11 +69,14 @@ public class HomeRepository {
     private final KimAscendService kimService;
     private final UserDao userDao;
     private final AppExecutors executors;
+
     //个人资料 是否需要观察 TODO
     public final LiveData<Profile> profileObserver;
     //    默认mesh
     public final MediatorLiveData<DefaultMesh> defaultMeshObserver = new MediatorLiveData<>();
-    ;
+
+    private String sessionId = "";
+
 
     private HomeRepository(Context context) {
         mDataBase = SmartLightDataBase.INSTANCE(context);
@@ -91,6 +98,15 @@ public class HomeRepository {
         return sDataRepository;
     }
 
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
     /**
      * 监听本地个人资料 当有变动时根据meshId获取默认的Mesh
      *
@@ -100,6 +116,7 @@ public class HomeRepository {
         defaultMeshObserver.addSource(profileObserver, profile -> {
             if (profile != null && !TextUtils.isEmpty(profile.meshId)) {
                 Log.d(TAG, "onChanged: " + profile);
+                sessionId = profile.sessionid;
                 RequestBody requestBody = RequestCreator.createMeshDetail(profile.meshId);
                 LiveData<ApiResponse<DefaultMesh>> apiResponseLiveData = kimService.meshDetail(requestBody);
                 defaultMeshObserver.addSource(apiResponseLiveData, defaultMeshApiResponse -> {
@@ -151,10 +168,10 @@ public class HomeRepository {
     }
 
     /**
-     * @param
+     * @param clockRequest 添加闹钟的参数 含上传的device ids，上传之前就要判断是否存在
      * @return
      */
-    public LiveData<ClockResult> addOrUpdateClock(ClockRequest clockRequest) {
+    public LiveData<ClockResult> addClock(ClockRequest clockRequest) {
         MediatorLiveData<ClockResult> clockResult = new MediatorLiveData<>();
         Map<String, String> map = new ArrayMap<>();
         map.put("name", clockRequest.name);
@@ -197,9 +214,6 @@ public class HomeRepository {
 
     //更新闹钟
     public LiveData<RequestResult> updateClock(ClockRequest clockRequest) {
-        /*if (TextUtils.isEmpty(clockRequest.clockId)) {
-            return AbsentLiveData.create();
-        }*/
         MediatorLiveData<RequestResult> updateResult = new MediatorLiveData<>();
         Map<String, String> map = new ArrayMap<>();
         map.put("clockId", clockRequest.clockId);
@@ -214,7 +228,7 @@ public class HomeRepository {
                 updateResult.removeSource(responseLiveData);
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     updateResult.setValue(apiResponse.body);
-                }else{
+                } else {
                     updateResult.setValue(new RequestResult());
                 }
             }
@@ -222,7 +236,92 @@ public class HomeRepository {
         return updateResult;
     }
 
+    /**
+     * 更新闹钟和设备
+     * 1.第一步更新
+     * 2. 删除旧设备
+     * 3.添加新设备
+     * todo 优化 一步解决
+     *
+     * @param clockRequest
+     * @return
+     */
+    public LiveData<RequestResult> updateClockAndDevice(ClockRequest clockRequest, List<Lamp> lamps) {
+        Log.d(TAG, "updateClockAndDevice: ");
+        MediatorLiveData<RequestResult> updateResult = new MediatorLiveData<>();
+        Map<String, String> map = new ArrayMap<>();
+        map.put("clockId", clockRequest.clockId);
+        map.put("name", clockRequest.name);
+        map.put("type", clockRequest.type);
+        map.put("meshId", defaultMeshObserver.getValue().id);
+        map.put("cycle", clockRequest.cycle);
+        LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.updateClock(map);
+        updateResult.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                updateResult.removeSource(responseLiveData);
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    if (lamps != null) {
+                       deleteClockDevice(updateResult,clockRequest,lamps);
+                    } else {
+                        updateResult.setValue(apiResponse.body);
+                    }
 
+                } else {
+                    updateResult.setValue(null);
+                }
+            }
+        });
+        return updateResult;
+    }
+
+
+    private void deleteClockDevice(MediatorLiveData<RequestResult> updateResult, ClockRequest clockRequest, List<Lamp> lamps) {
+        //使用全部灯具id 旧的不好记录
+        Log.d(TAG, "onChanged: "+lamps.toString());
+
+        List<String> idsToDelete = new ArrayList<>();
+        List<String> idsToAdd = new ArrayList<>();
+        for (Lamp lamp : lamps) {
+            idsToDelete.add(lamp.getId());
+            if (lamp.isSelected()) {
+                idsToAdd.add(lamp.getId());
+            }
+        }
+        clockRequest.deviceId = new Gson().toJson(idsToDelete);
+        Log.d(TAG,"delete  "+ clockRequest.deviceId);
+        RequestBody requestDeleteClockDevice = RequestCreator.requestClock(clockRequest);
+        LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.deleteDeviceFromClock(requestDeleteClockDevice);
+        updateResult.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                updateResult.removeSource(responseLiveData);
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    clockRequest.deviceId = new Gson().toJson(idsToAdd);
+                    Log.d(TAG, "add "+clockRequest.deviceId);
+                    addNewDeviceToClock(updateResult, clockRequest);
+                }else {
+                    updateResult.setValue(null);
+                }
+            }
+        });
+    }
+
+    private void addNewDeviceToClock(MediatorLiveData<RequestResult> updateResult, ClockRequest clockRequest) {
+        RequestBody requestBody = RequestCreator.requestClock(clockRequest);
+        LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.addDeviceToClock(requestBody);
+        updateResult.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                updateResult.removeSource(responseLiveData);
+                if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    updateResult.setValue(apiResponse.body);
+                } else {
+                    updateResult.setValue(null);
+                }
+            }
+        });
+    }
 
 
     //    更新场景 情景
@@ -268,7 +367,7 @@ public class HomeRepository {
     }
 
 
-    public LiveData<List<Lamp>> getDevicesInClock( String id) {
+    public LiveData<List<Lamp>> getDevicesInClock(String id) {
         MediatorLiveData<List<Lamp>> lamps = new MediatorLiveData<>();
         RequestBody requestBody = RequestCreator.requestClockDevices(id);
         LiveData<ApiResponse<GroupDevice>> devices = kimService.getDevicesByClockId(requestBody);
@@ -307,6 +406,15 @@ public class HomeRepository {
         RequestBody requestBody = RequestCreator.requestDeleteClock(id);
         return kimService.deleteClock(requestBody);
     }
+
+
+
+    public LiveData<ApiResponse<RequestResult>> switchClock(Clock clock) {
+        //1 开 0-关  使用1-当前状态 来切换
+        RequestBody requestBody = RequestCreator.requestSwitchClock(clock.getId(),1-clock.getIsOpen());
+        return kimService.switchClock(requestBody);
+    }
+
 
 
     //添加设备到场景和情景
@@ -449,6 +557,66 @@ public class HomeRepository {
         String meshId = profileObserver.getValue().meshId;
         RequestBody requestBody = RequestCreator.requestLampList(meshId, pageNo);
         return kimService.deviceList(requestBody);
+    }
+
+    /**
+     * 为闹钟模块加载灯具
+     *
+     * @param clockId 如果为空 怎加载当前mesh下的灯具，不为空还要加载此clock下的灯具 供用户在两个页面选择
+     * @return
+     */
+    public LiveData<List<Lamp>> loadLampsForClock(String clockId) {
+        Log.d(TAG, "loadLampsForClock() called with: clockId = [" + clockId + "]");
+        MediatorLiveData<List<Lamp>> data = new MediatorLiveData<>();
+        String meshId = profileObserver.getValue().meshId;
+        RequestBody requestBody = RequestCreator.requestLampList(meshId, 1);
+        LiveData<ApiResponse<LampList>> apiResponseLiveData = kimService.deviceList(requestBody);
+        data.addSource(apiResponseLiveData, new Observer<ApiResponse<LampList>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<LampList> lampListApiResponse) {
+                data.removeSource(apiResponseLiveData);
+                if (lampListApiResponse != null && lampListApiResponse.isSuccessful() && lampListApiResponse.body != null) {
+                    List<Lamp> list = lampListApiResponse.body.getList();
+                    //为空 说明是添加
+                    if (TextUtils.isEmpty(clockId)) {
+                        if (list != null) {
+                            for (Lamp lamp : list) {
+                                lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+                            }
+                            data.setValue(list);
+                        }else {
+                            data.setValue(null);
+                        }
+                    } else {
+                        RequestBody requestBody = RequestCreator.requestClockDevices(clockId);
+                        LiveData<ApiResponse<GroupDevice>> devices = kimService.getDevicesByClockId(requestBody);
+                        data.addSource(devices, new Observer<ApiResponse<GroupDevice>>() {
+                            @Override
+                            public void onChanged(@Nullable ApiResponse<GroupDevice> apiResponse) {
+                                data.removeSource(devices);
+                                if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body != null) {
+                                    List<Lamp> selectedList = apiResponse.body.getList();
+                                    //标记已选择数据
+                                    if (selectedList != null) {
+                                        for (Lamp lamp : list) {
+                                            if (selectedList.contains(lamp)) {
+                                                lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
+                                            } else {
+                                                lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+                                            }
+                                        }
+                                    }
+                                }
+                                data.setValue(list);
+                            }
+                        });
+                    }
+                }
+
+            }
+        });
+        return data;
+
     }
 
 
