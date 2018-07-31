@@ -11,6 +11,7 @@ import com.example.ledwisdom1.databinding.ItemLampSelectBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.OnHandleLampListener;
 import com.example.ledwisdom1.utils.BindingAdapters;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,18 +23,18 @@ public class SelectedLampAdapter extends RecyclerView.Adapter<SelectedLampAdapte
 
     private List<Lamp> mLampList;
 
-//    private final OnHandleLampListener mOnHandleLampListener;
+    private final OnHandleLampListener mOnHandleLampListener;
 
 
     public SelectedLampAdapter(/*OnHandleLampListener handleLampListener*/) {
-//        mOnHandleLampListener = handleLampListener;
+        this(null);
+    }
+
+    public SelectedLampAdapter(OnHandleLampListener handleLampListener) {
+        mOnHandleLampListener = handleLampListener;
         mLampList = new ArrayList<>();
     }
 
-
-    public List<Lamp> getLampList() {
-        return mLampList;
-    }
 
 
     /**
@@ -41,6 +42,7 @@ public class SelectedLampAdapter extends RecyclerView.Adapter<SelectedLampAdapte
      *
      * @param lamps
      */
+
     public void addLamps(List<Lamp> lamps) {
         mLampList.clear();
         for (Lamp lamp : lamps) {
@@ -52,6 +54,23 @@ public class SelectedLampAdapter extends RecyclerView.Adapter<SelectedLampAdapte
 
     }
 
+    //获取已选的设备 用来添加或删除
+    public String getIds() {
+        List<String> ids = new ArrayList<>();
+        for (Lamp lamp : mLampList) {
+            ids.add(lamp.getId());
+        }
+        if (ids.isEmpty()) {
+            return "";
+        }
+        return new Gson().toJson(ids);
+    }
+
+
+    public void addSelectedLamp(List<Lamp> lamps) {
+        mLampList.addAll(lamps);
+        notifyDataSetChanged();
+    }
 
     public void removeLamp(Lamp lamp) {
         lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
@@ -80,7 +99,8 @@ public class SelectedLampAdapter extends RecyclerView.Adapter<SelectedLampAdapte
     @Override
     public SelectedLampAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemLampSelectBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_lamp_select, parent, false);
-        binding.setHandler(handleLampListener);
+        //为了兼容
+        binding.setHandler(null != mOnHandleLampListener ? mOnHandleLampListener : handleLampListener);
         return new SelectedLampAdapter.ViewHolder(binding);
     }
 

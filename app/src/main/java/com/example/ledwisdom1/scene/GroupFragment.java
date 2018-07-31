@@ -38,7 +38,7 @@ import java.util.List;
  * 图片可以为空 但请求接口不同
  */
 
-
+@Deprecated
 public class GroupFragment extends Fragment implements CallBack, ProduceAvatarFragment.Listener {
     public static final String TAG = GroupFragment.class.getSimpleName();
     private FragmentGroupBinding binding;

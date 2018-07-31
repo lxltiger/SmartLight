@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * 已选的灯具已选的灯具列表
  */
+@Deprecated
 public class SelectedLampListFragment extends Fragment implements CallBack {
     public static final String TAG = SelectedLampListFragment.class.getSimpleName();
     private ClockViewModel viewModel;

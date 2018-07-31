@@ -17,7 +17,6 @@ import android.util.Log;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.device.entity.Lamp;
-import com.example.ledwisdom1.device.entity.LampList;
 import com.example.ledwisdom1.model.CommonItem;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
@@ -30,6 +29,7 @@ import java.util.List;
 /**
  * 场景 情景的ViewModel
  */
+@Deprecated
 public class GroupSceneViewModel extends AndroidViewModel {
     private static final String TAG = "GroupSceneViewModel";
     private final HomeRepository repository;
@@ -41,6 +41,7 @@ public class GroupSceneViewModel extends AndroidViewModel {
      * 选中的需要组灯 没有选中的从组中去除
      *
      */
+    @Deprecated
     public final List<Lamp> groupSceneLamps=new ArrayList<>();
     //添加还是修改的标记
     public boolean MODE_ADD=true;
@@ -51,9 +52,10 @@ public class GroupSceneViewModel extends AndroidViewModel {
     public GroupSceneRequest groupSceneRequest = new GroupSceneRequest();
 
     // lamp列表请求
-    public MutableLiveData<Integer> lampListRequest = new MutableLiveData<>();
+    public MutableLiveData<String> lampListRequest = new MutableLiveData<>();
+
     // lamp列表监听
-    public final LiveData<ApiResponse<LampList>> lampListObserver;
+    public final LiveData<List<Lamp>> lampListObserver;
 
     // 创建场景请求
     public MutableLiveData<GroupSceneRequest> addGroupRequest = new MutableLiveData<>();
@@ -86,7 +88,12 @@ public class GroupSceneViewModel extends AndroidViewModel {
     public GroupSceneViewModel(@NonNull Application application) {
         super(application);
         repository = HomeRepository.INSTANCE(application);
-        lampListObserver = Transformations.switchMap(lampListRequest, repository::lampList);
+        lampListObserver = Transformations.switchMap(lampListRequest, new Function<String, LiveData<List<Lamp>>>() {
+            @Override
+            public LiveData<List<Lamp>> apply(String input) {
+                return repository.loadLampForGroup(input);
+            }
+        });
         updateGroupObserver =Transformations.switchMap(updateGroupRequest, repository::updateGroupScene);
         sceneListObserver=Transformations.switchMap(sceneListRequest, repository::getSceneList);
 
@@ -108,7 +115,8 @@ public class GroupSceneViewModel extends AndroidViewModel {
                     Log.d(TAG, "apply: addDeviceToGroupSceneObserver null");
                     return AbsentLiveData.create();
                 }
-                return repository.addDeviceToGroupScene(input);
+                return null;
+//                return repository.addDeviceToGroupScene(input);
             }
         });
 
@@ -150,7 +158,7 @@ public class GroupSceneViewModel extends AndroidViewModel {
         return items;
     }
 
-    public List<String> getSelectedLampIds() {
+   /* public List<String> getSelectedLampIds() {
         List<String> deviceIds=new ArrayList<>();
         for (Lamp lamp : groupSceneLamps) {
             if (BindingAdapters.LIGHT_SELECTED==lamp.lampStatus.get()) {
@@ -158,6 +166,20 @@ public class GroupSceneViewModel extends AndroidViewModel {
             }
         }
 
+        return deviceIds;
+    }*/
+
+    //获取选中设备的id
+    public List<String> getSelectedLampIds() {
+        List<String> deviceIds = new ArrayList<>();
+        List<Lamp> allLamps = lampListObserver.getValue();
+        if (allLamps != null) {
+            for (Lamp lamp : allLamps) {
+                if (BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get()) {
+                    deviceIds.add(lamp.getId());
+                }
+            }
+        }
         return deviceIds;
     }
 

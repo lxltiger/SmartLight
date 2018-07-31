@@ -18,6 +18,7 @@ import com.example.ledwisdom1.databinding.FragmentEditBinding;
 /**
  * A simple {@link Fragment} subclass.
  */
+@Deprecated
 public class EditFragment extends Fragment implements CallBack {
     public static final String TAG = EditFragment.class.getSimpleName();
     private GroupSceneViewModel viewModel;

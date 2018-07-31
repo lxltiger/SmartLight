@@ -22,14 +22,17 @@ public class UnSelectedLampAdapter extends RecyclerView.Adapter<UnSelectedLampAd
 
     private List<Lamp> mLampList;
 
-//    private final OnHandleLampListener handleLampListener;
+    private final OnHandleLampListener mHandleLampListener;
 
 
     public UnSelectedLampAdapter(/*OnHandleLampListener handleLampListener*/) {
-//        handleLampListener = handleLampListener;
-        mLampList = new ArrayList<>();
+        this(null);
     }
 
+    public UnSelectedLampAdapter(OnHandleLampListener handleLampListener) {
+        this.mHandleLampListener = handleLampListener;
+        mLampList = new ArrayList<>();
+    }
 
 
     /**
@@ -45,6 +48,30 @@ public class UnSelectedLampAdapter extends RecyclerView.Adapter<UnSelectedLampAd
             }
         }
         notifyDataSetChanged();
+    }
+
+    public void addLamp(Lamp lamp) {
+        mLampList.add(lamp);
+        notifyDataSetChanged();
+    }
+
+    public void resetLampStatus() {
+        for (Lamp lamp : mLampList) {
+            lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+        }
+    }
+
+    //从集合中移除已选的
+    public List<Lamp> removeSelectLamps() {
+        List<Lamp> lamps = new ArrayList<>();
+        for (Lamp lamp : mLampList) {
+            if (lamp.isSelected()) {
+                lamps.add(lamp);
+            }
+        }
+        mLampList.removeAll(lamps);
+        notifyDataSetChanged();
+        return lamps;
     }
 
 
@@ -77,7 +104,7 @@ public class UnSelectedLampAdapter extends RecyclerView.Adapter<UnSelectedLampAd
     public UnSelectedLampAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemLampBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_lamp, parent, false);
         binding.swipeMenu.setSwipeEnable(false);
-        binding.setHandler(handleLampListener);
+        binding.setHandler(mHandleLampListener != null ? mHandleLampListener : handleLampListener);
         return new UnSelectedLampAdapter.ViewHolder(binding);
     }
 

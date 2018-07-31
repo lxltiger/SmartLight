@@ -17,9 +17,11 @@ import com.example.ledwisdom1.home.GroupListFragment;
 import com.example.ledwisdom1.home.HomeActivity;
 import com.example.ledwisdom1.home.HomeFragment;
 import com.example.ledwisdom1.home.MoreFragment;
+import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.mesh.MeshFragment;
 import com.example.ledwisdom1.scene.EditFragment;
 import com.example.ledwisdom1.scene.GroupFragment;
+import com.example.ledwisdom1.scene.GroupFragment2;
 import com.example.ledwisdom1.scene.LampListDialogFragment;
 import com.example.ledwisdom1.scene.SceneFragment;
 import com.example.ledwisdom1.scene.SceneListFragment;
@@ -137,9 +139,9 @@ public class NavigatorController {
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToAddGroup() {
+    public void navigateToGroup(Group group) {
         fm.beginTransaction()
-                .replace(container, GroupFragment.newInstance(), GroupFragment.TAG)
+                .replace(container, GroupFragment2.newInstance(group), GroupFragment.TAG)
                 .commitAllowingStateLoss();
     }
 

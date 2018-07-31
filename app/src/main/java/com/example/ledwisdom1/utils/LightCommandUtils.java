@@ -68,5 +68,14 @@ public class LightCommandUtils {
         TelinkLightService.Instance().sendCommand(Opcode.BLE_GATT_OP_CTRL_E5.getValue(), address, params);
     }
 
+    public static void allocDeviceGroup(int groupAddress, int dstAddress, boolean add) {
+        byte opcode = (byte) 0xD7;
+        byte[] params = new byte[]{0x01, (byte) (groupAddress & 0xFF),
+                (byte) (groupAddress >> 8 & 0xFF)};
+
+        params[0] = (byte) (add ? 0x01 : 0x00);
+        TelinkLightService.Instance().sendCommand(opcode, dstAddress, params);
+    }
+
 
 }

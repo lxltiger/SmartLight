@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.utils.NavigatorController;
 
 import static com.example.ledwisdom1.utils.ToastUtil.showToast;
@@ -39,9 +38,6 @@ public class ClockActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             handleNavigate(getIntent());
         }
-
-        subscribeUI(viewModel);
-        //当前mesh下的灯具
     }
 
     private void subscribeUI(ClockViewModel viewModel) {
@@ -60,7 +56,7 @@ public class ClockActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.updateClockObserver.observe(this, new Observer<RequestResult>() {
+        /*viewModel.updateClockObserver.observe(this, new Observer<RequestResult>() {
             @Override
             public void onChanged(@Nullable RequestResult requestResult) {
                 viewModel.isLoading.set(false);
@@ -71,7 +67,7 @@ public class ClockActivity extends AppCompatActivity {
                     showToast("更新闹钟失败");
                 }
             }
-        });
+        });*/
     }
 
     private void handleNavigate(Intent intent) {
@@ -82,17 +78,16 @@ public class ClockActivity extends AppCompatActivity {
                 case ACTION_CLOCK:
                     Clock clock = intent.getParcelableExtra("clock");
                     //如果是修改闹钟 需要获取已选择的灯具，
-                    viewModel.lampListRequest.setValue(null!=clock?clock.getId():"");
                     navigatorController.navigateToClock(clock);
                     break;
                 case ACTION_CLOCK_LIST:
                     navigatorController.navigateToClockList();
                     break;
                 case ACTION_LAMP_LIST:
-                    navigatorController.navigateToClockLampList();
+//                    navigatorController.navigateToClockLampList();
                     break;
                 case ACTION_SELECTED_LAMP:
-                    navigatorController.navigateToClockSelectedLamps();
+//                    navigatorController.navigateToClockSelectedLamps();
                     break;
             }
         }

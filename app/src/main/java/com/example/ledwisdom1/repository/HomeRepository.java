@@ -36,14 +36,13 @@ import com.example.ledwisdom1.mesh.ReportMesh;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.scene.AddGroupSceneResult;
 import com.example.ledwisdom1.scene.GroupDevice;
+import com.example.ledwisdom1.scene.GroupRequest;
 import com.example.ledwisdom1.scene.GroupSceneRequest;
 import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.BindingAdapters;
 import com.example.ledwisdom1.utils.RequestCreator;
-import com.google.gson.Gson;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -154,6 +153,7 @@ public class HomeRepository {
      * @param request 创建场景或情景的参数
      * @return
      */
+    @Deprecated
     public LiveData<ApiResponse<AddGroupSceneResult>> createGroup(GroupSceneRequest request) {
         String id = defaultMeshObserver.getValue().id;
         ArrayMap<String, String> map = new ArrayMap<>();
@@ -164,6 +164,57 @@ public class HomeRepository {
         MultipartBody.Part icon =
                 MultipartBody.Part.createFormData("pic", request.pic.getName(), requestFile);
         return request.isGroup ? kimService.createGroup(icon, map) : kimService.createScene(icon, map);
+
+    }
+
+    /**
+     * 分两步
+     * 1.创建场景
+     * 2.添加设备到场景
+     *
+     * @param groupRequest 添加场景的参数 含上传的device ids，上传之前就要判断是否存在
+     * @return
+     */
+    public LiveData<AddGroupSceneResult> addGroup(GroupRequest groupRequest) {
+        MediatorLiveData<AddGroupSceneResult> addGroupResult = new MediatorLiveData<>();
+        ArrayMap<String, String> map = new ArrayMap<>();
+        map.put("name", groupRequest.name);
+        map.put("meshId", defaultMeshObserver.getValue().id);
+        RequestBody requestFile = RequestBody.create(RequestCreator.MEDIATYPE, groupRequest.pic);
+        // MultipartBody.Part用来发送真实的文件名
+        MultipartBody.Part icon = MultipartBody.Part.createFormData("pic", groupRequest.pic.getName(), requestFile);
+        //先创建场景
+        LiveData<ApiResponse<AddGroupSceneResult>> createGroupResponse = kimService.createGroup(icon, map);
+        addGroupResult.addSource(createGroupResponse, new Observer<ApiResponse<AddGroupSceneResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<AddGroupSceneResult> apiResponse) {
+                addGroupResult.removeSource(createGroupResponse);
+                if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    AddGroupSceneResult addDeviceResult = apiResponse.body;
+                    //这个是后台的数据库的标识
+                    groupRequest.groupId = addDeviceResult.id;
+//                    仅需要groupid和deviceids
+                    RequestBody requestBody = RequestCreator.requestAddLampToGroupScene(groupRequest);
+                    //开始添加设备到场景
+                    LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.addDeviceToGroup(requestBody);
+                    addGroupResult.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
+                        @Override
+                        public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                            addGroupResult.removeSource(responseLiveData);
+                            if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+//                                将请求的参数返回 其包含所需要的参数
+                                addGroupResult.setValue(addDeviceResult);
+                            } else {
+                                addGroupResult.setValue(null);
+                            }
+                        }
+                    });
+                } else {
+                    addGroupResult.setValue(null);
+                }
+            }
+        });
+        return addGroupResult;
 
     }
 
@@ -213,6 +264,7 @@ public class HomeRepository {
     }
 
     //更新闹钟
+    @Deprecated
     public LiveData<RequestResult> updateClock(ClockRequest clockRequest) {
         MediatorLiveData<RequestResult> updateResult = new MediatorLiveData<>();
         Map<String, String> map = new ArrayMap<>();
@@ -246,9 +298,9 @@ public class HomeRepository {
      * @param clockRequest
      * @return
      */
-    public LiveData<RequestResult> updateClockAndDevice(ClockRequest clockRequest, List<Lamp> lamps) {
+    public LiveData<ClockRequest> updateClockAndDevice(ClockRequest clockRequest) {
         Log.d(TAG, "updateClockAndDevice: ");
-        MediatorLiveData<RequestResult> updateResult = new MediatorLiveData<>();
+        MediatorLiveData<ClockRequest> updateResult = new MediatorLiveData<>();
         Map<String, String> map = new ArrayMap<>();
         map.put("clockId", clockRequest.clockId);
         map.put("name", clockRequest.name);
@@ -261,11 +313,7 @@ public class HomeRepository {
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 updateResult.removeSource(responseLiveData);
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
-                    if (lamps != null) {
-                       deleteClockDevice(updateResult,clockRequest,lamps);
-                    } else {
-                        updateResult.setValue(apiResponse.body);
-                    }
+                    deleteClockDevice(updateResult, clockRequest);
 
                 } else {
                     updateResult.setValue(null);
@@ -276,10 +324,9 @@ public class HomeRepository {
     }
 
 
-    private void deleteClockDevice(MediatorLiveData<RequestResult> updateResult, ClockRequest clockRequest, List<Lamp> lamps) {
+    private void deleteClockDevice(MediatorLiveData<ClockRequest> updateResult, ClockRequest clockRequest) {
         //使用全部灯具id 旧的不好记录
-        Log.d(TAG, "onChanged: "+lamps.toString());
-
+       /* Log.d(TAG, "onChanged: " + lamps.toString());
         List<String> idsToDelete = new ArrayList<>();
         List<String> idsToAdd = new ArrayList<>();
         for (Lamp lamp : lamps) {
@@ -287,9 +334,9 @@ public class HomeRepository {
             if (lamp.isSelected()) {
                 idsToAdd.add(lamp.getId());
             }
-        }
-        clockRequest.deviceId = new Gson().toJson(idsToDelete);
-        Log.d(TAG,"delete  "+ clockRequest.deviceId);
+        }*/
+        clockRequest.deviceId = clockRequest.oldDeviceId;
+        Log.d(TAG, "delete  " + clockRequest.deviceId);
         RequestBody requestDeleteClockDevice = RequestCreator.requestClock(clockRequest);
         LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.deleteDeviceFromClock(requestDeleteClockDevice);
         updateResult.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
@@ -297,17 +344,17 @@ public class HomeRepository {
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 updateResult.removeSource(responseLiveData);
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
-                    clockRequest.deviceId = new Gson().toJson(idsToAdd);
-                    Log.d(TAG, "add "+clockRequest.deviceId);
+                    clockRequest.deviceId = clockRequest.newDeviceId;
+                    Log.d(TAG, "add " + clockRequest.deviceId);
                     addNewDeviceToClock(updateResult, clockRequest);
-                }else {
+                } else {
                     updateResult.setValue(null);
                 }
             }
         });
     }
 
-    private void addNewDeviceToClock(MediatorLiveData<RequestResult> updateResult, ClockRequest clockRequest) {
+    private void addNewDeviceToClock(MediatorLiveData<ClockRequest> updateResult, ClockRequest clockRequest) {
         RequestBody requestBody = RequestCreator.requestClock(clockRequest);
         LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.addDeviceToClock(requestBody);
         updateResult.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
@@ -315,7 +362,7 @@ public class HomeRepository {
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 updateResult.removeSource(responseLiveData);
                 if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
-                    updateResult.setValue(apiResponse.body);
+                    updateResult.setValue(clockRequest);
                 } else {
                     updateResult.setValue(null);
                 }
@@ -325,6 +372,7 @@ public class HomeRepository {
 
 
     //    更新场景 情景
+
     public LiveData<ApiResponse<AddGroupSceneResult>> updateGroupScene(GroupSceneRequest addGroup) {
         String id = defaultMeshObserver.getValue().id;
         boolean isGroup = addGroup.isGroup;
@@ -339,6 +387,86 @@ public class HomeRepository {
         } else {
             return isGroup ? kimService.updateGroup(map) : kimService.updateScene(map);
         }
+    }
+
+
+    /**
+     * 更新场景
+     * 1.更新参数
+     * 2.删除旧设备
+     * 3.添加新设备
+     * @param groupRequest
+     * @return
+     */
+    public LiveData<GroupRequest> updateGroupAndDevices(GroupRequest groupRequest) {
+        MediatorLiveData<GroupRequest> updateResult = new MediatorLiveData<>();
+        ArrayMap<String, String> map = new ArrayMap<>();
+        map.put("name", groupRequest.name);
+        map.put("groupId", groupRequest.groupId);
+        map.put("meshId", defaultMeshObserver.getValue().id);
+        LiveData<ApiResponse<AddGroupSceneResult>> responseLiveData;
+        if (null != groupRequest.pic) {
+            RequestBody requestFile = RequestBody.create(RequestCreator.MEDIATYPE, groupRequest.pic);
+            MultipartBody.Part icon = MultipartBody.Part.createFormData("pic", groupRequest.pic.getName(), requestFile);
+            responseLiveData = kimService.updateGroup(icon, map);
+        } else {
+            responseLiveData = kimService.updateGroup(map);
+        }
+        updateResult.addSource(responseLiveData, new Observer<ApiResponse<AddGroupSceneResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<AddGroupSceneResult> apiResponse) {
+                updateResult.removeSource(responseLiveData);
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    //如果相等说明没有更新
+                    if (groupRequest.oldDeviceId.equals(groupRequest.newDeviceId)) {
+                        updateResult.setValue(groupRequest);
+                    } else {
+                        groupRequest.deviceId = groupRequest.oldDeviceId;
+                        deleteGroupDevice(updateResult, groupRequest);
+                    }
+                } else {
+                    updateResult.setValue(null);
+                }
+            }
+        });
+        return updateResult;
+    }
+
+    private void deleteGroupDevice(MediatorLiveData<GroupRequest> updateResult, GroupRequest groupRequest) {
+        Log.d(TAG, "groupRequest:" + groupRequest);
+        RequestBody requestBody = RequestCreator.requestDeleteDeviceInGroup(groupRequest.groupId,groupRequest.deviceId);
+        LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.deleteDeviceFromGroup(requestBody);
+        updateResult.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                updateResult.removeSource(responseLiveData);
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    groupRequest.deviceId = groupRequest.newDeviceId;
+                    Log.d(TAG, "add " + groupRequest.deviceId);
+                    addNewDeviceToGroup(updateResult, groupRequest);
+                } else {
+                    updateResult.setValue(null);
+                }
+            }
+        });
+    }
+
+    private void addNewDeviceToGroup(MediatorLiveData<GroupRequest> updateResult, GroupRequest groupRequest) {
+        RequestBody requestBody = RequestCreator.requestAddLampToGroupScene(groupRequest);
+        //开始添加设备到场景
+        LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.addDeviceToGroup(requestBody);
+        updateResult.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                updateResult.removeSource(responseLiveData);
+                if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                //     将请求的参数返回 其包含所需要的参数
+                    updateResult.setValue(groupRequest);
+                } else {
+                    updateResult.setValue(null);
+                }
+            }
+        });
     }
 
 
@@ -408,20 +536,19 @@ public class HomeRepository {
     }
 
 
-
     public LiveData<ApiResponse<RequestResult>> switchClock(Clock clock) {
         //1 开 0-关  使用1-当前状态 来切换
-        RequestBody requestBody = RequestCreator.requestSwitchClock(clock.getId(),1-clock.getIsOpen());
+        RequestBody requestBody = RequestCreator.requestSwitchClock(clock.getId(), 1 - clock.getIsOpen());
         return kimService.switchClock(requestBody);
     }
 
 
-
     //添加设备到场景和情景
+   /* @Deprecated
     public LiveData<ApiResponse<RequestResult>> addDeviceToGroupScene(GroupSceneRequest request) {
         RequestBody requestBody = RequestCreator.requestAddLampToGroupScene(request);
         return request.isGroup ? kimService.addDeviceToGroup(requestBody) : kimService.addDeviceToScene(requestBody);
-    }
+    }*/
 
 
     /**
@@ -559,6 +686,60 @@ public class HomeRepository {
         return kimService.deviceList(requestBody);
     }
 
+    //加载场景下的设备 如果是修改标记已选择设备
+    public LiveData<List<Lamp>> loadLampForGroup(String groupId) {
+        MediatorLiveData<List<Lamp>> data = new MediatorLiveData<>();
+        String meshId = profileObserver.getValue().meshId;
+        RequestBody requestBody = RequestCreator.requestLampList(meshId, 1);
+        LiveData<ApiResponse<LampList>> apiResponseLiveData = kimService.deviceList(requestBody);
+        data.addSource(apiResponseLiveData, new Observer<ApiResponse<LampList>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<LampList> lampListApiResponse) {
+                data.removeSource(apiResponseLiveData);
+                if (lampListApiResponse != null && lampListApiResponse.isSuccessful() && lampListApiResponse.body != null) {
+                    List<Lamp> list = lampListApiResponse.body.getList();
+                    //为空 说明是添加
+                    if (TextUtils.isEmpty(groupId)) {
+                        if (list != null) {
+                            for (Lamp lamp : list) {
+                                lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+                            }
+                            data.setValue(list);
+                        } else {
+                            data.setValue(null);
+                        }
+                    } else {
+                        RequestBody requestBody = RequestCreator.requestGroupDevices(groupId);
+                        LiveData<ApiResponse<GroupDevice>> devices = kimService.getDevicesByGroupId(requestBody);
+                        data.addSource(devices, new Observer<ApiResponse<GroupDevice>>() {
+                            @Override
+                            public void onChanged(@Nullable ApiResponse<GroupDevice> apiResponse) {
+                                data.removeSource(devices);
+                                if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body != null) {
+                                    List<Lamp> selectedList = apiResponse.body.getList();
+                                    //标记已选择数据
+                                    if (selectedList != null) {
+                                        for (Lamp lamp : list) {
+                                            if (selectedList.contains(lamp)) {
+                                                lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
+                                            } else {
+                                                lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+                                            }
+                                        }
+                                    }
+                                }
+                                data.setValue(list);
+                            }
+                        });
+                    }
+                }
+
+            }
+        });
+        return data;
+
+    }
+
     /**
      * 为闹钟模块加载灯具
      *
@@ -584,7 +765,7 @@ public class HomeRepository {
                                 lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
                             }
                             data.setValue(list);
-                        }else {
+                        } else {
                             data.setValue(null);
                         }
                     } else {

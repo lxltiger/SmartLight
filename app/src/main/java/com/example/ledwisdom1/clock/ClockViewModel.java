@@ -1,7 +1,6 @@
 package com.example.ledwisdom1.clock;
 
 import android.app.Application;
-import android.arch.core.util.Function;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
@@ -31,13 +30,13 @@ public class ClockViewModel extends AndroidViewModel {
     // lamp列表监听
     public final LiveData<List<Lamp>> lampListObserver;
 
-    // 添加修改闹钟请求
+    // 添加改闹钟请求
     public MutableLiveData<ClockRequest> clockRequest = new MutableLiveData<>();
     public final LiveData<ClockResult> clockObserver;
 
     // 创建修改闹钟请求
     public MutableLiveData<ClockRequest> updateClockRequest = new MutableLiveData<>();
-    public final LiveData<RequestResult> updateClockObserver;
+    public final LiveData<ClockRequest> updateClockObserver;
 
     public final ObservableBoolean isLoading = new ObservableBoolean(false);
 
@@ -51,28 +50,13 @@ public class ClockViewModel extends AndroidViewModel {
     public ClockViewModel(@NonNull Application application) {
         super(application);
         repository = HomeRepository.INSTANCE(application);
-        lampListObserver = Transformations.switchMap(lampListRequest, new Function<String, LiveData<List<Lamp>>>() {
-            @Override
-            public LiveData<List<Lamp>> apply(String input) {
-                return repository.loadLampsForClock(input);
-            }
-        });
+        lampListObserver = Transformations.switchMap(lampListRequest, repository::loadLampsForClock);
 
         clockListObserver = Transformations.switchMap(clockListRequest, repository::getClockList);
 
-        clockObserver = Transformations.switchMap(clockRequest, new Function<ClockRequest, LiveData<ClockResult>>() {
-            @Override
-            public LiveData<ClockResult> apply(ClockRequest input) {
-                return repository.addClock(input);
-            }
-        });
+        clockObserver = Transformations.switchMap(clockRequest, repository::addClock);
 
-        updateClockObserver = Transformations.switchMap(updateClockRequest, new Function<ClockRequest, LiveData<RequestResult>>() {
-            @Override
-            public LiveData<RequestResult> apply(ClockRequest input) {
-                return repository.updateClockAndDevice(input, lampListObserver.getValue());
-            }
-        });
+        updateClockObserver = Transformations.switchMap(updateClockRequest, repository::updateClockAndDevice);
 
     }
 

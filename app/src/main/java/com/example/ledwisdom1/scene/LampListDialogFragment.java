@@ -13,10 +13,8 @@ import android.view.ViewGroup;
 
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.databinding.FragmentLampListDialogBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
-import com.example.ledwisdom1.device.entity.LampList;
 import com.example.ledwisdom1.home.LampAdapter;
 import com.example.ledwisdom1.home.OnHandleLampListener;
 import com.example.ledwisdom1.utils.AutoClearValue;
@@ -27,6 +25,7 @@ import java.util.List;
 /**
  * 灯具列表，可以作为对话框 从页面底部弹出，目前作为fragment
  */
+@Deprecated
 public class LampListDialogFragment extends BottomSheetDialogFragment implements CallBack {
     public static final String TAG = LampListDialogFragment.class.getSimpleName();
     private GroupSceneViewModel viewModel;
@@ -66,7 +65,7 @@ public class LampListDialogFragment extends BottomSheetDialogFragment implements
     }
 
     private void subscribeUI(GroupSceneViewModel viewModel) {
-        viewModel.lampListObserver.observe(this, new Observer<ApiResponse<LampList>>() {
+        /*viewModel.lampListObserver.observe(this, new Observer<ApiResponse<LampList>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<LampList> apiResponse) {
                 if (apiResponse.isSuccessful()) {
@@ -74,7 +73,7 @@ public class LampListDialogFragment extends BottomSheetDialogFragment implements
                     lampAdapter.addLampsForSelection(body.getList());
                 }
             }
-        });
+        });*/
 
         //场景或情景已有灯具 标记出来
         viewModel.groupDevicesObserver.observe(this, new Observer<List<Lamp>>() {

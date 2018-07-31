@@ -68,7 +68,7 @@ public class GroupListFragment extends Fragment implements CallBack{
 
         @Override
         public void onEditClick(Group group) {
-            Intent intent = GroupSceneActivity.newIntent(getActivity(), GroupSceneActivity.ACTION_ADD_GROUP, group);
+            Intent intent = GroupSceneActivity.newIntent(getActivity(), GroupSceneActivity.ACTION_GROUP, group);
             startActivity(intent);
 
         }
@@ -142,6 +142,6 @@ public class GroupListFragment extends Fragment implements CallBack{
 
     @Override
     public void handleClick(View view) {
-        startActivity(GroupSceneActivity.newIntent(getActivity(), GroupSceneActivity.ACTION_ADD_GROUP, null));
+        startActivity(GroupSceneActivity.newIntent(getActivity(), GroupSceneActivity.ACTION_GROUP, null));
     }
 }

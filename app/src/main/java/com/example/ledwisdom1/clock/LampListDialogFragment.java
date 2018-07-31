@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * 闹钟页面没有被选中的灯具列表，可以作为对话框 从页面底部弹出，目前作为fragment
  */
+@Deprecated
 public class LampListDialogFragment extends BottomSheetDialogFragment implements CallBack {
     public static final String TAG = LampListDialogFragment.class.getSimpleName();
     private ClockViewModel viewModel;
@@ -79,19 +80,9 @@ public class LampListDialogFragment extends BottomSheetDialogFragment implements
     public void handleClick(View v) {
         switch (v.getId()) {
             case R.id.iv_cancel:
-                getActivity().onBackPressed();
-                break;
             case R.id.iv_select:
-//                viewModel.allLamps.clear();
-//                viewModel.allLamps.addAll(lampAdapter.getLampList());
-                //更新已选择灯具页面
-                /*if (!viewModel.MODE_ADD) {
-                    List<Lamp> selectedLamps = lampAdapter.getSelectedLamps();
-                    viewModel.groupDevicesObserver.setValue(selectedLamps);
-                }*/
                 getActivity().onBackPressed();
                 break;
-
         }
     }
 

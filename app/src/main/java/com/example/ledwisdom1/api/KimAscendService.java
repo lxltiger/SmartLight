@@ -139,6 +139,9 @@ public interface KimAscendService {
     @POST("group/addDeviceToGroup")
     LiveData<ApiResponse<RequestResult>> addDeviceToGroup(@Body RequestBody request);
 
+    @POST("group/deleteDeviceFromGroup")
+    LiveData<ApiResponse<RequestResult>> deleteDeviceFromGroup(@Body RequestBody request);
+
     /*获取场景详情 用来修改*/
     @POST("group/getGroupById")
     LiveData<ApiResponse<Group>> getGroupById(@Body RequestBody request);

@@ -3,6 +3,7 @@ package com.example.ledwisdom1.utils;
 import com.example.ledwisdom1.clock.ClockRequest;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
 import com.example.ledwisdom1.model.CommonRequest;
+import com.example.ledwisdom1.scene.GroupRequest;
 import com.example.ledwisdom1.scene.GroupSceneRequest;
 import com.google.gson.Gson;
 
@@ -56,7 +57,7 @@ public class RequestCreator {
     }
 
     public static RequestBody requestLampList(String meshId, int pageNo) {
-        DeviceRequest request = new DeviceRequest(meshId, pageNo, 20, 256);
+        DeviceRequest request = new DeviceRequest(meshId, pageNo, 30, 256);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
@@ -86,14 +87,14 @@ public class RequestCreator {
      */
 
 
-    public static RequestBody requestAddLampToGroupScene(GroupSceneRequest request) {
+    public static RequestBody requestAddLampToGroupScene(GroupRequest request) {
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
 
     /*删除场景*/
     public static RequestBody requestDeleteGroup(String groupId) {
-        GroupSceneRequest request = new GroupSceneRequest(groupId, null);
+        GroupRequest request = new GroupRequest(groupId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
@@ -104,7 +105,7 @@ public class RequestCreator {
 
     /*删除场景下的设备*/
     public static RequestBody requestDeleteDeviceInGroup(String groupId, String deviceIds) {
-        GroupSceneRequest request = new GroupSceneRequest(groupId, null, deviceIds);
+        GroupRequest request = new GroupRequest(groupId,  deviceIds);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 

@@ -155,7 +155,7 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
                     getActivity().setResult(Activity.RESULT_OK);
 //                    addSucceed=true;
                 } else {
-                    showToast("上报失败");
+                    ToastUtil.showToast("上报失败");
                 }
             }
         });
@@ -327,6 +327,8 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
                     light.mAddStatus.set(ADD);
                     isAdd = false;
                 }
+
+                ToastUtil.showToast("添加失败");
             }
             break;
         }

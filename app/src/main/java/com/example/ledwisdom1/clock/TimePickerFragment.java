@@ -70,11 +70,8 @@ public class TimePickerFragment extends BottomSheetDialogFragment  {
         view.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Integer currentHour = timePicker.getCurrentHour();
-//                Integer currentMinute = timePicker.getCurrentMinute();
-//                Log.d(TAG, "currentHour:" + currentHour);
-//                Log.d(TAG, "currentMinute:" + currentMinute);
                 if (listener != null) {
+
                     listener.onTimeSet(timePicker.getCurrentHour(),timePicker.getCurrentMinute());
                 }
                 dismiss();

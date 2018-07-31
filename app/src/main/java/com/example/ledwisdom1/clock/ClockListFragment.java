@@ -80,7 +80,7 @@ public class ClockListFragment extends Fragment implements CallBack {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        viewModel = ViewModelProviders.of(getActivity()).get(ClockViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(ClockViewModel.class);
         viewModel.clockListObserver.observe(this, new Observer<ApiResponse<ClockList>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<ClockList> apiResponse) {

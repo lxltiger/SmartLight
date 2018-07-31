@@ -9,14 +9,17 @@
         <variable
             name="handler"
             type="com.example.ledwisdom1.CallBack" />
+
         <variable
-            name="content"
-            type="android.databinding.ObservableField&lt;String>"/>
+            name="name"
+            type="String" />
+
     </data>
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -25,7 +28,7 @@
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
             <ImageView
-                android:id="@+id/cancel"
+                android:id="@+id/iv_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -43,7 +46,7 @@
                 tools:text="demo" />
 
             <ImageView
-                android:id="@+id/modify"
+                android:id="@+id/confirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
@@ -51,18 +54,20 @@
                 android:background="@drawable/icon_ok"
                 android:onClick="@{handler::handleClick}" />
         </android.support.v7.widget.Toolbar>
+
         <EditText
             android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:background="@drawable/bg_feedback"
+            android:hint="请输入1到10个字符"
             android:gravity="start|center_vertical"
+            android:padding="8dp"
+            android:text="@={name}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
-            android:padding="8dp"
-            android:text="@={content}" />
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
 
         <ImageView
@@ -70,8 +75,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
-            android:onClick="@{handler::handleClick}"
             android:background="@drawable/icon_cancel"
+            android:onClick="@{handler::handleClick}"
             app:layout_constraintBottom_toBottomOf="@+id/content"
             app:layout_constraintRight_toRightOf="@+id/content"
             app:layout_constraintTop_toTopOf="@+id/content" />

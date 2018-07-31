@@ -9,8 +9,14 @@ public class ClockRequest {
     public String time;
     public String repeat;
     public String cycle;
+    //修改时使用 存储旧设备
+    public String oldDeviceId = "";
+    //    新设备
+    public String newDeviceId = "";
     public String deviceId;
     public int isOpen;
+    //    默认添加
+    public boolean isAdd = true;
 
     public ClockRequest(String clockId) {
         this.clockId = clockId;

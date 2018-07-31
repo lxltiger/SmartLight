@@ -2,7 +2,6 @@ package com.example.ledwisdom1.scene;
 
 import android.app.Activity;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,7 +28,7 @@ import static com.example.ledwisdom1.utils.ToastUtil.showToast;
  */
 public class GroupSceneActivity extends AppCompatActivity {
     private static final String TAG = GroupSceneActivity.class.getSimpleName();
-    public static final String ACTION_ADD_GROUP = "action_add_group";
+    public static final String ACTION_GROUP = "action_group";
     public static final String ACTION_ADD_SCENE = "action_add_scene";
     public static final String ACTION_SCENE_LIST = "action_scene_list";
     public static final String ACTION_EDIT_NAME = "action_edit_name";
@@ -67,15 +66,15 @@ public class GroupSceneActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_general);
-        viewModel = ViewModelProviders.of(this).get(GroupSceneViewModel.class);
+//        viewModel = ViewModelProviders.of(this).get(GroupSceneViewModel.class);
+//        subscribeUI(viewModel);
         navigatorController = new NavigatorController(this, R.id.fl_container);
         if (savedInstanceState == null) {
             handleNavigate(getIntent());
         }
 
-        subscribeUI(viewModel);
         //当前mesh下的灯具
-        viewModel.lampListRequest.setValue(1);
+//        viewModel.lampListRequest.setValue(1);
 
     }
 
@@ -129,7 +128,7 @@ public class GroupSceneActivity extends AppCompatActivity {
                     for (Lamp lamp : lamps) {
                         allocDeviceGroup(viewModel.groupSceneRequest.groupAddress, lamp.getDevice_id(), BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get());
                     }
-                    showToast(apiResponse.body.resultMsg);
+                    showToast("创建成功");
                     if (viewModel.groupSceneRequest.isGroup) {
                         finish();
                     } else {
@@ -166,9 +165,9 @@ public class GroupSceneActivity extends AppCompatActivity {
         if (intent != null) {
             action = intent.getStringExtra("action");
             switch (action) {
-                case ACTION_ADD_GROUP: {
+                case ACTION_GROUP: {
                     Group group = intent.getParcelableExtra("group");
-                    viewModel.groupSceneRequest.isGroup = true;
+                   /* viewModel.groupSceneRequest.isGroup = true;
                     if (group != null) {
                         viewModel.name = group.getName();
                         viewModel.imagePath = Config.IMG_PREFIX.concat(group.getIcon());
@@ -177,8 +176,8 @@ public class GroupSceneActivity extends AppCompatActivity {
                         viewModel.groupSceneRequest.groupId = group.getId();
                     }else{
                         viewModel.MODE_ADD = true;
-                    }
-                    navigatorController.navigateToAddGroup();
+                    }*/
+                    navigatorController.navigateToGroup(group);
                 }
                 break;
 //                    情景列表
