@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.device.entity.Lamp;
@@ -29,7 +28,7 @@ import static com.example.ledwisdom1.utils.ToastUtil.showToast;
 public class GroupSceneActivity extends AppCompatActivity {
     private static final String TAG = GroupSceneActivity.class.getSimpleName();
     public static final String ACTION_GROUP = "action_group";
-    public static final String ACTION_ADD_SCENE = "action_add_scene";
+    public static final String ACTION_SCENE = "action_scene";
     public static final String ACTION_SCENE_LIST = "action_scene_list";
     public static final String ACTION_EDIT_NAME = "action_edit_name";
     public static final String ACTION_LAMP_LIST = "action_lamp_list";
@@ -89,7 +88,7 @@ public class GroupSceneActivity extends AppCompatActivity {
                         finish();
                     } else {
                         sendResult();
-                        navigatorController.navigateToScene();
+//                        navigatorController.navigateToScene();
                     }
                 } else {
                     showToast("删除失败");
@@ -133,7 +132,7 @@ public class GroupSceneActivity extends AppCompatActivity {
                         finish();
                     } else {
                         sendResult();
-                        navigatorController.navigateToScene();
+//                        navigatorController.navigateToScene();
                     }
                 } else {
                     showToast("添加灯具失败");
@@ -151,7 +150,7 @@ public class GroupSceneActivity extends AppCompatActivity {
                         finish();
                     } else {
                         sendResult();
-                        navigatorController.navigateToScene();
+//                        navigatorController.navigateToScene();
                     }
                 } else {
                     showToast("更新失败");
@@ -182,11 +181,11 @@ public class GroupSceneActivity extends AppCompatActivity {
                 break;
 //                    情景列表
                 case ACTION_SCENE_LIST:
-                    navigatorController.navigateToScene();
+                    navigatorController.navigateToSceneList();
                     break;
-                case ACTION_ADD_SCENE: {
+                case ACTION_SCENE: {
                     Scene scene = intent.getParcelableExtra("scene");
-                    viewModel.groupSceneRequest.isGroup = false;
+                   /* viewModel.groupSceneRequest.isGroup = false;
                     if (scene != null) {
                         viewModel.name = scene.getName();
                         viewModel.imagePath = Config.IMG_PREFIX.concat(scene.getIcon());
@@ -197,11 +196,11 @@ public class GroupSceneActivity extends AppCompatActivity {
                         viewModel.MODE_ADD = true;
                         viewModel.name = "";
                         viewModel.imagePath = "";
-                    }
-                    navigatorController.navigateToAddScene();
+                    }*/
+                    navigatorController.navigateToScene(scene);
                 }
                 break;
-                case ACTION_EDIT_NAME:
+                /*case ACTION_EDIT_NAME:
                     navigatorController.navigateToEditName();
                     break;
                 case ACTION_LAMP_LIST:
@@ -209,7 +208,7 @@ public class GroupSceneActivity extends AppCompatActivity {
                     break;
                 case ACTION_SELECTED_LAMP:
                     navigatorController.navigateToSelectedLamps();
-                    break;
+                    break;*/
             }
         }
     }

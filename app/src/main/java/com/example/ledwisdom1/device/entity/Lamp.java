@@ -36,6 +36,8 @@ public class Lamp implements Parcelable {
     private int color;
     private int temperature;
     @Ignore
+    public boolean isSetting=false;
+    @Ignore
     public ObservableInt lampStatus = new ObservableInt(BindingAdapters.LIGHT_OFF);
 
 

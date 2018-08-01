@@ -36,6 +36,9 @@ public class SelectedLampAdapter extends RecyclerView.Adapter<SelectedLampAdapte
     }
 
 
+    public List<Lamp> getmLampList() {
+        return mLampList;
+    }
 
     /**
      * 刷新添加 先情况再更新

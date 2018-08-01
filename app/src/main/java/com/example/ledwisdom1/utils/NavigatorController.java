@@ -23,6 +23,7 @@ import com.example.ledwisdom1.scene.EditFragment;
 import com.example.ledwisdom1.scene.GroupFragment;
 import com.example.ledwisdom1.scene.GroupFragment2;
 import com.example.ledwisdom1.scene.LampListDialogFragment;
+import com.example.ledwisdom1.scene.Scene;
 import com.example.ledwisdom1.scene.SceneFragment;
 import com.example.ledwisdom1.scene.SceneListFragment;
 import com.example.ledwisdom1.scene.SelectedLampListFragment;
@@ -119,7 +120,7 @@ public class NavigatorController {
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToScene() {
+    public void navigateToSceneList() {
         fm.beginTransaction()
                 .replace(container, SceneListFragment.newInstance(), SceneListFragment.TAG)
                 .commitAllowingStateLoss();
@@ -160,7 +161,6 @@ public class NavigatorController {
                 .commitAllowingStateLoss();
     }
 
-    //闹钟的灯具列表 todo  优化
     public void navigateToClockLampList() {
         fm.beginTransaction()
                 .replace(container, com.example.ledwisdom1.clock.LampListDialogFragment.newInstance(), LampListDialogFragment.TAG)
@@ -183,10 +183,10 @@ public class NavigatorController {
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToAddScene() {
+    public void navigateToScene(Scene scene) {
         fm.beginTransaction()
-                .replace(container, SceneFragment.newInstance(), SceneFragment.TAG)
-//                .addToBackStack(null)
+                .replace(container, SceneFragment.newInstance(scene), SceneFragment.TAG)
+                .addToBackStack(null)
                 .commitAllowingStateLoss();
     }
 

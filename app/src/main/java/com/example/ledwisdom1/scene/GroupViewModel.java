@@ -26,10 +26,6 @@ public class GroupViewModel extends AndroidViewModel {
     private static final String TAG = GroupViewModel.class.getSimpleName();
     private final HomeRepository repository;
 
-    //场景  更新使用
-    public MutableLiveData<String> groupSceneId = new MutableLiveData<>();
-
-
     // lamp列表请求
     public MutableLiveData<String> lampListRequest = new MutableLiveData<>();
 

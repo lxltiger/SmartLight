@@ -9,9 +9,9 @@ import com.example.ledwisdom1.home.entity.Group;
 public interface OnHandleGroupListener {
 
 
-    void onItemClick(Group scene);
+    void onItemClick(Group group);
 
-    void onEditClick(Group scene);
+    void onEditClick(Group group);
 
-    void onDeleteClick(Group scene);
+    void onDeleteClick(Group group);
 }

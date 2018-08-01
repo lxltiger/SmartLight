@@ -243,6 +243,8 @@
     <string name="about">关于我们</string>
     <string name="switch_ble">蓝牙</string>
     <string name="switch_wifi">WIFI</string>
+    <string name="setting">已设置</string>
+    <string name="unsettting">未设置</string>
 
 
 </resources>

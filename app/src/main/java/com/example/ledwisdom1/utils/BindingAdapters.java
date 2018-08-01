@@ -138,7 +138,7 @@ public class BindingAdapters {
                     break;
                 case NONE:
                 default:
-                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).crossFade(1000).into(view);
+                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).into(view);
                     break;
             }
         }

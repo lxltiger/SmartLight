@@ -7,12 +7,12 @@
 
 
         <variable
-            name="lamp"
-            type="com.example.ledwisdom1.device.entity.Lamp" />
+            name="group"
+            type="com.example.ledwisdom1.home.entity.Group" />
 
         <variable
             name="handler"
-            type="com.example.ledwisdom1.home.OnHandleLampListener" />
+            type="com.example.ledwisdom1.home.OnHandleGroupListener" />
 
 
     </data>
@@ -21,20 +21,32 @@
         android:id="@+id/swipeMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:swipeEnable="true">
+        app:swipeEnable="false">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp">
+            android:layout_height="56dp"
+            android:onClick="@{()->handler.onItemClick(group)}">
+
 
             <ImageView
                 android:id="@+id/iv_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/icon_light" />
+                app:imageUrl="@{group.icon}"
+                tools:background="@drawable/icon_light" />
 
+            <ImageView
+                android:id="@+id/iv_status"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/icon_add_ok"
+                app:visibleGone="@{group.selected}" />
 
             <TextView
                 android:id="@+id/tv_name_mac"
@@ -47,8 +59,8 @@
                 android:lines="2"
                 android:paddingEnd="8dp"
                 android:paddingStart="8dp"
-                android:text='@{lamp.description}'
-                tools:text="hei\nzhng" />
+                android:text='@{group.name}'
+                tools:text="nzhng" />
 
             <View
                 style="@style/divider"
@@ -62,7 +74,6 @@
             android:layout_width="60dp"
             android:layout_height="match_parent"
             android:background="@color/colorAccent"
-            android:onClick="@{()->handler.onEditClick(lamp)}"
             android:text="@string/title_main_compile"
             android:textColor="@android:color/white"
             android:visibility="gone" />
@@ -72,7 +83,6 @@
             android:layout_width="60dp"
             android:layout_height="match_parent"
             android:background="#FF00"
-            android:onClick="@{()->handler.onDeleteClick(lamp)}"
             android:text="@string/delete"
             android:textColor="@android:color/white" />
 

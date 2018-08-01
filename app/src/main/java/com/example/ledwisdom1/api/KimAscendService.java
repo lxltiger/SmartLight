@@ -170,8 +170,20 @@ public interface KimAscendService {
     @POST("scene/addDeviceToScene")
     LiveData<ApiResponse<RequestResult>> addDeviceToScene(@Body RequestBody request);
 
+    @POST("scene/addGroupToScene")
+    LiveData<ApiResponse<RequestResult>> addGroupToScene(@Body RequestBody request);
+
     @POST("scene/getDevicesBySceneId")
     LiveData<ApiResponse<GroupDevice>> getDevicesBySceneId(@Body RequestBody request);
+
+    @POST("scene/getGroupsBySceneId")
+    LiveData<ApiResponse<GroupList>> getGroupsBySceneId(@Body RequestBody request);
+
+    @POST("device/getDeviceSettingByObjectId")
+    LiveData<ApiResponse<GroupDevice>> getDeviceSettingByObjectId(@Body RequestBody request);
+
+    @POST("device/createDeviceSetting")
+    LiveData<ApiResponse<RequestResult>> createDeviceSetting(@Body RequestBody request);
 
     @POST("clock/getClockList")
     LiveData<ApiResponse<ClockList>> getClockList(@Body RequestBody request);

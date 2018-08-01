@@ -1,10 +1,12 @@
 package com.example.ledwisdom1.utils;
 
+import android.util.ArrayMap;
+
 import com.example.ledwisdom1.clock.ClockRequest;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
 import com.example.ledwisdom1.model.CommonRequest;
 import com.example.ledwisdom1.scene.GroupRequest;
-import com.example.ledwisdom1.scene.GroupSceneRequest;
+import com.example.ledwisdom1.scene.SceneRequest;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -87,8 +89,33 @@ public class RequestCreator {
      */
 
 
-    public static RequestBody requestAddLampToGroupScene(GroupRequest request) {
+    public static RequestBody requestAddLampToGroup(GroupRequest request) {
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
+    }
+
+    public static RequestBody requestAddLampToScene(SceneRequest request) {
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
+    }
+
+    public static RequestBody requestAddGroupToScene(SceneRequest request) {
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
+    }
+
+
+    public static RequestBody requestDeviceSetting(String sceneId) {
+        ArrayMap<String, String> map = new ArrayMap<>();
+        map.put("objectId", sceneId);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(map));
+    }
+
+    public static RequestBody createDeviceSetting(String params) {
+        return RequestBody.create(MEDIATYPE, params);
+    }
+
+    public static RequestBody requestGroupFromScene(String sceneId) {
+        ArrayMap<String, String> map = new ArrayMap<>();
+        map.put("sceneId", sceneId);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(map));
     }
 
 
@@ -99,31 +126,26 @@ public class RequestCreator {
     }
 
     public static RequestBody requestDeleteScene(String sceneId) {
-        GroupSceneRequest request = new GroupSceneRequest(null, sceneId);
+        SceneRequest request = new SceneRequest(sceneId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
     /*删除场景下的设备*/
     public static RequestBody requestDeleteDeviceInGroup(String groupId, String deviceIds) {
-        GroupRequest request = new GroupRequest(groupId,  deviceIds);
+        GroupRequest request = new GroupRequest(groupId, deviceIds);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
-    /*获取场景详情*/
-    public static RequestBody requestGroupDetail(String groupId) {
-        GroupSceneRequest groupRequest = new GroupSceneRequest(groupId, null);
-        return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
-    }
 
     /*获取场景下的设备*/
     public static RequestBody requestGroupDevices(String groupId) {
-        GroupSceneRequest groupRequest = new GroupSceneRequest(groupId, null);
+        GroupRequest groupRequest = new GroupRequest(groupId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
     }
 
     /*获取情景景下的设备*/
     public static RequestBody requestSceneDevices(String sceneId) {
-        GroupSceneRequest groupRequest = new GroupSceneRequest(null, sceneId);
+        SceneRequest groupRequest = new SceneRequest(sceneId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(groupRequest));
     }
 
@@ -131,13 +153,14 @@ public class RequestCreator {
         ClockRequest clockRequest = new ClockRequest(clockId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(clockRequest));
     }
+
     public static RequestBody requestDeleteClock(String clockId) {
         ClockRequest clockRequest = new ClockRequest(clockId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(clockRequest));
     }
 
-    public static RequestBody requestSwitchClock(String clockId,int isOpen) {
-        ClockRequest clockRequest = new ClockRequest(clockId,isOpen);
+    public static RequestBody requestSwitchClock(String clockId, int isOpen) {
+        ClockRequest clockRequest = new ClockRequest(clockId, isOpen);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(clockRequest));
     }
 
@@ -213,8 +236,6 @@ public class RequestCreator {
         }
 
     }
-
-
 
 
 }

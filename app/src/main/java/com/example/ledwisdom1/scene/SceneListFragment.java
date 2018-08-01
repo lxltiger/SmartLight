@@ -30,7 +30,7 @@ import java.util.List;
 public class SceneListFragment extends Fragment implements CallBack{
     public static final String TAG = SceneListFragment.class.getSimpleName();
     private SceneAdapter sceneAdapter;
-    private GroupSceneViewModel viewModel;
+    private SceneViewModel viewModel;
 
 
     public SceneListFragment() {
@@ -65,7 +65,7 @@ public class SceneListFragment extends Fragment implements CallBack{
         @Override
         public void onEditClick(Scene scene) {
 //            viewModel.scene.setValue(scene);
-            GroupSceneActivity.start(getContext(),GroupSceneActivity.ACTION_ADD_SCENE,scene);
+            GroupSceneActivity.start(getContext(),GroupSceneActivity.ACTION_SCENE,scene);
         }
     };
 
@@ -73,7 +73,7 @@ public class SceneListFragment extends Fragment implements CallBack{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        viewModel = ViewModelProviders.of(getActivity()).get(GroupSceneViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(SceneViewModel.class);
         viewModel.sceneListObserver.observe(this, new Observer<ApiResponse<SceneList>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<SceneList> apiResponse) {
@@ -134,7 +134,7 @@ public class SceneListFragment extends Fragment implements CallBack{
                 getActivity().finish();
                 break;
             case R.id.btn_add:
-                GroupSceneActivity.start(getContext(),GroupSceneActivity.ACTION_ADD_SCENE,null);
+                GroupSceneActivity.start(getContext(),GroupSceneActivity.ACTION_SCENE,null);
                 break;
 
         }

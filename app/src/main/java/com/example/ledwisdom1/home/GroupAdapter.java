@@ -20,11 +20,11 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     private List<Group> groupList;
 
-    private final OnHandleGroupListener mHandleSceneListener;
+    private final OnHandleGroupListener onHandleGroupListener;
 
 
     public GroupAdapter(OnHandleGroupListener handleSceneListener) {
-        mHandleSceneListener = handleSceneListener;
+        onHandleGroupListener = handleSceneListener;
         groupList = new ArrayList<>();
     }
 
@@ -51,7 +51,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemGroupBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_group, parent, false);
-        binding.setHandler(mHandleSceneListener);
+        binding.setHandler(onHandleGroupListener);
         return new ViewHolder(binding);
     }
 
@@ -67,8 +67,6 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     public int getItemCount() {
         return groupList == null ? 0 : groupList.size();
     }
-
-
 
 
     static class ViewHolder extends RecyclerView.ViewHolder {

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--情景中灯具设置-->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <variable
             name="handler"
             type="com.example.ledwisdom1.CallBack" />
@@ -34,17 +35,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="已有设备"
+                android:text="灯具设置"
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
 
             <ImageView
-                android:id="@+id/add"
+                android:id="@+id/confirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/btn_add"
+                android:background="@drawable/icon_ok"
                 android:onClick="@{handler::handleClick}" />
 
         </android.support.v7.widget.Toolbar>

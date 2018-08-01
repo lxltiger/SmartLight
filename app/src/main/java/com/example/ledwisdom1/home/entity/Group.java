@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * 场景
  */
-public class Group implements Parcelable{
+public class Group implements Parcelable {
     /**
      * groupSceneId : 32790
      * name : Ghhjjhjj
@@ -18,6 +18,8 @@ public class Group implements Parcelable{
     private String name;
     private String icon;
     private String id;
+
+    public boolean selected = false;
 
     public int getGroupId() {
         return groupId;
