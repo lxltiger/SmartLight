@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +27,6 @@ import com.example.ledwisdom1.databinding.FragmentHomeBinding;
 import com.example.ledwisdom1.databinding.HomeLayoutDetailBinding;
 import com.example.ledwisdom1.databinding.HomeLayoutEmptyBinding;
 import com.example.ledwisdom1.databinding.HomePopMoreBinding;
-import com.example.ledwisdom1.device.DeviceActivity;
 import com.example.ledwisdom1.device.entity.LampCmd;
 import com.example.ledwisdom1.mesh.HomeAdapter;
 import com.example.ledwisdom1.mesh.MeshActivity;
@@ -38,7 +36,7 @@ import com.example.ledwisdom1.scene.Scene;
 import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.utils.AutoClearValue;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -92,7 +90,8 @@ public class HomeFragment extends Fragment {
         HomeAdapter adapter = new HomeAdapter();
         layoutDetailBinding.recyclerView.setAdapter(adapter);
 
-        layoutDetailBinding.recyclerViewScene.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL,false));
+        layoutDetailBinding.recyclerViewScene.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+//        layoutDetailBinding.recyclerViewScene.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL,false));
         sceneAdapter = new HomeSceneAdapter(mHandleSceneListener);
         layoutDetailBinding.recyclerViewScene.setAdapter(sceneAdapter);
 
@@ -151,8 +150,12 @@ public class HomeFragment extends Fragment {
                     SceneList body = sceneListApiResponse.body;
                     List<Scene> list = body.getList();
                     if (list != null) {
-                        bindingDetail.get().setShowScene(!list.isEmpty());
-                        sceneAdapter.addScenes(list);
+                        int size=list.size();
+                        bindingDetail.get().setShowScene(size>0);
+                        if (size > 0) {
+                            //最多显示三个
+                            sceneAdapter.addScenes(list.subList(0,Math.min(size,3)));
+                        }
                     }
                 }else {
                     bindingDetail.get().setShowScene(false);
@@ -162,10 +165,11 @@ public class HomeFragment extends Fragment {
 
     }
 
+
     private OnHandleSceneListener mHandleSceneListener = new OnHandleSceneListener() {
         @Override
         public void onItemClick(Scene scene) {
-            DeviceActivity.start(getActivity(),DeviceActivity.ACTION_GROUP_CONTROL,scene.getSceneId(),100, BindingAdapters.LIGHT_ON);
+            LightCommandUtils.loadScene(scene.getSceneId());
         }
 
         @Override

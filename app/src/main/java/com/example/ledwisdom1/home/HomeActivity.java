@@ -75,7 +75,7 @@ public class HomeActivity extends AppCompatActivity
         viewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         subscribeUI(viewModel);
         //为了防止反复更新 在此请求灯具列表
-        viewModel.lampListRequest.setValue(1);
+//        viewModel.lampListRequest.setValue(1);
 
         try {
             MQTTClient.INSTANCE().startConnect();

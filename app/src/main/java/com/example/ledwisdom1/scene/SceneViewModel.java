@@ -44,9 +44,9 @@ public class SceneViewModel extends AndroidViewModel {
     // lamp列表监听
     public final LiveData<List<Lamp>> lampListObserver;
 
-    // 创建场景请求
+    // 创建情景请求
     public MutableLiveData<SceneRequest> addSceneRequest = new MutableLiveData<>();
-    // 创建场景情景结果监听
+    // 创建情景结果监听
     public final LiveData<SceneRequest> addSceneObserver;
 
     // 设备参数
@@ -55,11 +55,10 @@ public class SceneViewModel extends AndroidViewModel {
     public final LiveData<ApiResponse<RequestResult>> deviceSettingObserver;
 
 
-    // 修改场景请求
-    public MutableLiveData<SceneRequest> updateGroupRequest = new MutableLiveData<>();
-    // 修改场景监听
-//    public final LiveData<SceneRequest> updateGroupObserver;
-
+    // 修改情景请求
+    public MutableLiveData<SceneRequest> updateSceneRequest = new MutableLiveData<>();
+    // 修改情景监听
+    public final LiveData<SceneRequest> updateSceneObserver;
 
     public final MediatorLiveData<RequestResult> deleteSceneObserver =new MediatorLiveData<>();
 
@@ -71,7 +70,7 @@ public class SceneViewModel extends AndroidViewModel {
         sceneListObserver=Transformations.switchMap(sceneListRequest, repository::getSceneList);
         groupListObserver= Transformations.switchMap(groupListRequest, repository::getGroupList);
         lampListObserver = Transformations.switchMap(lampListRequest, repository::loadLampForScene);
-//        updateGroupObserver =Transformations.switchMap(updateGroupRequest, repository::updateGroupAndDevices);
+        updateSceneObserver =Transformations.switchMap(updateSceneRequest, repository::updateSceneAndDevices);
         addSceneObserver=Transformations.switchMap(addSceneRequest, repository::addScene);
         deviceSettingObserver = Transformations.switchMap(deviceSettingRequest, repository::createDeviceSetting);
 

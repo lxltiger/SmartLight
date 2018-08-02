@@ -43,6 +43,7 @@ import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.model.CommonItem;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.example.ledwisdom1.utils.ToastUtil;
 import com.google.gson.Gson;
 
@@ -98,6 +99,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             sceneRequest.name = scene.getName();
             sceneRequest.imageUrl = Config.IMG_PREFIX.concat(scene.getIcon());
             sceneRequest.sceneId = scene.getId();
+            sceneRequest.sceneAddress = scene.getSceneId();
         }
     }
 
@@ -176,11 +178,11 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         CommonItem pic = new CommonItem(0, "图片", false, R.drawable.btn_addpic, true, sceneRequest.imageUrl);
         CommonItem name = new CommonItem(1, "名称", true, -1, true, TextUtils.isEmpty(sceneRequest.name) ? "请输入" : sceneRequest.name);
         CommonItem device = new CommonItem(2, "设备", true, -1, true, "请添加");
-        CommonItem group = new CommonItem(3, "场景", true, -1, true, "请添加");
+//        CommonItem group = new CommonItem(3, "场景", true, -1, true, "请添加");
         items.add(pic);
         items.add(name);
         items.add(device);
-        items.add(group);
+//        items.add(group);
         return items;
     }
 
@@ -268,7 +270,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                     viewModel.groupListRequest.setValue(1);
                 }
                 break;
-
         }
     };
 
@@ -280,7 +281,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         subscribeUI(viewModel);
         //获取灯具 如果是修改，sceneId不为空 在全部灯具中会将已选的灯具会被标记为selected
         viewModel.lampListRequest.setValue(sceneRequest.sceneId);
-
     }
 
 
@@ -359,7 +359,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 binding.setIsLoading(false);
-
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     if (sceneRequest.isGroupSetting) {
                         binding.viewPager.setCurrentItem(5);
@@ -376,22 +375,20 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             }
         });
 
-        /*viewModel.updateGroupObserver.observe(this, new Observer<GroupRequest>() {
+        viewModel.updateSceneObserver.observe(this, new Observer<SceneRequest>() {
             @Override
-            public void onChanged(@Nullable GroupRequest groupRequest) {
+            public void onChanged(@Nullable SceneRequest groupRequest) {
                 binding.setIsLoading(false);
                 if (groupRequest != null) {
-                    List<Lamp> lamps = viewModel.lampListObserver.getValue();
-                    for (Lamp lamp : lamps) {
-                        LightCommandUtils.allocDeviceGroup(groupRequest.groupAddress, lamp.getDevice_id(), BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get());
-                    }
                     showToast("更新成功");
-                    getActivity().finish();
+                    List<Lamp> lamps = selectedLampAdapter.getmLampList();
+                    lampForSceneAdapter.addLamps(lamps);
+                    binding.viewPager.setCurrentItem(6);
                 } else {
                     showToast("更新失败");
                 }
             }
-        });*/
+        });
     }
 
 
@@ -424,7 +421,15 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         int currentItem = binding.viewPager.getCurrentItem();
         switch (currentItem) {
             case 7:
-                binding.viewPager.setCurrentItem(5);
+                if (sceneRequest.isGroupSetting) {
+                    binding.viewPager.setCurrentItem(5);
+//                    groupToSettingBinding.setIsSetting(true);
+                }else{
+                    binding.viewPager.setCurrentItem(6);
+//                    Lamp lamp = deviceSettingBinding.getLamp();
+//                    lamp.isSetting = true;
+//                    lampForSceneAdapter.notifyDataSetChanged();
+                }
                 break;
             case 5:
             case 6:
@@ -475,6 +480,8 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                 } else {
                     Lamp lamp = deviceSettingBinding.getLamp();
                     map2.put("sonId", lamp.getId());
+                    //添加到情景
+                    LightCommandUtils.addDeviceToScene(sceneRequest.sceneAddress, lamp.getDevice_id(), progress);
                 }
                 String request = gson.toJson(map2);
                 binding.setIsLoading(true);
@@ -535,6 +542,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             Toast.makeText(getContext(), "灯具和场景至少选择一个", Toast.LENGTH_SHORT).show();
             return;
         }
+        sceneRequest.isGroupSetting = TextUtils.isEmpty(sceneRequest.deviceId);
         binding.setIsLoading(true);
         viewModel.addSceneRequest.setValue(sceneRequest);
 
@@ -551,8 +559,10 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             Toast.makeText(getContext(), "还没有选择灯具", Toast.LENGTH_SHORT).show();
             return;
         }
+        //很重要 影响方法调用和id传参
+        sceneRequest.isGroupSetting = TextUtils.isEmpty(sceneRequest.newDeviceId);
         binding.setIsLoading(true);
-        viewModel.updateGroupRequest.setValue(sceneRequest);
+        viewModel.updateSceneRequest.setValue(sceneRequest);
     }
 
 

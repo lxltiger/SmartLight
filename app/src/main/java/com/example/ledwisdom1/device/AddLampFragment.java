@@ -146,14 +146,14 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
                 meshPsw = defaultMesh.password;
             }
         });
-        //添加mesh监听
+
+
         viewModel.addLampObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     showToast(apiResponse.body.resultMsg);
                     getActivity().setResult(Activity.RESULT_OK);
-//                    addSucceed=true;
                 } else {
                     ToastUtil.showToast("上报失败");
                 }
@@ -327,8 +327,10 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
                     light.mAddStatus.set(ADD);
                     isAdd = false;
                 }
-
-                ToastUtil.showToast("添加失败");
+                //已添加的设备是登出状态，meshName已改变，也会扫描到，在此排除
+                if (deviceInfo.meshName.equals(Config.FACTORY_NAME)) {
+                    ToastUtil.showToast("添加失败");
+                }
             }
             break;
         }

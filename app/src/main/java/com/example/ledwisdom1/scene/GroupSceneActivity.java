@@ -1,26 +1,15 @@
 package com.example.ledwisdom1.scene;
 
 import android.app.Activity;
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.api.ApiResponse;
-import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.entity.Group;
-import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.sevice.TelinkLightService;
-import com.example.ledwisdom1.utils.BindingAdapters;
 import com.example.ledwisdom1.utils.NavigatorController;
-
-import java.util.List;
-
-import static com.example.ledwisdom1.utils.ToastUtil.showToast;
 
 /**
  * 场景和情景的页面容器
@@ -35,11 +24,10 @@ public class GroupSceneActivity extends AppCompatActivity {
     public static final String ACTION_SELECTED_LAMP = "action_selected_lamp";
 
     private NavigatorController navigatorController;
-    private GroupSceneViewModel viewModel;
     /**
      * 情景列表发生改变的标志
      */
-    private boolean changed=false;
+    private boolean changed = false;
 
     public static Intent newIntent(Context context, String action, Group group) {
         Intent intent = new Intent(context, GroupSceneActivity.class);
@@ -54,7 +42,7 @@ public class GroupSceneActivity extends AppCompatActivity {
         context.startActivity(intent);
     }
 
-    public static void start(Context context, String action,Scene scene) {
+    public static void start(Context context, String action, Scene scene) {
         Intent intent = new Intent(context, GroupSceneActivity.class);
         intent.putExtra("action", action);
         intent.putExtra("scene", scene);
@@ -65,99 +53,13 @@ public class GroupSceneActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_general);
-//        viewModel = ViewModelProviders.of(this).get(GroupSceneViewModel.class);
-//        subscribeUI(viewModel);
         navigatorController = new NavigatorController(this, R.id.fl_container);
         if (savedInstanceState == null) {
             handleNavigate(getIntent());
         }
 
-        //当前mesh下的灯具
-//        viewModel.lampListRequest.setValue(1);
-
     }
 
-    private void subscribeUI(GroupSceneViewModel viewModel) {
-//        删除场景
-        viewModel.deleteGroupObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
-            @Override
-            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
-                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
-                    showToast(apiResponse.body.resultMsg);
-                    if (viewModel.groupSceneRequest.isGroup) {
-                        finish();
-                    } else {
-                        sendResult();
-//                        navigatorController.navigateToScene();
-                    }
-                } else {
-                    showToast("删除失败");
-                }
-            }
-        });
-
-        //情景添加成功后添加灯具
-        viewModel.addGroupObserver.observe(this, new Observer<ApiResponse<AddGroupSceneResult>>() {
-            @Override
-            public void onChanged(@Nullable ApiResponse<AddGroupSceneResult> apiResponse) {
-                if (null != apiResponse && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
-                    AddGroupSceneResult groupSceneResult = apiResponse.body;
-                    if (groupSceneResult.groupId > 0) {
-                        viewModel.groupSceneRequest.groupId = groupSceneResult.id;
-                        viewModel.groupSceneRequest.groupAddress = groupSceneResult.groupId;
-                        viewModel.addDeviceToGroupSceneRequest.setValue(viewModel.groupSceneRequest);
-                    } else if (groupSceneResult.sceneId > 0) {
-                        viewModel.groupSceneRequest.sceneId = groupSceneResult.id;
-                        viewModel.groupSceneRequest.groupAddress = groupSceneResult.sceneId;
-                        viewModel.addDeviceToGroupSceneRequest.setValue(viewModel.groupSceneRequest);
-                    }
-                } else {
-                    viewModel.isLoading.set(false);
-                    showToast("创建失败");
-                }
-            }
-        });
-
-        viewModel.addDeviceToGroupSceneObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
-            @Override
-            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
-                viewModel.isLoading.set(false);
-                if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
-                    List<Lamp> lamps = viewModel.groupSceneLamps;
-                    for (Lamp lamp : lamps) {
-                        allocDeviceGroup(viewModel.groupSceneRequest.groupAddress, lamp.getDevice_id(), BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get());
-                    }
-                    showToast("创建成功");
-                    if (viewModel.groupSceneRequest.isGroup) {
-                        finish();
-                    } else {
-                        sendResult();
-//                        navigatorController.navigateToScene();
-                    }
-                } else {
-                    showToast("添加灯具失败");
-
-                }
-            }
-        });
-        viewModel.updateGroupObserver.observe(this, new Observer<ApiResponse<AddGroupSceneResult>>() {
-            @Override
-            public void onChanged(@Nullable ApiResponse<AddGroupSceneResult> apiResponse) {
-                viewModel.isLoading.set(false);
-                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
-                    showToast(apiResponse.body.resultMsg);
-                    if (viewModel.groupSceneRequest.isGroup) {
-                        finish();
-                    } else {
-                        sendResult();
-//                        navigatorController.navigateToScene();
-                    }
-                } else {
-                    showToast("更新失败");
-                }
-            }
-        });
-    }
 
     private void handleNavigate(Intent intent) {
         String action = "";
@@ -166,16 +68,6 @@ public class GroupSceneActivity extends AppCompatActivity {
             switch (action) {
                 case ACTION_GROUP: {
                     Group group = intent.getParcelableExtra("group");
-                   /* viewModel.groupSceneRequest.isGroup = true;
-                    if (group != null) {
-                        viewModel.name = group.getName();
-                        viewModel.imagePath = Config.IMG_PREFIX.concat(group.getIcon());
-                        viewModel.MODE_ADD = false;
-                        viewModel.groupSceneId.setValue(group.getId());
-                        viewModel.groupSceneRequest.groupId = group.getId();
-                    }else{
-                        viewModel.MODE_ADD = true;
-                    }*/
                     navigatorController.navigateToGroup(group);
                 }
                 break;
@@ -185,18 +77,6 @@ public class GroupSceneActivity extends AppCompatActivity {
                     break;
                 case ACTION_SCENE: {
                     Scene scene = intent.getParcelableExtra("scene");
-                   /* viewModel.groupSceneRequest.isGroup = false;
-                    if (scene != null) {
-                        viewModel.name = scene.getName();
-                        viewModel.imagePath = Config.IMG_PREFIX.concat(scene.getIcon());
-                        viewModel.MODE_ADD = false;
-                        viewModel.groupSceneId.setValue(scene.getId());
-                        viewModel.groupSceneRequest.sceneId = scene.getId();
-                    }else {
-                        viewModel.MODE_ADD = true;
-                        viewModel.name = "";
-                        viewModel.imagePath = "";
-                    }*/
                     navigatorController.navigateToScene(scene);
                 }
                 break;
@@ -220,11 +100,6 @@ public class GroupSceneActivity extends AppCompatActivity {
         handleNavigate(intent);
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-    }
 
     /*通知情景发生变化，首页需要请求新的数据*/
     private void sendResult() {
@@ -233,21 +108,4 @@ public class GroupSceneActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * 添加灯具到场景
-     *
-     * @param groupAddress
-     * @param dstAddress
-     * @param add
-     */
-
-
-    private void allocDeviceGroup(int groupAddress, int dstAddress, boolean add) {
-        byte opcode = (byte) 0xD7;
-        byte[] params = new byte[]{0x01, (byte) (groupAddress & 0xFF),
-                (byte) (groupAddress >> 8 & 0xFF)};
-
-        params[0] = (byte) (add ? 0x01 : 0x00);
-        TelinkLightService.Instance().sendCommand(opcode, dstAddress, params);
-    }
 }

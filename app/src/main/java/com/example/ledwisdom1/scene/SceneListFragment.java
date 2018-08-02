@@ -17,8 +17,7 @@ import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.databinding.FragmentSceneListBinding;
-import com.example.ledwisdom1.device.DeviceActivity;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.utils.LightCommandUtils;
 
 import java.util.List;
 
@@ -59,12 +58,11 @@ public class SceneListFragment extends Fragment implements CallBack{
     private OnHandleSceneListener mHandleSceneListener = new OnHandleSceneListener() {
         @Override
         public void onItemClick(Scene scene) {
-            DeviceActivity.start(getActivity(),DeviceActivity.ACTION_GROUP_CONTROL,scene.getSceneId(),100, BindingAdapters.LIGHT_ON);
+            LightCommandUtils.loadScene(scene.getSceneId());
         }
 
         @Override
         public void onEditClick(Scene scene) {
-//            viewModel.scene.setValue(scene);
             GroupSceneActivity.start(getContext(),GroupSceneActivity.ACTION_SCENE,scene);
         }
     };
@@ -109,23 +107,6 @@ public class SceneListFragment extends Fragment implements CallBack{
         viewModel.sceneListRequest.setValue(1);
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop: ");
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.d(TAG, "onDestroyView: ");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
-    }
 
     @Override
     public void handleClick(View view) {

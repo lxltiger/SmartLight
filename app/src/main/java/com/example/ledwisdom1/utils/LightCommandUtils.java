@@ -8,6 +8,9 @@ import com.telink.bluetooth.light.Opcode;
 import java.text.DateFormat;
 import java.util.Calendar;
 
+import static com.telink.bluetooth.light.Opcode.BLE_GATT_OP_CTRL_EE;
+import static com.telink.bluetooth.light.Opcode.BLE_GATT_OP_CTRL_EF;
+
 public class LightCommandUtils {
     private static final String TAG = "LightCommandUtils";
 
@@ -68,6 +71,7 @@ public class LightCommandUtils {
         TelinkLightService.Instance().sendCommand(Opcode.BLE_GATT_OP_CTRL_E5.getValue(), address, params);
     }
 
+    //添加设备到组
     public static void allocDeviceGroup(int groupAddress, int dstAddress, boolean add) {
         byte opcode = (byte) 0xD7;
         byte[] params = new byte[]{0x01, (byte) (groupAddress & 0xFF),
@@ -75,6 +79,38 @@ public class LightCommandUtils {
 
         params[0] = (byte) (add ? 0x01 : 0x00);
         TelinkLightService.Instance().sendCommand(opcode, dstAddress, params);
+    }
+
+
+
+    /**
+     *
+     * @param sceneAddress 情景编号
+     * @param dstAddress 灯具deviceId
+     * @param light  亮度  0-100
+     */
+    public static void addDeviceToScene(int sceneAddress, int dstAddress, int light) {
+        Log.d(TAG, "addDeviceToScene() called with: sceneAddress = [" + sceneAddress + "], dstAddress = [" + dstAddress + "], light = [" + light + "]");
+        byte[] params = new byte[]{0x01, (byte) (sceneAddress & 0xFF), (byte) light,0x12,0x23,0x14};
+        TelinkLightService.Instance().sendCommand(BLE_GATT_OP_CTRL_EE.getValue(), dstAddress, params);
+    }
+
+    /**
+     *
+     * @param sceneAddress
+     * @param dstAddress  deviceId 删除某个灯  0xffff所有灯   0x0000当前直连的灯
+     */
+    public static void deleteDeviceFromScene(int sceneAddress, int dstAddress) {
+        Log.d(TAG, "deleteDeviceFromScene() called with: sceneAddress = [" + sceneAddress + "], dstAddress = [" + dstAddress + "]");
+        byte[] params = new byte[]{0x00, (byte) (sceneAddress & 0xFF)};
+        TelinkLightService.Instance().sendCommand(BLE_GATT_OP_CTRL_EE.getValue(), dstAddress, params);
+    }
+
+    //触发场景
+    public static void loadScene(int sceneAddress) {
+        Log.d(TAG, "loadScene() called with: sceneAddress = [" + sceneAddress + "]");
+        byte[] params = new byte[]{(byte) (sceneAddress & 0xFF)};
+        TelinkLightService.Instance().sendCommand(BLE_GATT_OP_CTRL_EF.getValue(), 0xffff, params);
     }
 
 

@@ -40,7 +40,7 @@ public class SceneRequest {
 
     @Override
     public String toString() {
-        return "GroupRequest{" +
+        return "SceneRequest{" +
                 "sceneAddress=" + sceneAddress +
                 ", sceneId='" + sceneId + '\'' +
                 ", oldDeviceId='" + oldDeviceId + '\'' +

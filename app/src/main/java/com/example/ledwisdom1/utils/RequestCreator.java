@@ -137,6 +137,12 @@ public class RequestCreator {
     }
 
 
+    /*删除情景下的设备*/
+    public static RequestBody requestDeleteDeviceInScene(SceneRequest sceneRequest) {
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(sceneRequest));
+    }
+
+
     /*获取场景下的设备*/
     public static RequestBody requestGroupDevices(String groupId) {
         GroupRequest groupRequest = new GroupRequest(groupId);

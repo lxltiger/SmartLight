@@ -142,6 +142,8 @@ public interface KimAscendService {
     @POST("group/deleteDeviceFromGroup")
     LiveData<ApiResponse<RequestResult>> deleteDeviceFromGroup(@Body RequestBody request);
 
+
+
     /*获取场景详情 用来修改*/
     @POST("group/getGroupById")
     LiveData<ApiResponse<Group>> getGroupById(@Body RequestBody request);
@@ -169,6 +171,9 @@ public interface KimAscendService {
 
     @POST("scene/addDeviceToScene")
     LiveData<ApiResponse<RequestResult>> addDeviceToScene(@Body RequestBody request);
+
+    @POST("scene/deleteDeviceFromScene")
+    LiveData<ApiResponse<RequestResult>> deleteDeviceFromScene(@Body RequestBody request);
 
     @POST("scene/addGroupToScene")
     LiveData<ApiResponse<RequestResult>> addGroupToScene(@Body RequestBody request);

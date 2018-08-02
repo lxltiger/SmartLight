@@ -1,7 +1,6 @@
 package com.example.ledwisdom1.home;
 
 
-import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -110,6 +109,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         super.onActivityCreated(savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity()).get(HomeViewModel.class);
         subscribeUI(viewModel);
+        viewModel.lampListRequest.setValue(1);
 
     }
 
@@ -167,7 +167,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
         super.onResume();
         //获取灯具的时间
 //        LightCommandUtils.getLampTime();
-        LightCommandUtils.getAlarm();
+//        LightCommandUtils.getAlarm();
 
     }
 
@@ -309,11 +309,12 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
                 startActivityForResult(intent, 0);
                 break;
             case R.id.temp:
-                if (toggle) {
+                LightCommandUtils.deleteDeviceFromScene(32885,0xffff);
+                /*if (toggle) {
                     LightCommandUtils.addAlarm();
                 } else {
                     LightCommandUtils.getAlarm();
-                }
+                }*/
                 toggle = !toggle;
                 break;
         }
@@ -323,8 +324,8 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
-        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
+      /*  if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
             viewModel.lampListRequest.setValue(1);
-        }
+        }*/
     }
 }
