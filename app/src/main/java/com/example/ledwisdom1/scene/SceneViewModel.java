@@ -16,6 +16,7 @@ import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
 import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.utils.LightCommandUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,14 +96,16 @@ public class SceneViewModel extends AndroidViewModel {
 
 
     /**
+     * 删除情景
      */
-    public void deleteScene(String sceneId) {
-        LiveData<ApiResponse<RequestResult>> responseLiveData =repository.deleteScene(sceneId);
+    public void deleteScene(SceneRequest sceneRequest) {
+        LiveData<ApiResponse<RequestResult>> responseLiveData =repository.deleteScene(sceneRequest.sceneId);
         deleteSceneObserver.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 deleteSceneObserver.removeSource(responseLiveData);
                 if (null != apiResponse && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    LightCommandUtils.deleteAllDevicesFromScene(sceneRequest.sceneAddress);
                     deleteSceneObserver.setValue(apiResponse.body);
                 } else {
                     deleteSceneObserver.setValue(null);

@@ -2,14 +2,14 @@ package com.example.ledwisdom1.device;
 
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
-import android.databinding.ObservableInt;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,15 +19,12 @@ import android.widget.SeekBar;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.app.SmartLightApp;
 import com.example.ledwisdom1.databinding.FragmentLightSettingBinding;
+import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.device.entity.LampCmd;
 import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.sevice.TelinkLightService;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.google.gson.Gson;
-
-import static com.example.ledwisdom1.utils.BindingAdapters.LIGHT_CUT;
-import static com.example.ledwisdom1.utils.BindingAdapters.LIGHT_OFF;
-import static com.example.ledwisdom1.utils.BindingAdapters.LIGHT_ON;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,34 +33,24 @@ import static com.example.ledwisdom1.utils.BindingAdapters.LIGHT_ON;
  */
 public class LightSettingFragment extends Fragment {
     public static final String TAG = LightSettingFragment.class.getSimpleName();
-    private int mMeshAddress;
-    private FragmentLightSettingBinding mBinding;
-    /**
-     * 灯具开关状态
-     */
-    public ObservableInt mLightStatus;
-    //灯具亮度
-    private int mBrightness;
+    private FragmentLightSettingBinding binding;
+    private Lamp lamp;
+
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            int brightness = msg.arg1;
-            Log.d(TAG, "brightness:" + brightness);
-            setLight(brightness);
+            LightCommandUtils.setBrightness(msg.arg1,lamp.getDevice_id());
         }
     };
 
     public LightSettingFragment() {
-        // Required empty public constructor
     }
 
-    public static LightSettingFragment newInstance(int meshAddress, int brightness, int status) {
+    public static LightSettingFragment newInstance(Lamp lamp) {
         Bundle args = new Bundle();
-        args.putInt("address", meshAddress);
-        args.putInt("brightness", brightness);
-        args.putInt("status", status);
+        args.putParcelable("lamp", lamp);
         LightSettingFragment fragment = new LightSettingFragment();
         fragment.setArguments(args);
         return fragment;
@@ -73,33 +60,38 @@ public class LightSettingFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle arguments = getArguments();
-        if (arguments != null) {
-            mMeshAddress = arguments.getInt("address");
-            Log.d(TAG, "mMeshAddress:" + mMeshAddress);
-
-            mBrightness = arguments.getInt("brightness", 100);
-            Log.d(TAG, "mBrightness:" + mBrightness);
-            int status = arguments.getInt("status", 0);
-            Log.d(TAG, "status:" + status);
-
-            mLightStatus = new ObservableInt(status);
-            if (status == LIGHT_OFF) {
-                mBrightness = 0;
-            }
-        }
+        lamp = arguments.getParcelable("lamp");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_light_setting, container, false);
-        mBinding.setHandler(this);
-        mBinding.setOn(LIGHT_ON == mLightStatus.get());
-        mBinding.setProgress(mBrightness);
-        return mBinding.getRoot();
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_light_setting, container, false);
+        binding.setHandler(this);
+        int brightness = lamp.getBrightness();
+        binding.setOn(brightness > 0);
+        binding.setProgress(brightness);
+        return binding.getRoot();
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        DeviceViewModel viewModel = ViewModelProviders.of(this).get(DeviceViewModel.class);
+        //当设备状态变更 会在DeviceFragment中更新数据库
+        viewModel.observeLamp(lamp.getDevice_id()).observe(this, new Observer<Lamp>() {
+            @Override
+            public void onChanged(@Nullable Lamp lamp) {
+                if (lamp != null) {
+                    int brightness = lamp.getBrightness();
+                    binding.setOn(brightness > 0);
+                    binding.setProgress(brightness);
+                }
+            }
+        });
+
+    }
 
     /**
      * SeekBar 调节亮度回调
@@ -124,37 +116,28 @@ public class LightSettingFragment extends Fragment {
      * @param checkedId
      */
     public void onCheckedChanged(RadioGroup group, int checkedId) {
-        int brightness = 0;
-        int resId = 0;
         switch (checkedId) {
             case R.id.rb_sleep:
-                brightness = 40;
-                resId = R.string.sleep;
+                LightCommandUtils.setBrightness(20,lamp.getDevice_id());
                 break;
             case R.id.rb_visit:
-                brightness = 100;
-                resId = R.string.com_visit;
+                LightCommandUtils.setBrightness(100,lamp.getDevice_id());
                 break;
             case R.id.rb_read:
-//                brightness = 80;
-
-                resId = R.string.readding;
+                //没有使用网关
+                LightCommandUtils.toggleLampWithDelay(lamp.getDevice_id(),!binding.getOn());
                 break;
             case R.id.rb_conservation:
-                resId = R.string.conservation;
-                brightness = 40;
+                LightCommandUtils.setBrightness(40,lamp.getDevice_id());
+
                 break;
         }
-        String mode = String.format("%s%s", getString(R.string.now_pattern), getString(resId));
-        mBinding.setProgress(brightness);
-        setLight(brightness);
     }
 
     public void handleClick(View view) {
-        Log.d(TAG, "handleClick: ");
         switch (view.getId()) {
             case R.id.iv_switch:
-                toggleLamp();
+                LightCommandUtils.toggleLamp(lamp.getDevice_id(), !binding.getOn());
                 break;
             case R.id.iv_back:
                 getActivity().finish();
@@ -163,34 +146,24 @@ public class LightSettingFragment extends Fragment {
     }
 
     public void toggleLamp() {
-        int dstAddr = mMeshAddress;
+        int dstAddr = lamp.getDevice_id();
         boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
-
-        Log.d(TAG, "dstAddr:" + dstAddr);
         byte opcode = (byte) 0xD0;
-        switch (mLightStatus.get()) {
-            case LIGHT_OFF:
-            case LIGHT_CUT:
-//                    开灯
-                Log.d(TAG, "open");
-                if (blueTooth) {
-                    TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr, new byte[]{0x01, 0x00, 0x00});
-                } else {
-                    toggleLampWithHub(dstAddr, true);
-                }
-                mLightStatus.set(LIGHT_ON);
-                mBinding.setOn(true);
-                break;
-            case BindingAdapters.LIGHT_ON:
-                if (blueTooth) {
-                    TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr, new byte[]{0x00, 0x00, 0x00});
-                } else {
-                    toggleLampWithHub(dstAddr, false);
-                }
-                mLightStatus.set(LIGHT_OFF);
-                mBinding.setOn(false);
-                break;
+        boolean on = binding.getOn();
+        if (on) {
+            if (blueTooth) {
+                TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr, new byte[]{0x00, 0x00, 0x00});
+            } else {
+                toggleLampWithHub(dstAddr, false);
+            }
+        }else{
+            if (blueTooth) {
+                TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr, new byte[]{0x01, 0x00, 0x00});
+            } else {
+                toggleLampWithHub(dstAddr, true);
+            }
         }
+
     }
 
 
@@ -199,20 +172,5 @@ public class LightSettingFragment extends Fragment {
         String message = new Gson().toJson(lampCmd);
         MQTTClient.INSTANCE().publishLampControlMessage("1102F483CD9E6123", message);
     }
-
-    /**
-     * 发送不同亮度值
-     *
-     * @param progress
-     */
-    private void setLight(int progress) {
-        int addr = mMeshAddress;
-        byte opcode;
-        byte[] params;
-        opcode = (byte) 0xD2;
-        params = new byte[]{(byte) progress};
-        TelinkLightService.Instance().sendCommandNoResponse(opcode, addr, params);
-    }
-
 
 }

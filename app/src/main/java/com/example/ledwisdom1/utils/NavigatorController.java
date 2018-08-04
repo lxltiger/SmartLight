@@ -12,6 +12,7 @@ import com.example.ledwisdom1.device.AddHubFragment;
 import com.example.ledwisdom1.device.AddLampFragment;
 import com.example.ledwisdom1.device.GroupSceneControlFragment;
 import com.example.ledwisdom1.device.LightSettingFragment;
+import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.DeviceFragment;
 import com.example.ledwisdom1.home.GroupListFragment;
 import com.example.ledwisdom1.home.HomeActivity;
@@ -83,27 +84,30 @@ public class NavigatorController {
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToAddDevice() {
+    public void navigateToAddDevice(int type) {
         fm.beginTransaction()
-                .replace(container, AddDeviceFragment.newInstance(), AddDeviceFragment.TAG)
+                .replace(container, AddDeviceFragment.newInstance(type), AddDeviceFragment.TAG)
                 .commitAllowingStateLoss();
     }
 
     public void navigateToAddLamp() {
         fm.beginTransaction()
                 .replace(container, AddLampFragment.newInstance(), AddLampFragment.TAG)
+                .addToBackStack(null)
                 .commitAllowingStateLoss();
     }
 
     public void navigateToAddHub() {
         fm.beginTransaction()
                 .replace(container, AddHubFragment.newInstance(), AddHubFragment.TAG)
+                .addToBackStack(null)
+
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToLampSetting(int meshAddress, int brightness, int status) {
+    public void navigateToLampSetting(Lamp lamp) {
         fm.beginTransaction()
-                .replace(container, LightSettingFragment.newInstance(meshAddress, brightness, status), LightSettingFragment.TAG)
+                .replace(container, LightSettingFragment.newInstance(lamp), LightSettingFragment.TAG)
                 .commitAllowingStateLoss();
     }
 

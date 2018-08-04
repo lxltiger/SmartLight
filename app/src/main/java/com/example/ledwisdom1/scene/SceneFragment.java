@@ -6,12 +6,14 @@ package com.example.ledwisdom1.scene;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -348,6 +350,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             public void onChanged(@Nullable RequestResult apiResponse) {
                 if (apiResponse != null) {
                     showToast("删除成功");
+
                     getActivity().onBackPressed();
                 } else {
                     showToast("删除失败");
@@ -408,7 +411,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                 editBinding.setName("");
                 break;
             case R.id.delete:
-                viewModel.deleteScene(sceneRequest.sceneId);
+                viewModel.deleteScene(sceneRequest);
                 break;
             case R.id.rl_group:
                 binding.viewPager.setCurrentItem(7);
@@ -423,12 +426,8 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             case 7:
                 if (sceneRequest.isGroupSetting) {
                     binding.viewPager.setCurrentItem(5);
-//                    groupToSettingBinding.setIsSetting(true);
                 }else{
                     binding.viewPager.setCurrentItem(6);
-//                    Lamp lamp = deviceSettingBinding.getLamp();
-//                    lamp.isSetting = true;
-//                    lampForSceneAdapter.notifyDataSetChanged();
                 }
                 break;
             case 5:
@@ -464,28 +463,8 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         switch (currentItem) {
             //灯具设置页面
             case 7:
-                ArrayMap<String, Integer> map = new ArrayMap<>();
-                int progress = deviceSettingBinding.sbBrightness.getProgress();
-                map.put("light", progress);
-                map.put("red", 123);
-                map.put("green", 23);
-                map.put("blue", 73);
-                Gson gson = new Gson();
-                String param = gson.toJson(map);
-                ArrayMap<String, String> map2 = new ArrayMap<>();
-                map2.put("objectId", sceneRequest.sceneId);
-                map2.put("setting", param);
-                if (sceneRequest.isGroupSetting) {
-                    map2.put("sonId", sceneRequest.groupIds);
-                } else {
-                    Lamp lamp = deviceSettingBinding.getLamp();
-                    map2.put("sonId", lamp.getId());
-                    //添加到情景
-                    LightCommandUtils.addDeviceToScene(sceneRequest.sceneAddress, lamp.getDevice_id(), progress);
-                }
-                String request = gson.toJson(map2);
-                binding.setIsLoading(true);
-                viewModel.deviceSettingRequest.setValue(request);
+                handleLightSetting();
+
                 break;
             //场景完成设置
             case 5:
@@ -525,6 +504,35 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                 break;
         }
 
+    }
+
+    private void handleLightSetting() {
+        ArrayMap<String, Integer> map = new ArrayMap<>();
+        int progress = deviceSettingBinding.sbBrightness.getProgress();
+        int colorText = deviceSettingBinding.ivRgb.ColorText;
+        int blue = Color.blue(colorText);
+        int red = Color.red(colorText);
+        int green = Color.green(colorText);
+        map.put("light", progress);
+        map.put("red", red);
+        map.put("green", green);
+        map.put("blue", blue);
+        Gson gson = new Gson();
+        String param = gson.toJson(map);
+        ArrayMap<String, String> map2 = new ArrayMap<>();
+        map2.put("objectId", sceneRequest.sceneId);
+        map2.put("setting", param);
+        if (sceneRequest.isGroupSetting) {
+            map2.put("sonId", sceneRequest.groupIds);
+        } else {
+            Lamp lamp = deviceSettingBinding.getLamp();
+            map2.put("sonId", lamp.getId());
+            //添加到情景
+            LightCommandUtils.addDeviceToScene(sceneRequest.sceneAddress, lamp.getDevice_id(), progress,red,green,blue);
+        }
+        String request = gson.toJson(map2);
+        binding.setIsLoading(true);
+        viewModel.deviceSettingRequest.setValue(request);
     }
 
     private void addScene() {

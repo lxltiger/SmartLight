@@ -1,15 +1,12 @@
 package com.example.ledwisdom1.mesh;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -19,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -28,7 +26,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.ledwisdom1.CallBack;
+import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.adapter.InsetDecoration;
@@ -36,9 +36,11 @@ import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.api.Status;
 import com.example.ledwisdom1.databinding.ActivityMeshBinding;
+import com.example.ledwisdom1.databinding.LayoutEditBinding;
 import com.example.ledwisdom1.databinding.MeshLayoutAddBinding;
 import com.example.ledwisdom1.databinding.MeshLayoutDetailBinding;
 import com.example.ledwisdom1.databinding.MeshLayoutListBinding;
+import com.example.ledwisdom1.fragment.ProduceAvatarFragment;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.DialogManager;
@@ -59,7 +61,7 @@ import ledwisdom1.example.com.zxinglib.camera.QRCodeUtil;
  * 添加Mesh 需要加参数是否默认  返回结果需要更详细 更新profile
  * 修改mesh
  */
-public class MeshActivity extends AppCompatActivity implements CallBack, View.OnClickListener {
+public class MeshActivity extends AppCompatActivity implements CallBack, View.OnClickListener, ProduceAvatarFragment.Listener {
     private static final String TAG = MeshActivity.class.getSimpleName();
     public static final String ACTION_ADD_MESH = "action_add_mesh";
     public static final String ACTION_MESH_DETAIL = "action_mesh_detail";
@@ -69,11 +71,13 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
     public static final int TYPE_EDIT_PSW = 2;
 
     private DialogManager dialogManager;
-    private ReportMesh reportMesh;
+    private ReportMesh  reportMesh = new ReportMesh();
     private MeshViewModel viewModel;
     private ActivityMeshBinding binding;
     private MeshLayoutAddBinding meshLayoutAddBinding;
     private MeshLayoutDetailBinding meshLayoutDetailBinding;
+    private LayoutEditBinding editBinding;
+
     private MeshAdapter myMeshAdapter;
     private MeshAdapter friendMeshAdapter;
 
@@ -85,16 +89,22 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
         LayoutInflater inflater = LayoutInflater.from(this);
         ViewGroup container = null;
         meshLayoutAddBinding = DataBindingUtil.inflate(inflater, R.layout.mesh_layout_add, container, false);
-        meshLayoutDetailBinding = DataBindingUtil.inflate(inflater, R.layout.mesh_layout_detail, container, false);
-        MeshLayoutListBinding meshLayoutListBinding = DataBindingUtil.inflate(inflater, R.layout.mesh_layout_list, container, false);
         meshLayoutAddBinding.setHandler(this);
+
+        meshLayoutDetailBinding = DataBindingUtil.inflate(inflater, R.layout.mesh_layout_detail, container, false);
         meshLayoutDetailBinding.setHandler(this);
+
+        MeshLayoutListBinding meshLayoutListBinding = DataBindingUtil.inflate(inflater, R.layout.mesh_layout_list, container, false);
         meshLayoutListBinding.setHandler(this);
+
+        editBinding = DataBindingUtil.inflate(inflater, R.layout.layout_edit, container, false);
+        editBinding.setHandler(this);
 
         List<View> viewList = new ArrayList<>();
         viewList.add(meshLayoutAddBinding.getRoot());
         viewList.add(meshLayoutListBinding.getRoot());
         viewList.add(meshLayoutDetailBinding.getRoot());
+        viewList.add(editBinding.getRoot());
         CommonPagerAdapter pagerAdapter = new CommonPagerAdapter(viewList);
         binding.viewPager.setAdapter(pagerAdapter);
 
@@ -136,32 +146,26 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
                     binding.viewPager.setCurrentItem(0);
                     break;
                 case ACTION_MESH_DETAIL:
-                    showMeshDetail();
+                    binding.viewPager.setCurrentItem(2);
                     break;
                 case ACTION_MESH_LIST:
-                    showMeshList();
+                    binding.viewPager.setCurrentItem(1);
+                    //请求mesh列表
+                    viewModel.pagerNo.setValue(1);
                     break;
             }
         }
     }
 
-    private void showMeshList() {
-        binding.viewPager.setCurrentItem(1);
-        //请求mesh列表
-        viewModel.pagerNo.setValue(1);
-    }
-
-    private void showMeshDetail() {
-        binding.viewPager.setCurrentItem(2);
-
-    }
 
     private void subscribeUI(MeshViewModel viewModel) {
         dialogManager = new DialogManager(this);
-        reportMesh = new ReportMesh();
+
 
         viewModel.defaultMeshObserver.observe(this, defaultMesh -> {
+            defaultMesh.aijiaIcon = Config.IMG_PREFIX.concat(defaultMesh.aijiaIcon);
             meshLayoutDetailBinding.setMesh(defaultMesh);
+            reportMesh.homeName=defaultMesh.aijiaName;
             String sharetext = RequestCreator.createShareMeshCode(defaultMesh.id, null, defaultMesh.creater);
             Bitmap bitmap = QRCodeUtil.createQRCode(sharetext, 300, 300);
             if (bitmap != null) {
@@ -174,7 +178,6 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
             binding.setResource(resource);
             if (Status.SUCCESS == resource.status) {
                 finish();
-//                showMeshList();
             } else if (Status.ERROR == resource.status) {
                 showToast(resource.message);
             }
@@ -207,7 +210,6 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
 
         });
 
-        //todo 切换mesh下的灯具
         viewModel.setDefaultMeshObserver.observe(this, resource -> {
             binding.setResource(resource);
             if (Status.SUCCESS == resource.status) {
@@ -247,20 +249,14 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
                 }
             }
         });
-
-
     }
-
-
-    private boolean addMesh = true;
-
 
     @Override
     public void handleClick(View v) {
         switch (v.getId()) {
             case R.id.avatar:
-//                doChoosePhoto();
-                show();
+//                show();
+                ProduceAvatarFragment.newInstance().show(getSupportFragmentManager(), ProduceAvatarFragment.TAG);
                 break;
             case R.id.user_name:
                 viewModel.type.set(MeshActivity.TYPE_EDIT_NAME);
@@ -275,28 +271,59 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
                 dialogManager.showDialog(MeshDialog.TAG, MeshDialog.newInstance());
                 break;
             case R.id.iv_back:
-                finish();
+                int currentItem = binding.viewPager.getCurrentItem();
+                if (currentItem == 3) {
+                    binding.viewPager.setCurrentItem(2);
+                } else {
+                    finish();
+                }
                 break;
             case R.id.add_mesh:
-                addMesh = true;
                 binding.viewPager.setCurrentItem(0);
                 break;
             case R.id.modify_mesh:
-                addMesh = false;
-                binding.viewPager.setCurrentItem(0);
+                ProduceAvatarFragment.newInstance().show(getSupportFragmentManager(), ProduceAvatarFragment.TAG);
                 break;
             case R.id.confirm:
+                int currentItem2 = binding.viewPager.getCurrentItem();
+                if (currentItem2 == 0) {
+                    if (null == reportMesh.homeIcon) {
+                        Toast.makeText(this, "还没有选择头像", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    viewModel.meshObserver.setValue(reportMesh);
+
+                } else if (currentItem2 == 3) {
+                    String name = editBinding.getName();
+                    if (TextUtils.isEmpty(name) || name.length() > 10) {
+                        editBinding.content.setError("名称在1到10个字符之间");
+                        editBinding.content.requestFocus();
+                        return;
+                    }
+                    binding.viewPager.setCurrentItem(2);
+//                    DefaultMesh mesh = meshLayoutDetailBinding.getMesh();
+//                    mesh.aijiaName=name;
+//                    meshLayoutDetailBinding.setMesh(mesh);
+                    reportMesh.homeName = name;
+                    meshLayoutDetailBinding.modifyName.setValue(name);
+
+                }
+                break;
+            case R.id.modify_name:
+                editBinding.setName(meshLayoutDetailBinding.getMesh().aijiaName);
+                binding.viewPager.setCurrentItem(3);
+                break;
+            case R.id.confirm_update:
                 if (null == reportMesh.homeIcon) {
                     Toast.makeText(this, "还没有选择头像", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (addMesh) {
-                    Log.d(TAG, "add mesh");
-                    viewModel.meshObserver.setValue(reportMesh);
-                } else {
-                    reportMesh.meshName = meshLayoutDetailBinding.getMesh().id;
-                    viewModel.modifymeshRequest.setValue(reportMesh);
-                }
+//                reportMesh.meshName = meshLayoutDetailBinding.getMesh().id;
+                viewModel.modifymeshRequest.setValue(reportMesh);
+                break;
+            case R.id.clear:
+                editBinding.setName("");
+
                 break;
         }
     }
@@ -335,7 +362,7 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        viewModel.deleteMeshRequest.setValue(current.getId());
+                        viewModel.deleteMeshRequest.setValue(current);
                         dialog.dismiss();
 
                     }
@@ -382,7 +409,7 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
     private Uri imgUri;
     private String path = null;
 
-    @Override
+   /* @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_CANCELED) return;
 
@@ -405,15 +432,15 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
             try {
                 BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
                 bitmapOptions.inSampleSize = 8;
-                /**
+                *//**
                  * 获取图片的旋转角度，有些系统把拍照的图片旋转了，有的没有旋转
-                 */
+                 *//*
                 int degree = readPictureDegree(outputFile.getAbsolutePath());
                 Bitmap cameraBitmap = BitmapFactory.decodeFile(outputFile.getAbsolutePath(), bitmapOptions);
                 Bitmap bitmap = cameraBitmap;
-                /**
+                *//**
                  * 把图片旋转为正的方向
-                 */
+                 *//*
                 bitmap = rotaingImageView(degree, bitmap);
             } catch (Exception e) {
 
@@ -428,10 +455,10 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
         } else if (requestCode == 4) {
             setImg(data);
         } else if (requestCode == 0) {
-           setImg(data);
+            setImg(data);
         }
 
-    }
+    }*/
 
     private void setImg(Intent data) {
         Bitmap bitmap2 = null;
@@ -442,11 +469,10 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
             bitmap2 = ImageUtil.getBitmapFromUri(MeshActivity.this, Uri.parse(data.getData().toString()));
         }
         File file_upload = SDCardUtils.createPrivatePhotoFile(MeshActivity.this, System.currentTimeMillis() + ".png");
-        ImageUtil.compressToFile(bitmap2,file_upload);
+        ImageUtil.compressToFile(bitmap2, file_upload);
         meshLayoutAddBinding.avatar.setImageBitmap(bitmap2);
         reportMesh.homeIcon = file_upload;
     }
-
 
 
     /**
@@ -569,4 +595,18 @@ public class MeshActivity extends AppCompatActivity implements CallBack, View.On
     }
 
 
+    @Override
+    public void onItemClicked(File file) {
+        int currentItem = binding.viewPager.getCurrentItem();
+        if (currentItem == 2) {
+            reportMesh.homeIcon = file;
+//        DefaultMesh mesh = meshLayoutDetailBinding.getMesh();
+//        mesh.aijiaIcon = file.getAbsolutePath();
+//        meshLayoutDetailBinding.setMesh(mesh);
+            meshLayoutDetailBinding.modifyMesh.setValue(file.getAbsolutePath());
+        } else if (currentItem == 0) {
+            Glide.with(this).load(file).into(meshLayoutAddBinding.avatar);
+            reportMesh.homeIcon = file;
+        }
+    }
 }

@@ -12,27 +12,33 @@
             name="profile"
             type="com.example.ledwisdom1.user.Profile"/>
 
+        <variable
+            name="userName"
+            type="String"/>
+        <variable
+            name="avatar"
+            type="String"/>
+
     </data>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:orientation="vertical">
 
 
         <ImageView
             android:id="@+id/avatar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
             android:layout_marginTop="64dp"
-            android:background="@mipmap/ic_launcher"
+            android:src="@mipmap/ic_launcher"
             android:onClick="@{handler::handleClick}"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+            app:dynamicImage="@{avatar}"
+            />
 
-        <TextView
+        <EditText
             android:id="@+id/user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,13 +46,11 @@
             android:drawableEnd="@android:drawable/ic_menu_edit"
             android:drawablePadding="12dp"
             android:gravity="center"
-            android:onClick="@{handler::handleClick}"
             android:padding="12dp"
             android:textSize="18sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/avatar"
-            tools:text="家庭名称" />
+            android:text="@={userName}"
+            android:hint="请输入用户名"
+            tools:text="用户名" />
 
 
     </LinearLayout>

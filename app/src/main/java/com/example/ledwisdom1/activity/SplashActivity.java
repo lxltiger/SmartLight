@@ -21,19 +21,9 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         HomeRepository.INSTANCE(this).profileObserver.observe(this, this::handleNavigate);
-//        retrieveUserProfileFromLocal();
     }
 
-    /**
-     * 从本地获取用户信息
-     */
-    private void retrieveUserProfileFromLocal() {
 
-//        SmartLightDataBase db = SmartLightDataBase.INSTANCE(this);
-//        Profile profile = db.user().getProfile();
-
-
-    }
 
     private void handleNavigate(Profile profile) {
         Intent intent = null;

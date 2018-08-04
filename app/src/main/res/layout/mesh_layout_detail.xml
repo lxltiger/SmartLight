@@ -46,7 +46,14 @@
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
 
-
+            <ImageView
+                android:id="@+id/confirm_update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{handler::handleClick}"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/icon_ok" />
         </android.support.v7.widget.Toolbar>
 
         <LinearLayout
@@ -69,7 +76,9 @@
             <View style="@style/divider" />
 
             <include
+                android:id="@+id/modify_name"
                 layout="@layout/item_common_text"
+                app:handler="@{(v) -> handler.handleClick(v)}"
                 app:name="@{viewModel.meshDetailName[1]}"
                 app:value="@{mesh.aijiaName}" />
 
@@ -82,17 +91,17 @@
 
             <View style="@style/divider" />
 
-            <include
+           <!-- <include
                 layout="@layout/item_common_text"
                 app:name="@{viewModel.meshDetailName[3]}"
                 app:value="@{mesh.aijiaName}" />
 
-            <View style="@style/divider" />
+            <View style="@style/divider" />-->
 
             <include
                 layout="@layout/item_common_text"
                 app:name="@{viewModel.meshDetailName[4]}"
-                app:value="@{mesh.shareCounts}" />
+                app:value="@{String.valueOf(mesh.deviceCount)}" />
 
             <View style="@style/divider" />
         </LinearLayout>

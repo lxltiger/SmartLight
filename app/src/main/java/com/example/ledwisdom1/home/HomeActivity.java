@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -38,6 +39,7 @@ import com.telink.bluetooth.light.DeviceInfo;
 import com.telink.bluetooth.light.LeAutoConnectParameters;
 import com.telink.bluetooth.light.LeRefreshNotifyParameters;
 import com.telink.bluetooth.light.LightAdapter;
+import com.telink.bluetooth.light.OnlineStatusNotificationParser;
 import com.telink.bluetooth.light.Parameters;
 import com.telink.util.Event;
 import com.telink.util.EventListener;
@@ -45,6 +47,7 @@ import com.telink.util.EventListener;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * 主页含4个UI
@@ -65,6 +68,8 @@ public class HomeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
         addBlueToothStatusReceiver();
+        addEventListener();
+
         //底部选项按钮
         RadioGroup rgMainRadioGroup = (RadioGroup) findViewById(R.id.rg_main_group);
         rgMainRadioGroup.setOnCheckedChangeListener(this);
@@ -74,8 +79,6 @@ public class HomeActivity extends AppCompatActivity
         }
         viewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         subscribeUI(viewModel);
-        //为了防止反复更新 在此请求灯具列表
-//        viewModel.lampListRequest.setValue(1);
 
         try {
             MQTTClient.INSTANCE().startConnect();
@@ -154,7 +157,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        addEventListener();
+//        addEventListener();
         autoConnect();
     }
 
@@ -168,13 +171,15 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-        removeEventListener();
-        TelinkLightService.Instance().disableAutoRefreshNotify();
+//        removeEventListener();
+//        TelinkLightService.Instance().disableAutoRefreshNotify();
     }
 
     @Override
     protected void onDestroy() {
         unregisterReceiver(mBlueToothStatusReceiver);
+        removeEventListener();
+        TelinkLightService.Instance().disableAutoRefreshNotify();
         handler.removeCallbacks(null);
         MQTTClient.INSTANCE().exit();
         super.onDestroy();
@@ -211,7 +216,7 @@ public class HomeActivity extends AppCompatActivity
         SmartLightApp smartLightApp = SmartLightApp.INSTANCE();
         smartLightApp.addEventListener(DeviceEvent.STATUS_CHANGED, this);
         smartLightApp.addEventListener(NotificationEvent.GET_TIME, this);
-//        smartLightApp.addEventListener(NotificationEvent.ONLINE_STATUS, this);
+        smartLightApp.addEventListener(NotificationEvent.ONLINE_STATUS, this);
         smartLightApp.addEventListener(ServiceEvent.SERVICE_CONNECTED, this);
         smartLightApp.addEventListener(MeshEvent.OFFLINE, this);
         smartLightApp.addEventListener(MeshEvent.ERROR, this);
@@ -251,7 +256,7 @@ public class HomeActivity extends AppCompatActivity
         Log.d(TAG, "event type" + event.getType());
         switch (event.getType()) {
             case NotificationEvent.ONLINE_STATUS:
-//                onOnlineStatusNotify((NotificationEvent) event);
+                onOnlineStatusNotify((NotificationEvent) event);
                 break;
             case DeviceEvent.STATUS_CHANGED:
                 onDeviceStatusChanged((DeviceEvent) event);
@@ -267,7 +272,7 @@ public class HomeActivity extends AppCompatActivity
                 break;
             }
             case MeshEvent.OFFLINE:
-//                onMeshOffline((MeshEvent) event);
+                viewModel.onMeshOff();
                 break;
             case MeshEvent.ERROR:
 //               onMeshError((MeshEvent) event);
@@ -326,22 +331,40 @@ public class HomeActivity extends AppCompatActivity
         switch (deviceInfo.status) {
             case LightAdapter.STATUS_LOGIN:
                 Log.d(TAG, "connecting success");
-                Toast.makeText(this, "连接成功 " + meshName, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "连接成功 " + meshName, Toast.LENGTH_SHORT).show();
                 //        获取灯具时间
+                handler.removeCallbacksAndMessages(null);
                 handler.postDelayed(LightCommandUtils::getLampTime, 3 * 1000);
 //                handler.postDelayed(() -> TelinkLightService.Instance().sendCommandNoResponse((byte) 0xE4, 0xFFFF, new byte[]{}), 3 * 1000);
                 break;
             case LightAdapter.STATUS_CONNECTING:
-                Toast.makeText(this, "正在连接 " + meshName, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "正在连接 " + meshName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "connecting");
                 break;
             case LightAdapter.STATUS_LOGOUT:
-                Toast.makeText(this, "失去连接 " + meshName, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "失去连接 " + meshName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "disconnect");
                 break;
             default:
                 break;
         }
+    }
+
+    @WorkerThread
+    protected void onOnlineStatusNotify(NotificationEvent event) {
+
+        List<OnlineStatusNotificationParser.DeviceNotificationInfo> notificationInfoList
+                = (List<OnlineStatusNotificationParser.DeviceNotificationInfo>) event.parse();
+
+        if (notificationInfoList == null || notificationInfoList.size() <= 0)
+            return;
+        for (OnlineStatusNotificationParser.DeviceNotificationInfo notificationInfo : notificationInfoList) {
+            int meshAddress = notificationInfo.meshAddress;
+            int brightness = notificationInfo.brightness;
+            Log.d(TAG, meshAddress + "meshAddress:" + brightness);
+        }
+        viewModel.updateDeviceStatus(notificationInfoList);
+
     }
 
     //    加载制定页面，采用隐藏策略，不移处已经初始化的Fragment

@@ -11,11 +11,15 @@
         <variable
             name="value"
             type="String"/>
-
+        <variable
+            name="handler"
+            type="com.example.ledwisdom1.CallBack" />
     </data>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:onClick="@{(v) -> handler.handleClick(v)}"
+
         android:padding="8dp">
 
         <TextView

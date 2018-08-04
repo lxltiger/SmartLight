@@ -91,12 +91,12 @@ public class HomeFragment extends Fragment {
         layoutDetailBinding.recyclerView.setAdapter(adapter);
 
         layoutDetailBinding.recyclerViewScene.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-//        layoutDetailBinding.recyclerViewScene.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL,false));
         sceneAdapter = new HomeSceneAdapter(mHandleSceneListener);
         layoutDetailBinding.recyclerViewScene.setAdapter(sceneAdapter);
 
         boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
         layoutDetailBinding.setBle(blueTooth);
+
         layoutDetailBinding.meshSwitch.setOnCheckedChangeListener(checkedChangeListener);
 
         binding = new AutoClearValue<>(this, homeBinding);
@@ -181,7 +181,6 @@ public class HomeFragment extends Fragment {
     private CompoundButton.OnCheckedChangeListener checkedChangeListener = (buttonView, isChecked) -> {
         SmartLightApp.INSTANCE().setBlueTooth(isChecked);
         bindingDetail.get().setBle(isChecked);
-
     };
 
 
@@ -221,10 +220,14 @@ public class HomeFragment extends Fragment {
             }
             break;
             case R.id.open_all:
-                toggle(true);
+                LightCommandUtils.toggleLamp(0xffff,true);
+
+//                toggle(true);
                 break;
             case R.id.close_all:
-                toggle(false);
+                LightCommandUtils.toggleLamp(0xffff,false);
+
+//                toggle(false);
                 break;
         }
     }
@@ -235,6 +238,7 @@ public class HomeFragment extends Fragment {
      * @param open
      */
     public void toggle(boolean open) {
+        LightCommandUtils.toggleLamp(0xffff,true);
         byte opcode = (byte) 0xD0;
         int address = 0xFFFF;
         byte[] params;

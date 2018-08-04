@@ -102,10 +102,12 @@ public class UserViewModel extends AndroidViewModel {
     //    修改密码确认结果
     public final LiveData<ApiResponse<RequestResult>> modifyResponseObserver;
 
-    //    修改密码请求
     private final MutableLiveData<RequestBody> feedBackRequest = new MutableLiveData<>();
-    //    修改密码确认结果
     public final LiveData<ApiResponse<RequestResult>> feedBackResponseObserver;
+
+
+    public final MutableLiveData<UserRequest> userRequest = new MutableLiveData<>();
+    public final LiveData<ApiResponse<RequestResult>> userResponseObserver;
 
 
  //    登出请求
@@ -146,7 +148,7 @@ public class UserViewModel extends AndroidViewModel {
         modifyResponseObserver = Transformations.switchMap(modifyRequest, input -> userRepository.modifyPsw(input));
         feedBackResponseObserver = Transformations.switchMap(feedBackRequest, input -> userRepository.feedback(input));
         logoutResponseObserver = Transformations.switchMap(logoutRequest, input -> userRepository.logout());
-
+        userResponseObserver = Transformations.switchMap(userRequest, userRepository::updateUser);
     }
 
     private void populateErrMsg() {

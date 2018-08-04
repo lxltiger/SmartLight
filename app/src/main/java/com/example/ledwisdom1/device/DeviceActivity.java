@@ -4,11 +4,10 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.utils.NavigatorController;
 
 /**
@@ -34,6 +33,13 @@ public class DeviceActivity extends AppCompatActivity {
         context.startActivity(intent);
     }
 
+    public static void start(Context context, String action, Lamp lamp) {
+        Intent intent = new Intent(context, DeviceActivity.class);
+        intent.putExtra("action", action);
+        intent.putExtra("lamp", lamp);
+        context.startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,13 +59,12 @@ public class DeviceActivity extends AppCompatActivity {
             action = intent.getStringExtra("action");
             switch (action) {
                 case ACTION_ADD_DEVICE:
-                    navigatorController.navigateToAddDevice();
+                    int type = intent.getIntExtra("type",-1);
+                    navigatorController.navigateToAddDevice(type);
                     break;
                 case ACTION_LAMP_SETTING: {
-                    int meshAddress = intent.getIntExtra("address", -1);
-                    int brightness = intent.getIntExtra("brightness", 100);
-                    int status = intent.getIntExtra("status", 0);
-                    navigatorController.navigateToLampSetting(meshAddress, brightness, status);
+                    Lamp lamp = intent.getParcelableExtra("lamp");
+                    navigatorController.navigateToLampSetting(lamp);
                     break;
                 }
                 case ACTION_GROUP_CONTROL: {
@@ -93,7 +98,7 @@ public class DeviceActivity extends AppCompatActivity {
     }
 
     //    如果不是添加设备入口界面 按返回键就返回这个界面
-    @Override
+   /* @Override
     public void onBackPressed() {
         switch (action) {
             case ACTION_ADD_DEVICE:
@@ -110,5 +115,5 @@ public class DeviceActivity extends AppCompatActivity {
                 super.onBackPressed();
                 break;
         }
-    }
+    }*/
 }

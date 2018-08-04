@@ -1,17 +1,17 @@
 package com.example.ledwisdom1.user;
 
 
+import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.databinding.DataBindingUtil;
-
-import com.example.ledwisdom1.databinding.FragmentSplashBinding;
 
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.databinding.FragmentSplashBinding;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,18 +29,25 @@ public class SplashFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+    FragmentSplashBinding binding;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        FragmentSplashBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_splash, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_splash, container, false);
+        binding.btn.setOnClickListener((view)->{
+            int colorText = binding.ivRgb.ColorText;
+            int blue = Color.blue(colorText);
+            int red = Color.red(colorText);
+            int green = Color.green(colorText);
+            Log.d(TAG, "blue:" + blue);
+            Log.d(TAG, "red:" + red);
+            Log.d(TAG, "green:" + green);
+
+        });
+
         return binding.getRoot();
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-    }
 }

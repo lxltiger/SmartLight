@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +17,19 @@ import android.widget.Toast;
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
+import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.databinding.FragmentSettingBinding;
 import com.example.ledwisdom1.databinding.SettingLayoutAccountBinding;
 import com.example.ledwisdom1.databinding.SettingLayoutMainBinding;
 import com.example.ledwisdom1.databinding.SettingLayoutModifypswBinding;
 import com.example.ledwisdom1.databinding.SettingLayoutProfileBinding;
+import com.example.ledwisdom1.fragment.ProduceAvatarFragment;
+import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.utils.AutoClearValue;
+import com.example.ledwisdom1.utils.ToastUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +37,7 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  * 设置页面
  */
-public class SettingFragment extends Fragment implements CallBack {
+public class SettingFragment extends Fragment implements CallBack, ProduceAvatarFragment.Listener {
     public static final String TAG = SettingFragment.class.getSimpleName();
     private AutoClearValue<FragmentSettingBinding> bindingSetting;
     private AutoClearValue<SettingLayoutAccountBinding> bindingAccount;
@@ -39,7 +45,8 @@ public class SettingFragment extends Fragment implements CallBack {
     private AutoClearValue<SettingLayoutProfileBinding> bindingProfile;
     private AutoClearValue<SettingLayoutModifypswBinding> bindingModify;
     private UserViewModel viewModel;
-
+//    private String userName = "";
+    private UserRequest request = new UserRequest();
 
     public static SettingFragment newInstance() {
         Bundle args = new Bundle();
@@ -53,15 +60,19 @@ public class SettingFragment extends Fragment implements CallBack {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         FragmentSettingBinding fragmentSettingBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_setting, container, false);
-        SettingLayoutMainBinding settingLayoutMainBinding = DataBindingUtil.inflate(inflater, R.layout.setting_layout_main, container, false);
-        SettingLayoutAccountBinding settingLayoutAccountBinding = DataBindingUtil.inflate(inflater, R.layout.setting_layout_account, container, false);
-        SettingLayoutProfileBinding settingLayoutProfileBinding = DataBindingUtil.inflate(inflater, R.layout.setting_layout_profile, container, false);
-        SettingLayoutModifypswBinding settingLayoutModifypswBinding = DataBindingUtil.inflate(inflater, R.layout.setting_layout_modifypsw, container, false);
-
         fragmentSettingBinding.setHandler(this);
-        settingLayoutAccountBinding.setHandler(this);
+
+        SettingLayoutMainBinding settingLayoutMainBinding = DataBindingUtil.inflate(inflater, R.layout.setting_layout_main, container, false);
         settingLayoutMainBinding.setHandler(this);
+
+        SettingLayoutAccountBinding settingLayoutAccountBinding = DataBindingUtil.inflate(inflater, R.layout.setting_layout_account, container, false);
+        settingLayoutAccountBinding.setHandler(this);
+
+        SettingLayoutProfileBinding settingLayoutProfileBinding = DataBindingUtil.inflate(inflater, R.layout.setting_layout_profile, container, false);
         settingLayoutProfileBinding.setHandler(this);
+        settingLayoutProfileBinding.setUserName(request.userName);
+
+        SettingLayoutModifypswBinding settingLayoutModifypswBinding = DataBindingUtil.inflate(inflater, R.layout.setting_layout_modifypsw, container, false);
         settingLayoutModifypswBinding.setHandler(this);
 
         List<View> viewList = new ArrayList<>();
@@ -136,6 +147,18 @@ public class SettingFragment extends Fragment implements CallBack {
                 showToast(apiResponse.message);
             }
         });
+
+        viewModel.userResponseObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    ToastUtil.showToast(apiResponse.body.resultMsg);
+                    getActivity().finish();
+                }else{
+                    ToastUtil.showToast("编辑失败");
+                }
+            }
+        });
     }
 
     private void showToast(String msg) {
@@ -163,6 +186,21 @@ public class SettingFragment extends Fragment implements CallBack {
             case R.id.confirm_modify:
                 viewModel.modifyPassword();
                 break;
+            case R.id.avatar:
+                ProduceAvatarFragment.newInstance().show(getChildFragmentManager(), ProduceAvatarFragment.TAG);
+                break;
+            case R.id.confirm:
+                request.userName = bindingProfile.get().getUserName();
+                if (TextUtils.isEmpty(request.userName)) {
+                    ToastUtil.showToast("用户名不能为空");
+                    return;
+                }
+                if (null == request.userIcon) {
+                    ToastUtil.showToast("还没有选择头像");
+                    return;
+                }
+                viewModel.userRequest.setValue(request);
+                break;
         }
     }
 
@@ -187,4 +225,9 @@ public class SettingFragment extends Fragment implements CallBack {
     }
 
 
+    @Override
+    public void onItemClicked(File file) {
+        bindingProfile.get().setAvatar(file.getAbsolutePath());
+        request.userIcon = file;
+    }
 }

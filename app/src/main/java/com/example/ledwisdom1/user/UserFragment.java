@@ -127,6 +127,7 @@ public class UserFragment extends Fragment {
                 case NAVIGATE_TO_FORGET_PSW:
                     bindingRegister.get().getAuthCode.setText(getResources().getString(R.string.ra_getyzm));
                     bindingRegister.get().getAuthCode.setClickable(true);
+                    bindingRegister.get().toLogin.setVisibility(View.INVISIBLE);
                     bindingUserFragment.get().viewPager.setCurrentItem(1, true);
                     break;
                 case NAVIGATE_TO_LOGIN:
@@ -196,7 +197,6 @@ public class UserFragment extends Fragment {
         //   注册
         userViewModel.registerResponseObserver.observe(this, apiResponse -> {
             userViewModel.loading.set(false);
-
             if (apiResponse.isSuccessful()) {
                 if (apiResponse.body.succeed()) {
                     userViewModel.login();

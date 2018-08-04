@@ -9,8 +9,9 @@ import android.support.annotation.NonNull;
 
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
-import com.example.ledwisdom1.device.entity.LampList;
+import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.entity.GroupList;
+import com.example.ledwisdom1.home.entity.Hub;
 import com.example.ledwisdom1.home.entity.HubList;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.model.RequestResult;
@@ -18,6 +19,9 @@ import com.example.ledwisdom1.repository.HomeRepository;
 import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.RequestCreator;
+import com.telink.bluetooth.light.OnlineStatusNotificationParser;
+
+import java.util.List;
 
 import okhttp3.RequestBody;
 
@@ -30,7 +34,7 @@ public class HomeViewModel extends AndroidViewModel {
 
     //    用户资料
     public final LiveData<Profile> profile;
-//    默认的Mesh
+    //    默认的Mesh
     public final LiveData<DefaultMesh> defaultMeshObserver;
 
     //    分享mesh
@@ -42,7 +46,18 @@ public class HomeViewModel extends AndroidViewModel {
     // lamp列表请求
     public MutableLiveData<Integer> lampListRequest = new MutableLiveData<>();
     // lamp列表监听
-    public final LiveData<ApiResponse<LampList>> lampListObserver;
+//    public final LiveData<Resource<List<Lamp>>> lampListObserver;
+
+    // 插座列表请求
+    public MutableLiveData<Integer> socketListRequest = new MutableLiveData<>();
+//    public final LiveData<Resource<List<Lamp>>> socketListObserver;
+
+    // 面板列表请求
+    public MutableLiveData<Integer> panelListRequest = new MutableLiveData<>();
+//    public final LiveData<Resource<List<Lamp>>> panelListObserver;
+
+    public MutableLiveData<Integer> deviceListRequest = new MutableLiveData<>();
+    public final LiveData<Resource<List<Lamp>>> deviceListObserver;
 
 
     // hub列表请求
@@ -51,8 +66,12 @@ public class HomeViewModel extends AndroidViewModel {
     public final LiveData<ApiResponse<HubList>> hubListObserver;
 
     //    删除lamp请求
-    public final MutableLiveData<String> deleteLampRequest = new MutableLiveData<>();
-    public final LiveData<Resource<Boolean>> deleteLampObserver;
+    public final MutableLiveData<Lamp> deleteLampRequest = new MutableLiveData<>();
+    public final LiveData<Resource<Lamp>> deleteLampObserver;
+
+    //    删除Hub请求
+    public final MutableLiveData<Hub> deleteHubRequest = new MutableLiveData<>();
+    public final LiveData<Resource<Hub>> deleteHubObserver;
 
     // 场景列表请求
     public MutableLiveData<Integer> groupListRequest = new MutableLiveData<>();
@@ -74,17 +93,31 @@ public class HomeViewModel extends AndroidViewModel {
             return repository.shareMesh(requestBody);
         });
 
-        lampListObserver = Transformations.switchMap(lampListRequest, input -> repository.getLampList(input));
+//        lampListObserver = Transformations.switchMap(lampListRequest, input -> repository.getDeviceList(input));
+//        socketListObserver = Transformations.switchMap(socketListRequest, input -> repository.getDeviceList(input));
+//        panelListObserver = Transformations.switchMap(panelListRequest, input -> repository.getDeviceList(input));
+
+        deviceListObserver = Transformations.switchMap(deviceListRequest, input -> repository.getDeviceList(input));
 
         hubListObserver = Transformations.switchMap(hubListRequest, input -> repository.getHubList(input));
 
-        groupListObserver= Transformations.switchMap(groupListRequest, input -> repository.getGroupList(input));
+        groupListObserver = Transformations.switchMap(groupListRequest, input -> repository.getGroupList(input));
 
-        deleteLampObserver=Transformations.switchMap(deleteLampRequest, input -> repository.deleteDevice(input));
+        deleteLampObserver = Transformations.switchMap(deleteLampRequest, input -> repository.deleteDevice(input));
 
-        sceneListObserver=Transformations.switchMap(sceneListRequest, repository::getSceneList);
+        sceneListObserver = Transformations.switchMap(sceneListRequest, repository::getSceneList);
+
+        deleteHubObserver = Transformations.switchMap(deleteHubRequest, repository::deleteHub);
 
     }
 
 
+    public void onMeshOff() {
+        repository.updateMeshStatus(-1);
+    }
+
+    public void updateDeviceStatus(List<OnlineStatusNotificationParser.DeviceNotificationInfo> notificationInfoList) {
+        repository.updateDevicesStatus(notificationInfoList);
+
+    }
 }

@@ -58,8 +58,15 @@ public class RequestCreator {
         return RequestBody.create(MEDIATYPE, josn);
     }
 
+    @Deprecated
     public static RequestBody requestLampList(String meshId, int pageNo) {
         DeviceRequest request = new DeviceRequest(meshId, pageNo, 30, 256);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
+    }
+
+    //请求设备 包含灯具 面板 插座
+    public static RequestBody requestDeviceList(String meshId, int typeId) {
+        DeviceRequest request = new DeviceRequest(meshId, 1, 30, typeId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
@@ -71,6 +78,12 @@ public class RequestCreator {
     public static RequestBody requestDeleteLamp(String id) {
         DeviceRequest request = new DeviceRequest(null, id);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
+    }
+
+    public static RequestBody requestDeleteHub(String id) {
+        ArrayMap<String, String> map = new ArrayMap<>();
+        map.put("id", id);
+        return RequestBody.create(MEDIATYPE, new Gson().toJson(map));
     }
 
     public static RequestBody requestAdLamp(Map<String, String> map) {
@@ -219,7 +232,6 @@ public class RequestCreator {
 
     /**
      * pageSize=10
-     * typeId=8
      * 灯具列表请求
      */
     private static class DeviceRequest {
@@ -227,14 +239,16 @@ public class RequestCreator {
         private String deviceId;
         private int pageNO;
         private int pageSize;
-        private int typeId;
+//        private int typeId;
 
         public DeviceRequest(String meshId, int pageNO, int pageSize, int typeId) {
             this.meshId = meshId;
             this.pageNO = pageNO;
             this.pageSize = pageSize;
-            this.typeId = typeId;
+//            this.typeId = typeId;
         }
+
+
 
         public DeviceRequest(String meshId, String deviceId) {
             this.meshId = meshId;

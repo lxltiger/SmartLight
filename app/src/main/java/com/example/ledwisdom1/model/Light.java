@@ -5,7 +5,6 @@ import android.databinding.ObservableInt;
 import com.example.ledwisdom1.utils.BindingAdapters;
 import com.telink.bluetooth.light.DeviceInfo;
 
-@Deprecated
 public final class Light {
 
 //    public String name;
@@ -15,8 +14,10 @@ public final class Light {
     public int color;
     public int temperature;
     public DeviceInfo raw;
-    public boolean selected;
-
+    /**
+     * 灯的类型 4-灯 6 插座 9 面板
+     */
+    public int type;
     public Light() { }
 
     public Light(DeviceInfo raw) {
@@ -36,15 +37,6 @@ public final class Light {
      * 当这个可观察的值发生变化时 会在绑定的方法中重新设置icon的图标
      */
     public ObservableInt mAddStatus = new ObservableInt(BindingAdapters.ADD);
-
-    /**
-     * 灯的状态
-     * 0 关
-     * 1 开
-     * 2 离线
-     */
-    public ObservableInt mLightStatus = new ObservableInt(BindingAdapters.LIGHT_OFF);
-
 
 
     @Override

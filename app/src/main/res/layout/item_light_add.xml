@@ -25,7 +25,8 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
-            android:background="@drawable/icon_light" />
+            app:deviceIcon="@{light.type}"
+            tools:background="@drawable/icon_light" />
 
         <!--根据mStatus在BindingAdapter中设置图片-->
         <ImageView

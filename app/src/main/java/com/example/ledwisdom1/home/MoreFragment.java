@@ -87,6 +87,7 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onChanged(@Nullable DefaultMesh defaultMesh) {
                 binding.get().setHomeIcon(defaultMesh.aijiaIcon);
+                binding.get().setName(defaultMesh.aijiaName);
             }
         });
     }
@@ -94,7 +95,7 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
     public void handleClick(View v) {
         switch (v.getId()) {
             case R.id.portrait://点击头像
-                show();
+//                show();
                 break;
             case R.id.btn_scene:
 //                GroupSceneActivity.start(getActivity(), GroupSceneActivity.ACTION_SCENE_LIST);

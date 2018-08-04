@@ -4,6 +4,7 @@ package com.example.ledwisdom1.user;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.content.Context;
+import android.support.v4.util.ArrayMap;
 
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.KimAscendService;
@@ -15,7 +16,9 @@ import com.example.ledwisdom1.database.SmartLightDataBase;
 import com.example.ledwisdom1.database.UserDao;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
+import com.example.ledwisdom1.utils.RequestCreator;
 
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
 /**
@@ -64,6 +67,15 @@ public class UserRepository {
         return result;
     }
 
+    public LiveData<ApiResponse<RequestResult>> updateUser(UserRequest request) {
+        ArrayMap<String, String> map = new ArrayMap<>();
+        map.put("userName", request.userName);
+        RequestBody requestFile = RequestBody.create(RequestCreator.MEDIATYPE, request.userIcon);
+        MultipartBody.Part icon =
+                MultipartBody.Part.createFormData("userIcon", request.userIcon.getName(), requestFile);
+        return  kimService.updateUser(icon, map);
+
+    }
     public LiveData<ApiResponse<RequestResult>> getAuthCode(RequestBody requestBody) {
         return kimService.getAuthCode(requestBody);
     }

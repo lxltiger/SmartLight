@@ -2,6 +2,7 @@ package com.example.ledwisdom1.home;
 
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import com.example.ledwisdom1.utils.BindingAdapters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 设备页面灯具列表适配器
@@ -49,6 +51,45 @@ public class LampAdapter extends RecyclerView.Adapter<LampAdapter.ViewHolder> {
     public void addMoreLamps(List<Lamp> lamps) {
         mLampList.addAll(lamps);
         notifyDataSetChanged();
+    }
+
+    public void replaceLamps(List<Lamp> data) {
+        if (mLampList.isEmpty()) {
+            if (data != null) {
+                mLampList.addAll(data);
+                notifyItemRangeChanged(0, data.size() - 1);
+            }
+        } else {
+            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return mLampList.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return data.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    Lamp old = mLampList.get(oldItemPosition);
+                    Lamp now = data.get(newItemPosition);
+                    return Objects.equals(old, now);
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    Lamp old = mLampList.get(oldItemPosition);
+                    Lamp now = data.get(newItemPosition);
+                    return Objects.equals(old.getId(), now.getId())&&
+                     Objects.equals(old.getBrightness(), now.getBrightness())&&
+                     Objects.equals(old.getColor(), now.getColor());
+                }
+            });
+            diffResult.dispatchUpdatesTo(this);
+            mLampList = data;
+        }
     }
 
     /**

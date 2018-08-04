@@ -100,12 +100,12 @@
 
         </RadioGroup>
 
-        <ImageView
+        <com.example.ledwisdom1.view.ColorRGBView
             android:id="@+id/iv_rgb"
             android:layout_width="196dp"
             android:layout_height="196dp"
-            android:background="@drawable/lightcontrol"
-            app:layout_constraintBottom_toTopOf="@id/sb_brightness"
+            android:background="@drawable/sehuan"
+            app:layout_constraintBottom_toTopOf="@+id/sb_brightness"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolbar" />
@@ -116,6 +116,7 @@
             android:layout_height="wrap_content"
             android:background="@{on?@drawable/light_control_btn:@drawable/lightcontrol_off_btn}"
             android:onClick="@{handler::handleClick}"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/iv_rgb"
             app:layout_constraintLeft_toLeftOf="@+id/iv_rgb"
             app:layout_constraintRight_toRightOf="@+id/iv_rgb"
@@ -146,7 +147,7 @@
             android:indeterminate="false"
             android:max="100"
             android:progress="@{progress}"
-            app:layout_constraintBottom_toTopOf="@id/rg_main_group"
+            app:layout_constraintBottom_toTopOf="@+id/rg_main_group"
             app:layout_constraintLeft_toRightOf="@+id/left"
             app:layout_constraintRight_toLeftOf="@+id/right"
             app:layout_constraintTop_toBottomOf="@+id/iv_rgb" />

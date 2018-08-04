@@ -5,7 +5,9 @@ import android.databinding.BindingAdapter;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -13,8 +15,8 @@ import com.bumptech.glide.Glide;
 import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.view.CircleTransform;
-import com.example.ledwisdom1.view.RoundTransform;
 import com.example.ledwisdom1.view.ImageTransformationType;
+import com.example.ledwisdom1.view.RoundTransform;
 
 /**
  * xml中不要出现复杂的表达式
@@ -33,6 +35,8 @@ public class BindingAdapters {
     public static final int ADD = 0;
     public static final int ADDING = 1;
     public static final int ADDED = 2;
+
+
 
 
     public static final int INVISIBLE = -1;
@@ -100,27 +104,38 @@ public class BindingAdapters {
         }
     }
 
+
+    @android.databinding.BindingAdapter("deviceStatus")
+    public static void setDeviceStatus(ImageView view, int brightness) {
+        if (brightness > 0) {
+            view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.bg_green_circle));
+        } else if (brightness == 0) {
+            view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.bg_red_circle));
+        }else{
+            view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.bg_grey_circle));
+
+        }
+
+    }
+
     /**
-     * 标题栏的动态按钮
      *
      * @param view
      * @param type
      */
-    @BindingAdapter("dynamicIcon")
+    @BindingAdapter("deviceIcon")
     public static void setDynamicIcon(ImageView view, int type) {
         switch (type) {
-            case REFRESH:
-//                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.refash2));
+            case Config.LAMP_TYPE:
+                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.icon_light_rgb));
                 break;
-            case LIGHT_ON:
-//                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.icon_light_on));
+            case Config.SOCKET_TYPE:
+                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.icon_socket));
                 break;
-            case LIGHT_CUT:
-//                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.icon_light_cut));
+            case Config.PANEL_TYPE:
+                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.icon_panel));
                 break;
-            case INVISIBLE:
-            default:
-                view.setVisibility(View.GONE);
+
         }
     }
 
@@ -146,14 +161,14 @@ public class BindingAdapters {
     }
 
 
-    /*加载条目的图片，先显示默认图片 等拍照再设置剪裁后的图片
+    /*
      *  注意：参数的顺序要和value中的一致
      * */
     @BindingAdapter(value = {"dynamicImage", "resId"}, requireAll = false)
     public static void loadDynamicImage(ImageView view, String dynamicImage, int resId) {
         if (!TextUtils.isEmpty(dynamicImage)) {
             Glide.with(view.getContext()).load(dynamicImage).into(view);
-        } else if (resId != -1) {
+        } else if (resId >0) {
             view.setImageResource(resId);
         }
 
@@ -164,5 +179,11 @@ public class BindingAdapters {
     public static void setVisible(View view, boolean show) {
         Log.d("BindingAdapters", "show:" + show);
         view.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+
+    @BindingAdapter("customGravity")
+    public static void setCheckBoxGravity(CheckBox view, boolean isChecked) {
+        view.setGravity(isChecked? Gravity.START|Gravity.CENTER_VERTICAL:Gravity.END|Gravity.CENTER_VERTICAL);
     }
 }

@@ -9,7 +9,10 @@ import com.example.ledwisdom1.mesh.Mesh;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.user.Profile;
 
-@Database(entities = {Lamp.class, Profile.class,Mesh.class}, version = 2, exportSchema = false)
+/**
+ * 如果修改了entity的字段 一定要升级版本号
+ */
+@Database(entities = {Lamp.class, Profile.class,Mesh.class}, version = 3, exportSchema = false)
 public abstract class SmartLightDataBase extends RoomDatabase {
 
     private static final String DATABASE_NAME = "SmartLight.db";

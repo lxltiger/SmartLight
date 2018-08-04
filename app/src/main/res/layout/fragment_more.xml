@@ -5,13 +5,21 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="com.example.ledwisdom1.view.ImageTransformationType"/>
+
+        <import type="com.example.ledwisdom1.view.ImageTransformationType" />
+
         <variable
             name="viewModel"
             type="com.example.ledwisdom1.home.HomeViewModel" />
+
         <variable
             name="homeIcon"
             type="String" />
+
+        <variable
+            name="name"
+            type="String" />
+
         <variable
             name="handler"
             type="com.example.ledwisdom1.home.MoreFragment" />
@@ -32,14 +40,25 @@
             android:id="@+id/portrait"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            tools:background="@drawable/pic_portrait"
-            app:layout_constraintBottom_toBottomOf="@+id/portrait_bg"
             android:onClick="@{handler::handleClick}"
             app:imageUrl="@{homeIcon}"
-            app:type="@{ImageTransformationType.CIRCLE}"
+            app:layout_constraintBottom_toBottomOf="@+id/portrait_bg"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:type="@{ImageTransformationType.CIRCLE}"
+            tools:background="@drawable/pic_portrait" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@android:color/white"
+            android:text="@{name}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/portrait"
+            tools:text="demo" />
 
         <View
             android:id="@+id/view"
@@ -56,10 +75,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/more_btn_scene"
+            android:onClick="@{handler::handleClick}"
             android:text="@string/scene"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            android:onClick="@{handler::handleClick}"
             app:layout_constraintBottom_toBottomOf="@+id/view"
             app:layout_constraintLeft_toLeftOf="@+id/view"
             app:layout_constraintRight_toLeftOf="@id/btn_clock"
@@ -70,10 +89,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/more_btn_scene"
+            android:onClick="@{handler::handleClick}"
             android:text="@string/alarm"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            android:onClick="@{handler::handleClick}"
 
             app:layout_constraintBottom_toBottomOf="@+id/view"
             app:layout_constraintLeft_toRightOf="@id/btn_scene"
@@ -89,9 +108,9 @@
             android:drawableLeft="@drawable/icon_about"
             android:drawablePadding="16dp"
             android:gravity="center_vertical"
+            android:onClick="@{handler::handleClick}"
             android:padding="12dp"
             android:text="@string/about_me"
-            android:onClick="@{handler::handleClick}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/view" />
@@ -105,9 +124,9 @@
             android:drawableLeft="@drawable/icon_feedback"
             android:drawablePadding="16dp"
             android:gravity="center_vertical"
+            android:onClick="@{handler::handleClick}"
             android:padding="12dp"
             android:text="@string/title_feedback_text"
-            android:onClick="@{handler::handleClick}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/about_us" />
@@ -121,9 +140,9 @@
             android:drawableLeft="@drawable/icon_setting"
             android:drawablePadding="16dp"
             android:gravity="center_vertical"
+            android:onClick="@{handler::handleClick}"
             android:padding="12dp"
             android:text="@string/homesettingfrag_title"
-            android:onClick="@{handler::handleClick}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/feed_back" />

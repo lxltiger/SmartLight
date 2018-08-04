@@ -25,6 +25,7 @@ public class Lamp implements Parcelable {
     private String id;
     private int device_id;
     private int productUuid;
+    private int typeId;
     private String name;
     private String mac;
     private String gateway_id;
@@ -35,6 +36,7 @@ public class Lamp implements Parcelable {
     private int brightness;
     private int color;
     private int temperature;
+    //是否设置 在情景和闹钟中使用
     @Ignore
     public boolean isSetting=false;
     @Ignore
@@ -47,6 +49,14 @@ public class Lamp implements Parcelable {
 
     public void setMeshId(String meshId) {
         this.meshId = meshId;
+    }
+
+    public int getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(int typeId) {
+        this.typeId = typeId;
     }
 
     public boolean isSelected() {
@@ -125,11 +135,6 @@ public class Lamp implements Parcelable {
         this.temperature = temperature;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
     public int getProductUuid() {
         return productUuid;
     }
@@ -139,38 +144,8 @@ public class Lamp implements Parcelable {
     }
 
 
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.id);
-        dest.writeInt(this.device_id);
-        dest.writeString(this.name);
-        dest.writeString(this.mac);
-        dest.writeString(this.gateway_id);
-    }
-
     public Lamp() {
     }
-
-    protected Lamp(Parcel in) {
-        this.id = in.readString();
-        this.device_id = in.readInt();
-        this.name = in.readString();
-        this.mac = in.readString();
-        this.gateway_id = in.readString();
-    }
-
-    public static final Creator<Lamp> CREATOR = new Creator<Lamp>() {
-        @Override
-        public Lamp createFromParcel(Parcel source) {
-            return new Lamp(source);
-        }
-
-        @Override
-        public Lamp[] newArray(int size) {
-            return new Lamp[size];
-        }
-    };
 
     @Override
     public boolean equals(Object o) {
@@ -202,4 +177,50 @@ public class Lamp implements Parcelable {
                 ", lampStatus=" + lampStatus.get() +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeInt(this.device_id);
+        dest.writeInt(this.productUuid);
+        dest.writeInt(this.typeId);
+        dest.writeString(this.name);
+        dest.writeString(this.mac);
+        dest.writeString(this.gateway_id);
+        dest.writeString(this.meshId);
+        dest.writeInt(this.brightness);
+        dest.writeInt(this.color);
+        dest.writeInt(this.temperature);
+    }
+
+    protected Lamp(Parcel in) {
+        this.id = in.readString();
+        this.device_id = in.readInt();
+        this.productUuid = in.readInt();
+        this.typeId = in.readInt();
+        this.name = in.readString();
+        this.mac = in.readString();
+        this.gateway_id = in.readString();
+        this.meshId = in.readString();
+        this.brightness = in.readInt();
+        this.color = in.readInt();
+        this.temperature = in.readInt();
+    }
+
+    public static final Creator<Lamp> CREATOR = new Creator<Lamp>() {
+        @Override
+        public Lamp createFromParcel(Parcel source) {
+            return new Lamp(source);
+        }
+
+        @Override
+        public Lamp[] newArray(int size) {
+            return new Lamp[size];
+        }
+    };
 }

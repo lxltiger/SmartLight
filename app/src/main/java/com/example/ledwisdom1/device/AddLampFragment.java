@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,6 +87,8 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
      * 添加成功 通知deviceFragment刷新
      */
 //    private boolean addSucceed=false;
+    private SparseArray<Integer> deviceType = new SparseArray<>();
+
     public static AddLampFragment newInstance() {
         Bundle args = new Bundle();
         AddLampFragment fragment = new AddLampFragment();
@@ -97,7 +100,9 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: ");
+        deviceType.put(Config.LAMP, Config.LAMP_TYPE);
+        deviceType.put(Config.SOCKET, Config.SOCKET_TYPE);
+        deviceType.put(Config.PANEL, Config.PANEL_TYPE);
         addEventListener();
 
     }
@@ -168,6 +173,8 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
                     LeUpdateParameters params = Parameters.createUpdateParameters();
                     params.setOldMeshName(Config.FACTORY_NAME);
                     params.setOldPassword(Config.FACTORY_PASSWORD);
+//                    params.setOldMeshName("telink_mesh1");
+//                    params.setOldPassword("123");
                     params.setNewMeshName(meshName);
                     params.setNewPassword(meshPsw);
                     params.setUpdateDeviceList(light.raw);
@@ -192,11 +199,6 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         smartLightApp.removeEventListener(this);
         mHandler.removeCallbacks(null);
         TelinkLightService.Instance().idleMode(true);
-        /*if (addSucceed) {
-            Log.d(TAG, "onDestroy: set result ok");
-            getActivity().setResult(Activity.RESULT_OK);
-        }*/
-
     }
 
     /**
@@ -212,6 +214,7 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
                 //扫描参数
                 LeScanParameters params = LeScanParameters.create();
                 params.setMeshName(Config.FACTORY_NAME);
+//                params.setMeshName("telink_mesh1");
                 params.setOutOfMeshName("kick");
                 params.setTimeoutSeconds(15);
                 params.setScanMode(false);
@@ -265,11 +268,7 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
      */
     private void onMeshOffline() {
         showToast("设备离线");
-        /*for (Light light : mLights) {
-            light.mLightStatus.set(BindingAdapters.LIGHT_CUT);
-            light.mDescription = String.format(Locale.getDefault(), "%d\n%d", light.meshAddress, 0);
-        }
-        mAdapter.notifyDataSetChanged();*/
+
     }
 
     private void onMeshEvent(MeshEvent event) {
@@ -287,10 +286,9 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         DeviceInfo deviceInfo = event.getArgs();
         Log.d(TAG, "DeviceInfo:" + deviceInfo);
         Light light = new Light(deviceInfo);
-        //暂且保留不变
-//        light.meshAddress = deviceInfo.meshAddress;
         light.mDescription = String.format("%s\n%s", deviceInfo.meshName, deviceInfo.macAddress);
-//        light.mLightStatus.set(BindingAdapters.LIGHT_ON);
+        //用来区分设备类型
+        light.type = deviceType.get(deviceInfo.productUUID);
         mAdapter.addLight(light);
 
     }
@@ -383,20 +381,20 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         String meshAddress = String.valueOf(light.raw.meshAddress);
         String factoryId = String.valueOf(light.raw.meshUUID);
         String productUuid = String.valueOf(light.raw.productUUID);
+        String typeId = String.valueOf(light.type);
+
         //参数存入集合
         Map<String, String> map = new ArrayMap<>();
         map.put("name", light.raw.deviceName);
         map.put("deviceId", meshAddress);
         map.put("mac", light.raw.macAddress);
         map.put("gatewayId", gatewayId);
-        map.put("typeId", "256");
+        map.put("typeId", typeId);
         map.put("factoryId", factoryId);
         map.put("productUuid", productUuid);
         viewModel.addLampRequest.setValue(map);
 
     }
-
-
 
 
     /**

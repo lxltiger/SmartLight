@@ -16,6 +16,7 @@ import java.util.List;
 /**
  * 首页Hub列表适配器
  */
+
 public class HubAdapter extends RecyclerView.Adapter<HubAdapter.ViewHolder> {
 
     private List<Hub> mHubList;
@@ -28,19 +29,21 @@ public class HubAdapter extends RecyclerView.Adapter<HubAdapter.ViewHolder> {
     }
 
 
-    /**
+/**
      * 分页加载的时候添加更多
      * @param hubs
      */
+
     public void addMoreLamps(List<Hub> hubs) {
         mHubList.addAll(hubs);
         notifyDataSetChanged();
     }
 
-    /**
+/**
      * 刷新添加 先情况再更新
      * @param hubs
      */
+
     public void addHubs(List<Hub> hubs) {
         mHubList.clear();
         mHubList.addAll(hubs);

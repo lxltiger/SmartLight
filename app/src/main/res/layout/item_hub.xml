@@ -17,7 +17,7 @@
     <com.mcxtzhang.swipemenulib.SwipeMenuLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:swipeEnable="false">
+        app:swipeEnable="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -29,13 +29,15 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/icon_light"/>
+                android:background="@drawable/icon_gateway"/>
             <ImageView
                 android:id="@+id/iv_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
+                android:background="@drawable/shield"
+                app:visibleGone="@{hub.status==1}"
                 android:layout_marginEnd="8dp" />
 
             <TextView
@@ -50,21 +52,12 @@
                 android:onClick="@{()->handler.onItemClick(hub)}"
                 android:paddingEnd="8dp"
                 android:paddingStart="8dp"
-                android:text='@{String.format("%s\n%s",hub.meshName,hub.serialNumber)}'
+                android:text='@{String.format("%s\n%s",hub.name,hub.serialNumber)}'
                 tools:text="hei\nzhng" />
             <View
                 style="@style/divider"
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>
-
-        <Button
-            android:id="@+id/edit"
-            android:layout_width="60dp"
-            android:layout_height="match_parent"
-            android:background="@color/colorAccent"
-            android:onClick="@{()->handler.onEditClick(hub)}"
-            android:text="@string/title_main_compile"
-            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/delete"

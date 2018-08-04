@@ -103,6 +103,7 @@ public interface KimAscendService {
     @POST("gateway/reportLampGateway")
     LiveData<ApiResponse<RequestResult>> reportHub(@Body RequestBody request);
 
+
     @POST("gateway/gatewayList")
     LiveData<ApiResponse<HubList>> hubList(@Body RequestBody request);
 
@@ -158,6 +159,10 @@ public interface KimAscendService {
     @Multipart
     @POST("scene/createScene")
     LiveData<ApiResponse<AddGroupSceneResult>> createScene(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
+
+    @Multipart
+    @POST("user/updateUser")
+    LiveData<ApiResponse<RequestResult>> updateUser(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
 
     @Multipart
     @POST("scene/updateScene")

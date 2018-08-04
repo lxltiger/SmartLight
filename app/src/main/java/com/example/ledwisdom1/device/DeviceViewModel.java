@@ -12,14 +12,12 @@ import android.support.annotation.Nullable;
 
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
+import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.mesh.DefaultMesh;
-import com.example.ledwisdom1.mesh.Mesh;
 import com.example.ledwisdom1.model.Light;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
-import com.example.ledwisdom1.user.Profile;
 
-import java.util.List;
 import java.util.Map;
 
 public class DeviceViewModel extends AndroidViewModel {
@@ -27,7 +25,7 @@ public class DeviceViewModel extends AndroidViewModel {
     private HomeRepository repository;
 
     //    用户资料
-    public final LiveData<Profile> profile;
+//    public final LiveData<Profile> profile;
     //    默认的Mesh
     public final LiveData<DefaultMesh> defaultMeshObserver;
     /**
@@ -48,13 +46,13 @@ public class DeviceViewModel extends AndroidViewModel {
     public final MediatorLiveData<Light> lampMeshAddressObserver=new MediatorLiveData<>();
 
     //我的mesh列表
-    public LiveData<List<Mesh>> myMeshList;
+//    public LiveData<List<Mesh>> myMeshList;
 
     public DeviceViewModel(@NonNull Application application) {
         super(application);
         repository = HomeRepository.INSTANCE(application);
-        myMeshList = repository.loadMyMeshFromLocal();
-        profile = repository.profileObserver;
+//        myMeshList = repository.loadMyMeshFromLocal();
+//        profile = repository.profileObserver;
         defaultMeshObserver = repository.defaultMeshObserver;
         addLampObserver = Transformations.switchMap(addLampRequest, input -> repository.reportDevice(input));
         addHubObserver = Transformations.switchMap(addHubRequest, addHubRequest -> repository.reportHub(addHubRequest));
@@ -76,5 +74,11 @@ public class DeviceViewModel extends AndroidViewModel {
             }
         });
     }
+
+    public LiveData<Lamp> observeLamp(int deviceId) {
+        return repository.observerLampStatus(deviceId);
+    }
+
+
 
 }

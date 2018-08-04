@@ -20,12 +20,14 @@ import com.example.ledwisdom1.clock.Clock;
 import com.example.ledwisdom1.clock.ClockList;
 import com.example.ledwisdom1.clock.ClockRequest;
 import com.example.ledwisdom1.clock.ClockResult;
+import com.example.ledwisdom1.database.LampDao;
 import com.example.ledwisdom1.database.SmartLightDataBase;
 import com.example.ledwisdom1.database.UserDao;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.device.entity.LampList;
 import com.example.ledwisdom1.home.entity.GroupList;
+import com.example.ledwisdom1.home.entity.Hub;
 import com.example.ledwisdom1.home.entity.HubList;
 import com.example.ledwisdom1.mesh.AddMeshResult;
 import com.example.ledwisdom1.mesh.DefaultMesh;
@@ -42,6 +44,7 @@ import com.example.ledwisdom1.scene.SceneRequest;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.BindingAdapters;
 import com.example.ledwisdom1.utils.RequestCreator;
+import com.telink.bluetooth.light.OnlineStatusNotificationParser;
 
 import java.util.List;
 import java.util.Map;
@@ -67,6 +70,7 @@ public class HomeRepository {
     private final SmartLightDataBase mDataBase;
     private final KimAscendService kimService;
     private final UserDao userDao;
+    private final LampDao lampDao;
     private final AppExecutors executors;
 
     //个人资料 是否需要观察 TODO
@@ -80,6 +84,7 @@ public class HomeRepository {
     private HomeRepository(Context context) {
         mDataBase = SmartLightDataBase.INSTANCE(context);
         userDao = mDataBase.user();
+        lampDao = mDataBase.lamp();
         kimService = NetWork.kimService();
         executors = SmartLightApp.INSTANCE().appExecutors();
         profileObserver = userDao.loadProfile();
@@ -139,7 +144,7 @@ public class HomeRepository {
     public LiveData<ApiResponse<RequestResult>> modifyMesh(ReportMesh reportMesh) {
         ArrayMap<String, String> map = new ArrayMap<>();
         map.put("homeName", reportMesh.homeName);
-        map.put("meshId", reportMesh.meshName);
+        map.put("meshId", profileObserver.getValue().meshId);
         RequestBody requestFile = RequestBody.create(RequestCreator.MEDIATYPE, reportMesh.homeIcon);
         // MultipartBody.Part用来发送真实的文件名
         MultipartBody.Part icon =
@@ -242,11 +247,11 @@ public class HomeRepository {
                 if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     AddGroupSceneResult addDeviceResult = apiResponse.body;
                     sceneRequest.sceneId = addDeviceResult.id;
-                    sceneRequest.sceneAddress=addDeviceResult.sceneId;
+                    sceneRequest.sceneAddress = addDeviceResult.sceneId;
                     //判断是添加设备还是添加场景
                     if (sceneRequest.isGroupSetting) {
                         addGroupToScene(addSceneResult, sceneRequest);
-                    }  else {
+                    } else {
                         addLampsToScene(addSceneResult, sceneRequest);
                     }
                 } else {
@@ -822,28 +827,39 @@ public class HomeRepository {
      * @param meshId
      * @return
      */
-    public LiveData<Resource<Boolean>> deleteMesh(String meshId) {
+    public LiveData<Resource<Boolean>> deleteMesh(Mesh mesh) {
         MediatorLiveData<Resource<Boolean>> result = new MediatorLiveData<>();
-        result.setValue(Resource.loading(null));
+        String meshId = mesh.getId();
         String userId = profileObserver.getValue().userId;
-        RequestBody requestBody = RequestCreator.createDeleteMesh(meshId, userId);
-        LiveData<ApiResponse<RequestResult>> response = kimService.deleteMesh(requestBody);
-        result.addSource(response, new Observer<ApiResponse<RequestResult>>() {
-            @Override
-            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
-                result.removeSource(response);
-                if (apiResponse.isSuccessful()) {
-                    if (apiResponse.body.succeed()) {
-                        result.setValue(Resource.success(true, apiResponse.body.resultMsg));
-                        userDao.deleteMeshById(meshId);
-                    } else {
-                        result.setValue(Resource.error(false, apiResponse.body.resultMsg));
+        //首先看数据库是否有设备数据
+        LiveData<List<Lamp>> local = lampDao.loadLampsUnderMesh(meshId);
+        result.addSource(local,data->{
+            result.removeSource(local);
+            if (data != null && !data.isEmpty()&&mesh.isMyMesh(userId)) {
+                result.setValue(Resource.error(false,"有设备存在,请先删除设备"));
+            }else{
+                result.setValue(Resource.loading(null));
+                RequestBody requestBody = RequestCreator.createDeleteMesh(meshId, userId);
+                LiveData<ApiResponse<RequestResult>> response = kimService.deleteMesh(requestBody);
+                result.addSource(response, new Observer<ApiResponse<RequestResult>>() {
+                    @Override
+                    public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                        result.removeSource(response);
+                        if (apiResponse.isSuccessful()) {
+                            if (apiResponse.body.succeed()) {
+                                result.setValue(Resource.success(true, apiResponse.body.resultMsg));
+                                userDao.deleteMeshById(meshId);
+                            } else {
+                                result.setValue(Resource.error(false, apiResponse.body.resultMsg));
+                            }
+                        } else {
+                            result.setValue(Resource.error(false, apiResponse.errorMsg));
+                        }
                     }
-                } else {
-                    result.setValue(Resource.error(false, apiResponse.errorMsg));
-                }
+                });
             }
         });
+
 
         return result;
     }
@@ -862,11 +878,106 @@ public class HomeRepository {
         userDao.updateMeshId(profileObserver.getValue().phone, meshId);
     }
 
-    //    获取灯具列表 todo 优化
-    public LiveData<ApiResponse<LampList>> getLampList(int pageNo) {
+    //    获取灯具列表
+    public LiveData<Resource<List<Lamp>>> getLampList(int pageNo) {
+        boolean shouldLoadFromRemote = true;
+        MediatorLiveData<Resource<List<Lamp>>> result = new MediatorLiveData<>();
+        result.setValue(Resource.loading(null));
         String meshId = profileObserver.getValue().meshId;
-        RequestBody requestBody = RequestCreator.requestLampList(meshId, pageNo);
-        return kimService.deviceList(requestBody);
+        LiveData<List<Lamp>> local = lampDao.loadLampsUnderMesh(meshId);
+        if (shouldLoadFromRemote) {
+            //先显示本地数据
+            result.addSource(local, data -> {
+                result.removeSource(local);
+                result.setValue(Resource.loading(data));
+
+            });
+            RequestBody requestBody = RequestCreator.requestLampList(meshId, pageNo);
+            LiveData<ApiResponse<LampList>> remote = kimService.deviceList(requestBody);
+            result.addSource(remote, apiResponse -> {
+                result.removeSource(remote);
+                if (apiResponse.isSuccessful() && apiResponse.body != null && apiResponse.body.getList() != null) {
+                    executors.diskIO().execute(() -> {
+                        List<Lamp> list = apiResponse.body.getList();
+                        if (list.isEmpty()) {
+                            lampDao.deleteLampsUnderMesh(meshId);
+                        } else {
+                            for (Lamp lamp : list) {
+                                lamp.setMeshId(meshId);
+                            }
+                            lampDao.insertLampsUnderMesh(list);
+                        }
+                        executors.mainThread().execute(() -> {
+                            result.addSource(local, lamps -> {
+//                                result.removeSource(local);
+                                result.setValue(Resource.success(lamps, ""));
+                            });
+                        });
+                    });
+                } else {
+                    result.setValue(Resource.error(null, "更新失败"));
+                }
+            });
+        } else {
+            result.addSource(local, lamps -> {
+//                result.removeSource(local);
+                result.setValue(Resource.success(lamps, ""));
+            });
+        }
+
+
+        return result;
+    }
+
+    //获取设备列表 todo comment
+    public LiveData<Resource<List<Lamp>>> getDeviceList(int typeId) {
+        boolean shouldLoadFromRemote = true;
+        MediatorLiveData<Resource<List<Lamp>>> result = new MediatorLiveData<>();
+        result.setValue(Resource.loading(null));
+        String meshId = profileObserver.getValue().meshId;
+        LiveData<List<Lamp>> local = lampDao.loadDevices(meshId);
+        if (shouldLoadFromRemote) {
+            //先显示本地数据
+            result.addSource(local, data -> {
+                result.removeSource(local);
+                result.setValue(Resource.loading(data));
+
+            });
+            RequestBody requestBody = RequestCreator.requestDeviceList(meshId, typeId);
+            LiveData<ApiResponse<LampList>> remote = kimService.deviceList(requestBody);
+            result.addSource(remote, apiResponse -> {
+                result.removeSource(remote);
+                if (apiResponse.isSuccessful() && apiResponse.body != null && apiResponse.body.getList() != null) {
+                    executors.diskIO().execute(() -> {
+                        List<Lamp> list = apiResponse.body.getList();
+                        if (list.isEmpty()) {
+                            lampDao.deleteDeviceFromMesh(meshId);
+                        } else {
+                            for (Lamp lamp : list) {
+                                lamp.setMeshId(meshId);
+                            }
+                            lampDao.insertDevices(list);
+                        }
+                        executors.mainThread().execute(() -> {
+                            result.addSource(local, devices -> {
+//                                result.removeSource(local);
+                                result.setValue(Resource.success(devices, ""));
+                            });
+                        });
+                    });
+                } else {
+                    result.addSource(local,devices->result.setValue(Resource.error(devices, "更新失败")));
+                }
+            });
+        } else {
+            result.addSource(local, devices -> {
+//                result.removeSource(local);
+                result.setValue(Resource.success(devices, ""));
+            });
+        }
+
+
+        return result;
     }
 
 
@@ -1082,24 +1193,41 @@ public class HomeRepository {
 
 
     //删除灯具
-    public LiveData<Resource<Boolean>> deleteDevice(String deviceId) {
-        MediatorLiveData<Resource<Boolean>> result = new MediatorLiveData<>();
+    public LiveData<Resource<Lamp>> deleteDevice(Lamp lamp) {
+        MediatorLiveData<Resource<Lamp>> result = new MediatorLiveData<>();
         result.setValue(Resource.loading(null));
-        RequestBody requestBody = RequestCreator.requestDeleteLamp(deviceId);
+        RequestBody requestBody = RequestCreator.requestDeleteLamp(lamp.getId());
         LiveData<ApiResponse<RequestResult>> response = kimService.deleteDevice(requestBody);
         result.addSource(response, new Observer<ApiResponse<RequestResult>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 result.removeSource(response);
-                if (apiResponse.isSuccessful()) {
-                    if (apiResponse.body.succeed()) {
-                        result.setValue(Resource.success(true, apiResponse.body.resultMsg));
-//                        userDao.deleteMeshById(meshId);
-                    } else {
-                        result.setValue(Resource.error(false, apiResponse.body.resultMsg));
-                    }
+                if (apiResponse.isSuccessful()&&apiResponse.body.succeed()) {
+                    lampDao.deleteLampById(lamp.getId());
+                    result.setValue(Resource.success(lamp, apiResponse.body.resultMsg));
                 } else {
-                    result.setValue(Resource.error(false, apiResponse.errorMsg));
+                    result.setValue(Resource.error(null, "删除失败"));
+                }
+            }
+        });
+
+        return result;
+    }
+
+
+    public LiveData<Resource<Hub>> deleteHub(Hub hub) {
+        MediatorLiveData<Resource<Hub>> result = new MediatorLiveData<>();
+        result.setValue(Resource.loading(null));
+        RequestBody requestBody = RequestCreator.requestDeleteHub(hub.getId());
+        LiveData<ApiResponse<RequestResult>> response = kimService.deleteHub(requestBody);
+        result.addSource(response, new Observer<ApiResponse<RequestResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                result.removeSource(response);
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    result.setValue(Resource.success(hub, ""));
+                } else {
+                    result.setValue(Resource.error(null, "删除失败"));
                 }
             }
         });
@@ -1219,5 +1347,41 @@ public class HomeRepository {
 
     }
 
+    /**
+     * 更新单个设备状态
+     * @param brightness 亮度
+     * @param deviceId 具体设备id
+     */
+    public void updateDeviceStatus(int brightness, int deviceId) {
+        String meshId = profileObserver.getValue().meshId;
+        lampDao.updateDeviceStatus(brightness,meshId,deviceId);
 
+    }
+
+    /**
+     * 更新整个mesh下灯具状态 通常是离线
+     * @param brightness <0
+     */
+    public void updateMeshStatus(int brightness) {
+        String meshId = profileObserver.getValue().meshId;
+        lampDao.updateMeshStatus(brightness,meshId);
+    }
+
+    public LiveData<Lamp> observerLampStatus(int deviceId) {
+        String meshId = profileObserver.getValue().meshId;
+        return lampDao.loadLamp(meshId, deviceId);
+    }
+
+
+    //批量更新设备状态
+    public void updateDevicesStatus(List<OnlineStatusNotificationParser.DeviceNotificationInfo> notificationInfoList) {
+        mDataBase.runInTransaction(()->{
+            String meshId = profileObserver.getValue().meshId;
+            for (OnlineStatusNotificationParser.DeviceNotificationInfo notificationInfo : notificationInfoList) {
+                int meshAddress = notificationInfo.meshAddress;
+                int brightness = notificationInfo.brightness;
+                lampDao.updateDeviceStatus(brightness,meshId,meshAddress);
+            }
+        });
+    }
 }

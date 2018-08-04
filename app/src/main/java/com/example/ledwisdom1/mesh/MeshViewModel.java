@@ -61,7 +61,7 @@ public class MeshViewModel extends AndroidViewModel {
     //    mesh detail
     public final LiveData<Resource<Boolean>> setDefaultMeshObserver;
 
-    public MutableLiveData<String> deleteMeshRequest = new MutableLiveData<>();
+    public MutableLiveData<Mesh> deleteMeshRequest = new MutableLiveData<>();
     //    mesh
     public final LiveData<Resource<Boolean>> deleteMeshObserver;
 
@@ -89,7 +89,7 @@ public class MeshViewModel extends AndroidViewModel {
             if (reportMesh == null) {
                 return null;
             }
-            reportMesh.homeName = name.get();
+//            reportMesh.homeName = reportMesh.homeName;
             Log.d(TAG, reportMesh.toString());
             return repository.modifyMesh(reportMesh);
         });
@@ -102,12 +102,10 @@ public class MeshViewModel extends AndroidViewModel {
 
         setDefaultMeshObserver = Transformations.switchMap(setDefaultMeshRequest, repository::setDefaultMesh);
 
-        deleteMeshObserver = Transformations.switchMap(deleteMeshRequest, new Function<String, LiveData<Resource<Boolean>>>() {
+        deleteMeshObserver = Transformations.switchMap(deleteMeshRequest, new Function<Mesh, LiveData<Resource<Boolean>>>() {
             @Override
-            public LiveData<Resource<Boolean>> apply(String meshId) {
-//                String userId = profile.getValue().userId;
-//                RequestBody meshDetail = RequestCreator.createDeleteMesh(meshId, userId);
-                return repository.deleteMesh(meshId);
+            public LiveData<Resource<Boolean>> apply(Mesh Mesh) {
+                return repository.deleteMesh(Mesh);
             }
         });
 
