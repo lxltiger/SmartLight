@@ -1,6 +1,5 @@
 package com.example.ledwisdom1.utils;
 
-import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
@@ -15,13 +14,14 @@ import com.example.ledwisdom1.device.LightSettingFragment;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.DeviceFragment;
 import com.example.ledwisdom1.home.GroupListFragment;
-import com.example.ledwisdom1.home.HomeActivity;
 import com.example.ledwisdom1.home.HomeFragment;
 import com.example.ledwisdom1.home.MoreFragment;
 import com.example.ledwisdom1.home.entity.Group;
-import com.example.ledwisdom1.mesh.MeshFragment;
+import com.example.ledwisdom1.mesh.AddMeshFragment;
+import com.example.ledwisdom1.mesh.DefaultMesh;
+import com.example.ledwisdom1.mesh.MeshDetailFragment;
+import com.example.ledwisdom1.mesh.MeshListFragment;
 import com.example.ledwisdom1.scene.EditFragment;
-import com.example.ledwisdom1.scene.GroupFragment;
 import com.example.ledwisdom1.scene.GroupFragment2;
 import com.example.ledwisdom1.scene.LampListDialogFragment;
 import com.example.ledwisdom1.scene.Scene;
@@ -112,7 +112,7 @@ public class NavigatorController {
     }
 
 
-    public void navigateToGroupSceneControl(int meshAddress, int brightness, int status) {
+    public void navigateToGroupControl(int meshAddress, int brightness, int status) {
         fm.beginTransaction()
                 .replace(container, GroupSceneControlFragment.newInstance(meshAddress, brightness, status), GroupSceneControlFragment.TAG)
                 .commitAllowingStateLoss();
@@ -146,7 +146,7 @@ public class NavigatorController {
 
     public void navigateToGroup(Group group) {
         fm.beginTransaction()
-                .replace(container, GroupFragment2.newInstance(group), GroupFragment.TAG)
+                .replace(container, GroupFragment2.newInstance(group), GroupFragment2.TAG)
                 .commitAllowingStateLoss();
     }
 
@@ -210,14 +210,24 @@ public class NavigatorController {
     //显示mesh列表
     public void navigateToMeshList() {
         fm.beginTransaction()
-                .replace(container, MeshFragment.newInstance(), MeshFragment.TAG)
+                .replace(container, MeshListFragment.newInstance(), MeshListFragment.TAG)
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToMain(AppCompatActivity activity) {
-        activity.startActivity(new Intent(activity, HomeActivity.class));
-        activity.finish();
+    public void navigateToMeshDetail(DefaultMesh mesh) {
+        fm.beginTransaction()
+                .replace(container, MeshDetailFragment.newInstance(mesh), MeshDetailFragment.TAG)
+                .commitAllowingStateLoss();
     }
+
+    public void navigateToAddMesh() {
+        fm.beginTransaction()
+                .replace(container, AddMeshFragment.newInstance(), AddMeshFragment.TAG)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+    }
+
+
 
     //    处理返回键
     public boolean navigateToLast() {

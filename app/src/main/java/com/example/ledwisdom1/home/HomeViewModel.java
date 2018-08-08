@@ -9,19 +9,18 @@ import android.support.annotation.NonNull;
 
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
+import com.example.ledwisdom1.common.RequestCreator;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.home.entity.Hub;
 import com.example.ledwisdom1.home.entity.HubList;
-import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
-import com.example.ledwisdom1.scene.SceneList;
-import com.example.ledwisdom1.user.Profile;
-import com.example.ledwisdom1.utils.RequestCreator;
+import com.example.ledwisdom1.scene.Scene;
 import com.telink.bluetooth.light.OnlineStatusNotificationParser;
 
 import java.util.List;
+import java.util.Objects;
 
 import okhttp3.RequestBody;
 
@@ -33,9 +32,9 @@ public class HomeViewModel extends AndroidViewModel {
     private HomeRepository repository;
 
     //    用户资料
-    public final LiveData<Profile> profile;
+//    public final LiveData<Profile> profile;
     //    默认的Mesh
-    public final LiveData<DefaultMesh> defaultMeshObserver;
+//    public final LiveData<DefaultMesh> defaultMeshObserver;
 
     //    分享mesh
     public MutableLiveData<String> shareMeshRequest = new MutableLiveData<>();
@@ -80,13 +79,13 @@ public class HomeViewModel extends AndroidViewModel {
 
     //情景列表
     public final MutableLiveData<Integer> sceneListRequest = new MutableLiveData<>();
-    public final LiveData<ApiResponse<SceneList>> sceneListObserver;
+    public final LiveData<Resource<List<Scene>>> sceneListObserver;
 
     public HomeViewModel(@NonNull Application application) {
         super(application);
         repository = HomeRepository.INSTANCE(application);
-        profile = repository.profileObserver;
-        defaultMeshObserver = repository.defaultMeshObserver;
+//        profile = repository.profileObserver;
+//        defaultMeshObserver = repository.defaultMeshObserver;
 
         shareMeshObserver = Transformations.switchMap(shareMeshRequest, input -> {
             RequestBody requestBody = RequestCreator.createShareMesh(input);
@@ -113,11 +112,23 @@ public class HomeViewModel extends AndroidViewModel {
 
 
     public void onMeshOff() {
+//        setMeshStatus(-1);
         repository.updateMeshStatus(-1);
     }
 
     public void updateDeviceStatus(List<OnlineStatusNotificationParser.DeviceNotificationInfo> notificationInfoList) {
         repository.updateDevicesStatus(notificationInfoList);
+    }
 
+    public void setMeshStatus(int status) {
+        if (Objects.equals(repository.meshStatus.getValue(),status)) {
+            return;
+
+        }
+        repository.meshStatus.setValue(status);
+    }
+
+    public LiveData<Integer> meshStatus() {
+        return repository.meshStatus;
     }
 }

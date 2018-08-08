@@ -26,7 +26,7 @@ import com.example.ledwisdom1.databinding.LayoutLampSelectedBinding;
 import com.example.ledwisdom1.databinding.LayoutLampUnselectedBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.OnHandleLampListener;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.common.BindingAdapters;
 import com.example.ledwisdom1.utils.ToastUtil;
 
 import java.util.ArrayList;
@@ -301,7 +301,7 @@ public class ClockFragment extends Fragment implements TimePickerFragment.Listen
                 clockRequest.type = "2";
                 break;
             case R.id.rb_rgb:
-                clockRequest.name = "rbgClock";
+                clockRequest.name = "rgbClock";
                 clockRequest.type = "3";
                 break;
         }

@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.device.entity.Lamp;
-import com.example.ledwisdom1.utils.NavigatorController;
+import com.example.ledwisdom1.common.NavigatorController;
 
 /**
  * 设备页面 包含灯具和网关的添加等
@@ -71,7 +71,7 @@ public class DeviceActivity extends AppCompatActivity {
                     int meshAddress = intent.getIntExtra("address", -1);
                     int brightness = intent.getIntExtra("brightness", 100);
                     int status = intent.getIntExtra("status", 0);
-                    navigatorController.navigateToGroupSceneControl(meshAddress, brightness, status);
+                    navigatorController.navigateToGroupControl(meshAddress, brightness, status);
                     break;
                 }
             }
@@ -97,23 +97,4 @@ public class DeviceActivity extends AppCompatActivity {
         });
     }
 
-    //    如果不是添加设备入口界面 按返回键就返回这个界面
-   /* @Override
-    public void onBackPressed() {
-        switch (action) {
-            case ACTION_ADD_DEVICE:
-                FragmentManager supportFragmentManager = getSupportFragmentManager();
-                Fragment fragmentByTag = supportFragmentManager.findFragmentByTag(AddDeviceFragment.TAG);
-                if (fragmentByTag == null) {
-                    navigatorController.navigateToAddDevice();
-                } else {
-                    super.onBackPressed();
-                }
-                break;
-            case ACTION_LAMP_SETTING:
-            case ACTION_GROUP_CONTROL:
-                super.onBackPressed();
-                break;
-        }
-    }*/
 }

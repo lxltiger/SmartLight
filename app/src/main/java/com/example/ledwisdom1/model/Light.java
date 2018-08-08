@@ -2,7 +2,7 @@ package com.example.ledwisdom1.model;
 
 import android.databinding.ObservableInt;
 
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.common.BindingAdapters;
 import com.telink.bluetooth.light.DeviceInfo;
 
 public final class Light {

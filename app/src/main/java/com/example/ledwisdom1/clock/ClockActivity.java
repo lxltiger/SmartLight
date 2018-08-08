@@ -9,7 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.utils.NavigatorController;
+import com.example.ledwisdom1.common.NavigatorController;
 
 import static com.example.ledwisdom1.utils.ToastUtil.showToast;
 

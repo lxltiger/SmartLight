@@ -2,8 +2,8 @@ package com.example.ledwisdom1.device;
 
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
-import android.databinding.ObservableInt;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,20 +17,17 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.app.SmartLightApp;
 import com.example.ledwisdom1.databinding.FragmentLightControlBinding;
 import com.example.ledwisdom1.device.entity.LampCmd;
 import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.sevice.TelinkLightService;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.utils.LightCommandUtils;
+import com.example.ledwisdom1.utils.ToastUtil;
 import com.google.gson.Gson;
-
-import static com.example.ledwisdom1.utils.BindingAdapters.LIGHT_CUT;
-import static com.example.ledwisdom1.utils.BindingAdapters.LIGHT_OFF;
-import static com.example.ledwisdom1.utils.BindingAdapters.LIGHT_ON;
+import com.telink.bluetooth.light.LightAdapter;
 
 /**
- * 灯具控制 开关 亮度  还有颜色
+ * 灯具控制 开关 亮度  延时开关
  * 需要兼任蓝牙和网关控制，场景下蓝牙控制
  */
 public class GroupSceneControlFragment extends Fragment {
@@ -40,17 +37,18 @@ public class GroupSceneControlFragment extends Fragment {
     /**
      * 灯具开关状态
      */
-    public ObservableInt mLightStatus = new ObservableInt();
+//    public ObservableInt mLightStatus = new ObservableInt();
     //灯具亮度
     private int mBrightness;
+    private DeviceViewModel viewModel;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             int brightness = msg.arg1;
-            Log.d(TAG, "brightness:" + brightness);
-            setLight(brightness);
+            handleLightSetting(brightness);
+//            setLight(brightness);
         }
     };
 
@@ -79,10 +77,10 @@ public class GroupSceneControlFragment extends Fragment {
             Log.d(TAG, "mBrightness:" + mBrightness);
             int status = arguments.getInt("status", 0);
             Log.d(TAG, "status:" + status);
-            mLightStatus.set(status);
+           /* mLightStatus.set(status);
             if (status == LIGHT_OFF) {
                 mBrightness = 0;
-            }
+            }*/
         }
     }
 
@@ -92,11 +90,17 @@ public class GroupSceneControlFragment extends Fragment {
 
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_light_control, container, false);
         mBinding.setHandler(this);
-        mBinding.setOn(LIGHT_ON == mLightStatus.get());
+        mBinding.setOn(true);
         mBinding.setProgress(mBrightness);
         return mBinding.getRoot();
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        viewModel = ViewModelProviders.of(this).get(DeviceViewModel.class);
+
+    }
 
     /**
      * SeekBar 调节亮度回调
@@ -121,29 +125,32 @@ public class GroupSceneControlFragment extends Fragment {
      * @param checkedId
      */
     public void onCheckedChanged(RadioGroup group, int checkedId) {
-        int brightness = 0;
         switch (checkedId) {
             case R.id.rb_sleep:
-                brightness = 40;
+                handleLightSetting(20);
                 break;
             case R.id.rb_visit:
-                brightness = 100;
+                handleLightSetting(100);
                 break;
             case R.id.rb_read:
+                boolean status = !mBinding.getOn();
+                LightCommandUtils.toggleLampWithDelay(address, status);
+                mBinding.setOn(status);
                 break;
             case R.id.rb_conservation:
-                brightness = 40;
+                handleLightSetting(40);
                 break;
         }
-        mBinding.setProgress(brightness);
-        setLight(brightness);
     }
 
     public void handleClick(View view) {
         Log.d(TAG, "handleClick: ");
         switch (view.getId()) {
             case R.id.iv_switch:
-                toggleLightInGroupOrScene();
+                boolean status = !mBinding.getOn();
+                LightCommandUtils.toggleLamp(address, status);
+                mBinding.setOn(status);
+//                handleCommand(!mBinding.getOn(), false);
                 break;
             case R.id.iv_back:
                 getActivity().finish();
@@ -151,11 +158,43 @@ public class GroupSceneControlFragment extends Fragment {
         }
     }
 
+
+
+    private boolean handleMeshStatus() {
+        Integer value = viewModel.meshStatus().getValue();
+        if (value != null) {
+            switch (value) {
+                case LightAdapter.STATUS_LOGIN:
+                    return true;
+                case LightAdapter.STATUS_LOGOUT:
+                    ToastUtil.showToast("失去连接");
+                    return  false;
+                case LightAdapter.STATUS_CONNECTING:
+                    ToastUtil.showToast("正在连接");
+                    return  false;
+                case -1:
+                    ToastUtil.showToast("蓝牙网络离线");
+                    return  false;
+                case -2:
+                    ToastUtil.showToast("蓝牙出了问题 重启试试");
+                    return  false;
+            }
+        }
+        return  false;
+
+    }
+
+    private void handleLightSetting(int brightness) {
+        mBinding.setProgress(brightness);
+        LightCommandUtils.setBrightness(brightness, address);
+
+    }
+
     /**
      * 场景或情景的开关切换e
      */
     public void toggleLightInGroupOrScene() {
-        int dstAddr = address;
+       /* int dstAddr = address;
         boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
         byte opcode = (byte) 0xD0;
         switch (mLightStatus.get()) {
@@ -180,7 +219,7 @@ public class GroupSceneControlFragment extends Fragment {
                 mLightStatus.set(LIGHT_OFF);
                 mBinding.setOn(false);
                 break;
-        }
+        }*/
     }
 
 

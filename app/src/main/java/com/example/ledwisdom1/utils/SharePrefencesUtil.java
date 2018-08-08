@@ -3,6 +3,8 @@ package com.example.ledwisdom1.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.ledwisdom1.app.SmartLightApp;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -51,17 +53,29 @@ public class SharePrefencesUtil {
     }
 
     //保存用户信息
-    public static void saveUserProfile(Context context, String value) {
-        put(context,USER_PROFILE,value);
-    }
+    public static void saveUserProfile(String value) {
 
+        put(SmartLightApp.INSTANCE(),USER_PROFILE,value);
+    }
     /**
-     * 后去用户信息 json格式
-     * @param context
+     * 用户信息 json格式
      * @return
      */
-    public static String getUserProfile(Context context) {
-        return get(context, USER_PROFILE, "");
+    public static String getUserProfile() {
+        return get(SmartLightApp.INSTANCE(), USER_PROFILE, "");
+    }
+
+ //保存用户信息
+    public static void saveDefaultMesh(String value) {
+
+        put(SmartLightApp.INSTANCE(),CURRENT_MESH,value);
+    }
+    /**
+     * 用户信息 json格式
+     * @return
+     */
+    public static String getDefaultMesh() {
+        return get(SmartLightApp.INSTANCE(), CURRENT_MESH, "");
     }
 
 
@@ -120,6 +134,14 @@ public class SharePrefencesUtil {
      */
     public static void clear(Context context) {
         SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.clear();
+        SharedPreferencesCompat.apply(editor);
+    }
+
+    public static void clear() {
+        SharedPreferences sp = SmartLightApp.INSTANCE().getSharedPreferences(FILE_NAME,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.clear();

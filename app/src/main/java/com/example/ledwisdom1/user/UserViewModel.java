@@ -19,7 +19,7 @@ import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.model.CommonRequest;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.utils.RequestCreator;
+import com.example.ledwisdom1.common.RequestCreator;
 
 import okhttp3.RequestBody;
 

@@ -21,7 +21,7 @@ import com.example.ledwisdom1.databinding.LayoutPasswordBinding;
 import com.example.ledwisdom1.databinding.LayoutRegisterBinding;
 import com.example.ledwisdom1.home.HomeActivity;
 import com.example.ledwisdom1.model.CommonRequest;
-import com.example.ledwisdom1.utils.AutoClearValue;
+import com.example.ledwisdom1.common.AutoClearValue;
 
 import java.util.ArrayList;
 import java.util.List;

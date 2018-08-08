@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.home.entity.Group;
-import com.example.ledwisdom1.utils.NavigatorController;
+import com.example.ledwisdom1.common.NavigatorController;
 
 /**
  * 场景和情景的页面容器
@@ -80,15 +80,6 @@ public class GroupSceneActivity extends AppCompatActivity {
                     navigatorController.navigateToScene(scene);
                 }
                 break;
-                /*case ACTION_EDIT_NAME:
-                    navigatorController.navigateToEditName();
-                    break;
-                case ACTION_LAMP_LIST:
-                    navigatorController.navigateToLampList();
-                    break;
-                case ACTION_SELECTED_LAMP:
-                    navigatorController.navigateToSelectedLamps();
-                    break;*/
             }
         }
     }

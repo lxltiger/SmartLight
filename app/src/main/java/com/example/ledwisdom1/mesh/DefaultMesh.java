@@ -1,6 +1,9 @@
 package com.example.ledwisdom1.mesh;
 
-public class DefaultMesh {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class DefaultMesh implements Parcelable{
 
     /**
      * aijiaIcon : /homeIcon/homeIcon_20180709115433.png
@@ -22,7 +25,7 @@ public class DefaultMesh {
     public String shareCounts;
     public int deviceCount;
     public String gatewayId;
-
+    public boolean isMine;
 
     public DefaultMesh() {
         this.password = "";
@@ -37,6 +40,7 @@ public class DefaultMesh {
     }
 
 
+
     @Override
     public String toString() {
         return "DefaultMesh{" +
@@ -49,4 +53,48 @@ public class DefaultMesh {
                 ", shareCounts='" + shareCounts + '\'' +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.aijiaIcon);
+        dest.writeString(this.aijiaName);
+        dest.writeString(this.creater);
+        dest.writeString(this.id);
+        dest.writeString(this.name);
+        dest.writeString(this.password);
+        dest.writeString(this.shareCounts);
+        dest.writeInt(this.deviceCount);
+        dest.writeString(this.gatewayId);
+        dest.writeByte(this.isMine ? (byte) 1 : (byte) 0);
+    }
+
+    protected DefaultMesh(Parcel in) {
+        this.aijiaIcon = in.readString();
+        this.aijiaName = in.readString();
+        this.creater = in.readString();
+        this.id = in.readString();
+        this.name = in.readString();
+        this.password = in.readString();
+        this.shareCounts = in.readString();
+        this.deviceCount = in.readInt();
+        this.gatewayId = in.readString();
+        this.isMine = in.readByte() != 0;
+    }
+
+    public static final Creator<DefaultMesh> CREATOR = new Creator<DefaultMesh>() {
+        @Override
+        public DefaultMesh createFromParcel(Parcel source) {
+            return new DefaultMesh(source);
+        }
+
+        @Override
+        public DefaultMesh[] newArray(int size) {
+            return new DefaultMesh[size];
+        }
+    };
 }

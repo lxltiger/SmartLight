@@ -29,7 +29,16 @@ public class Mesh {
     private String id;
     @Ignore
     private boolean showDeleteIcon = false;
+//    判断是否是自己的mesh
+    private String userId;
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public String getPassword() {
         return password;
@@ -108,6 +117,10 @@ public class Mesh {
     //    判断是否是自己的网络
     public  boolean isMyMesh(String owner) {
         return creater.equals(owner);
+    }
+
+    public boolean isMyMesh() {
+        return creater.equals(userId);
     }
 
     public boolean isDefault() {

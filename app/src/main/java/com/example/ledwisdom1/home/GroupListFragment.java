@@ -22,7 +22,7 @@ import com.example.ledwisdom1.device.DeviceActivity;
 import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.scene.GroupSceneActivity;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.common.BindingAdapters;
 
 import java.util.List;
 

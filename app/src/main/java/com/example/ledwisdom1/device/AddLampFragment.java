@@ -12,7 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.ArrayMap;
 import android.util.Log;
-import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,12 +23,12 @@ import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.app.SmartLightApp;
+import com.example.ledwisdom1.common.BindingAdapters;
 import com.example.ledwisdom1.databinding.FragmentAddLampBinding;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.model.Light;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.sevice.TelinkLightService;
-import com.example.ledwisdom1.utils.BindingAdapters;
 import com.example.ledwisdom1.utils.ToastUtil;
 import com.telink.bluetooth.event.DeviceEvent;
 import com.telink.bluetooth.event.LeScanEvent;
@@ -45,11 +45,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.ledwisdom1.utils.BindingAdapters.ADD;
-import static com.example.ledwisdom1.utils.BindingAdapters.ADDED;
+import static com.example.ledwisdom1.common.BindingAdapters.ADD;
+import static com.example.ledwisdom1.common.BindingAdapters.ADDED;
 
 /**
- * A simple {@link Fragment} subclass.
  * 扫面添加灯具页面
  * 扫描之前需要开启auto connect
  * 通过配置LeScanParameters 的scanMode（true）来逐个扫描自动修改mesh 或scanMode（false）扫描当前mesh所有设备来手动修改 ，我们使用后一种
@@ -81,13 +80,13 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
 
     private Handler mHandler = new Handler();
     private DeviceViewModel viewModel;
-    private String meshName = "";
-    private String meshPsw = "";
+//    private String meshName = "";
+//    private String meshPsw = "";
     /**
      * 添加成功 通知deviceFragment刷新
      */
 //    private boolean addSucceed=false;
-    private SparseArray<Integer> deviceType = new SparseArray<>();
+    private SparseIntArray deviceType = new SparseIntArray();
 
     public static AddLampFragment newInstance() {
         Bundle args = new Bundle();
@@ -144,15 +143,6 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
     }
 
     private void subscribeUI(DeviceViewModel viewModel) {
-        viewModel.defaultMeshObserver.observe(this, new Observer<DefaultMesh>() {
-            @Override
-            public void onChanged(@Nullable DefaultMesh defaultMesh) {
-                meshName = defaultMesh.name;
-                meshPsw = defaultMesh.password;
-            }
-        });
-
-
         viewModel.addLampObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
@@ -173,6 +163,13 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
                     LeUpdateParameters params = Parameters.createUpdateParameters();
                     params.setOldMeshName(Config.FACTORY_NAME);
                     params.setOldPassword(Config.FACTORY_PASSWORD);
+                    DefaultMesh defaultMesh = SmartLightApp.INSTANCE().getDefaultMesh();
+                    String meshName = "";
+                    String meshPsw = "";
+                    if (defaultMesh != null) {
+                        meshName = defaultMesh.name;
+                        meshPsw = defaultMesh.password;
+                    }
 //                    params.setOldMeshName("telink_mesh1");
 //                    params.setOldPassword("123");
                     params.setNewMeshName(meshName);
@@ -354,7 +351,6 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
             Log.d(TAG, "onAddClick: " + light.toString());
             if (light.mAddStatus.get() == ADD) {
                 if (!isAdd) {
-                    //请求mesh address
                     isAdd = true;
                     viewModel.getDeviceMeshAddress(light);
                 } else {
@@ -365,7 +361,6 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
 
         @Override
         public boolean onItemLongClick(Light light) {
-
             return true;
         }
     };

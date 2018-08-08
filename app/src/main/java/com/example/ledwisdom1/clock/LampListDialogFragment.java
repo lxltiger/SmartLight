@@ -16,7 +16,7 @@ import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.UnSelectedLampAdapter;
 import com.example.ledwisdom1.databinding.FragmentLampListDialogBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
-import com.example.ledwisdom1.utils.AutoClearValue;
+import com.example.ledwisdom1.common.AutoClearValue;
 import com.example.ledwisdom1.utils.ToastUtil;
 
 import java.util.List;

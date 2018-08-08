@@ -5,7 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="com.example.ledwisdom1.api.Status" />
 
+        <variable
+            name="resource"
+            type="com.example.ledwisdom1.api.Resource" />
         <variable
             name="handler"
             type="com.example.ledwisdom1.CallBack" />
@@ -62,7 +66,17 @@
             tools:listitem="@layout/item_scene"
             tools:spanCount="2"
             />
-
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibleGone="@{resource.status == Status.LOADING}" />
 
     </android.support.constraint.ConstraintLayout>
 

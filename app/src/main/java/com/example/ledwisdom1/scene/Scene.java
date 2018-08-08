@@ -1,23 +1,27 @@
 package com.example.ledwisdom1.scene;
 
+import android.arch.persistence.room.Entity;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
-public class Scene implements Parcelable{
-    /**
-     * createTime : {"date":19,"day":4,"hours":16,"minutes":54,"month":6,"seconds":40,"time":1531990480000,"timezoneOffset":-480,"year":118}
-     * creater : 1ec1664c7872468e9241887bd9f7babc
-     * icon : /sceneIcon/sceneIcon_20180719165439.png
-     * id : 62aaaa397e994873b9e6ccbf876ce205
-     * meshId : b14497ec94044a8c94a37bf075d69d02
-     * meshName :
-     * name : height
-     * sceneId : 32800
-     */
+/**
+ * createTime : {"date":19,"day":4,"hours":16,"minutes":54,"month":6,"seconds":40,"time":1531990480000,"timezoneOffset":-480,"year":118}
+ * creater : 1ec1664c7872468e9241887bd9f7babc
+ * icon : /sceneIcon/sceneIcon_20180719165439.png
+ * id : 62aaaa397e994873b9e6ccbf876ce205
+ * meshId : b14497ec94044a8c94a37bf075d69d02
+ * meshName :
+ * name : height
+ * sceneId : 32800
+ */
+@Entity(tableName = "scene", primaryKeys = "id")
+public class Scene implements Parcelable {
 
+    @NonNull
+    private String id;
     private String creater;
     private String icon;
-    private String id;
     private String meshId;
     private String meshName;
     private String name;

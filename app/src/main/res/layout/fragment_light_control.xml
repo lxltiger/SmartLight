@@ -136,7 +136,7 @@
             android:max="100"
             android:onProgressChanged="@{handler::onProgressChanged}"
             android:progress="@{progress}"
-            app:layout_constraintBottom_toTopOf="@id/rg_main_group"
+            app:layout_constraintBottom_toTopOf="@+id/rg_main_group"
             app:layout_constraintLeft_toRightOf="@+id/left"
             app:layout_constraintRight_toLeftOf="@+id/right"
             app:layout_constraintTop_toBottomOf="@+id/iv_rgb" />

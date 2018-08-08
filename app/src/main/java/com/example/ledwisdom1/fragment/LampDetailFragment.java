@@ -14,7 +14,7 @@ import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.databinding.FragmentLampDetailBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.model.TitleBar;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.common.BindingAdapters;
 
 /**
  * A simple {@link Fragment} subclass.

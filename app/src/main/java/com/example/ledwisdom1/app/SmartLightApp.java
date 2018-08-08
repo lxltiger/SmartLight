@@ -2,7 +2,11 @@ package com.example.ledwisdom1.app;
 
 import android.util.Log;
 
+import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.sevice.TelinkLightService;
+import com.example.ledwisdom1.user.Profile;
+import com.example.ledwisdom1.utils.SharePrefencesUtil;
+import com.google.gson.Gson;
 import com.telink.TelinkApplication;
 import com.telink.bluetooth.TelinkLog;
 import com.telink.crypto.AES;
@@ -15,11 +19,18 @@ public final class SmartLightApp extends TelinkApplication {
     private static final String TAG = SmartLightApp.class.getSimpleName();
     private AppExecutors mAppExecutors;
     //是否使用蓝牙
-    private boolean isBlueTooth=true;
+    private boolean isBlueTooth = true;
+    private Profile profile;
+    private DefaultMesh defaultMesh;
+    private int meshStatus;
+
     private static SmartLightApp sLightApp;
+
+
     public static SmartLightApp INSTANCE() {
         return sLightApp;
     }
+
     public AppExecutors appExecutors() {
         return mAppExecutors;
     }
@@ -28,11 +39,37 @@ public final class SmartLightApp extends TelinkApplication {
     public void onCreate() {
         super.onCreate();
         sLightApp = this;
+        retrieveLocalData();
         doInit();
         AdvanceStrategy.setDefault(new MySampleAdvanceStrategy());
-        mAppExecutors=new AppExecutors();
+        mAppExecutors = new AppExecutors();
     }
 
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+        SharePrefencesUtil.saveUserProfile(new Gson().toJson(profile));
+    }
+
+    public void updateProfile(String meshId) {
+        profile.meshId = defaultMesh.id;
+        SharePrefencesUtil.saveUserProfile(new Gson().toJson(profile));
+
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+
+    public void setDefaultMesh(DefaultMesh defaultMesh) {
+        this.defaultMesh = defaultMesh;
+        SharePrefencesUtil.saveDefaultMesh(new Gson().toJson(defaultMesh));
+
+    }
+
+    public DefaultMesh getDefaultMesh() {
+        return defaultMesh;
+    }
 
     public boolean isBlueTooth() {
         return isBlueTooth;
@@ -42,6 +79,13 @@ public final class SmartLightApp extends TelinkApplication {
         isBlueTooth = blueTooth;
     }
 
+    public int getMeshStatus() {
+        return meshStatus;
+    }
+
+    public void setMeshStatus(int meshStatus) {
+        this.meshStatus = meshStatus;
+    }
 
     @Override
     public void doInit() {
@@ -70,8 +114,14 @@ public final class SmartLightApp extends TelinkApplication {
     }
 
 
+    private void retrieveLocalData() {
+        Gson gson = new Gson();
+        String userProfile = SharePrefencesUtil.getUserProfile();
+        profile = gson.fromJson(userProfile, Profile.class);
+        String mesh = SharePrefencesUtil.getDefaultMesh();
+        defaultMesh = gson.fromJson(mesh, DefaultMesh.class);
 
-
+    }
 
 
 }

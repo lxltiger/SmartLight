@@ -7,6 +7,7 @@ import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import com.example.ledwisdom1.mesh.Mesh;
+import com.example.ledwisdom1.scene.Scene;
 import com.example.ledwisdom1.user.Profile;
 
 import java.util.List;
@@ -46,4 +47,17 @@ public interface UserDao {
 
     @Query("delete from mesh")
     void deleteAllMeshes();
+
+    @Query("select * from scene where meshId=:meshId")
+    LiveData<List<Scene>> loadScene(String meshId);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertScene(List<Scene> sceneList);
+
+    @Query("delete  from scene where meshId=:meshId")
+    void deleteScenes(String meshId);
+
+    @Query("delete  from scene where id=:id")
+    void deleteSceneById(String id);
+
 }

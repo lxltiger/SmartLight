@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="36dp"
             android:hint="@string/ra_psdword"
-            android:inputType="textPassword"
+            android:inputType="text"
             android:textSize="16sp"
             android:text="@={handler.mPassword}"
             app:layout_constraintLeft_toLeftOf="parent"

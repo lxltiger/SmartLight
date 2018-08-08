@@ -5,6 +5,12 @@
 
     <data>
 
+        <import type="com.example.ledwisdom1.api.Status" />
+
+        <variable
+            name="resource"
+            type="com.example.ledwisdom1.api.Resource" />
+
         <variable
             name="viewModel"
             type="com.example.ledwisdom1.mesh.MeshViewModel" />
@@ -14,8 +20,8 @@
             type="com.example.ledwisdom1.CallBack" />
 
         <variable
-            name="mesh"
-            type="com.example.ledwisdom1.mesh.DefaultMesh" />
+            name="reportMesh"
+            type="com.example.ledwisdom1.mesh.ReportMesh" />
     </data>
 
     <android.support.constraint.ConstraintLayout
@@ -35,8 +41,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginStart="8dp"
-                android:onClick="@{handler::handleClick}"
-                android:background="@drawable/icon_back" />
+                android:background="@drawable/icon_back"
+                android:onClick="@{handler::handleClick}" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -50,17 +56,16 @@
                 android:id="@+id/confirm_update"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="@{handler::handleClick}"
                 android:layout_gravity="end"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/icon_ok" />
+                android:background="@drawable/icon_ok"
+                android:onClick="@{handler::handleClick}" />
         </android.support.v7.widget.Toolbar>
 
         <LinearLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:orientation="vertical"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -71,41 +76,29 @@
                 layout="@layout/item_common_pic"
                 app:handler="@{(v) -> handler.handleClick(v)}"
                 app:name="@{viewModel.meshDetailName[0]}"
-                app:value="@{mesh.aijiaIcon}" />
+                app:value="@{reportMesh.imageUrl}" />
 
-            <View style="@style/divider" />
 
             <include
                 android:id="@+id/modify_name"
                 layout="@layout/item_common_text"
                 app:handler="@{(v) -> handler.handleClick(v)}"
                 app:name="@{viewModel.meshDetailName[1]}"
-                app:value="@{mesh.aijiaName}" />
+                app:value="@{reportMesh.homeName}" />
 
-            <View style="@style/divider" />
 
             <include
                 layout="@layout/item_common_text"
                 app:name="@{viewModel.meshDetailName[2]}"
-                app:value="@{mesh.name}" />
+                app:value="@{reportMesh.meshName}" />
 
-            <View style="@style/divider" />
-
-           <!-- <include
-                layout="@layout/item_common_text"
-                app:name="@{viewModel.meshDetailName[3]}"
-                app:value="@{mesh.aijiaName}" />
-
-            <View style="@style/divider" />-->
 
             <include
                 layout="@layout/item_common_text"
-                app:name="@{viewModel.meshDetailName[4]}"
-                app:value="@{String.valueOf(mesh.deviceCount)}" />
+                app:name="@{viewModel.meshDetailName[3]}"
+                app:value="@{String.valueOf(reportMesh.deviceCount)}" />
 
-            <View style="@style/divider" />
         </LinearLayout>
-
 
         <ImageView
             android:id="@+id/iv_td_code"
@@ -127,5 +120,17 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_td_code" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibleGone="@{resource.status == Status.LOADING}" />
     </android.support.constraint.ConstraintLayout>
 </layout>

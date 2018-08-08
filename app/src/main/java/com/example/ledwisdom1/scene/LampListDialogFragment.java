@@ -17,8 +17,8 @@ import com.example.ledwisdom1.databinding.FragmentLampListDialogBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.LampAdapter;
 import com.example.ledwisdom1.home.OnHandleLampListener;
-import com.example.ledwisdom1.utils.AutoClearValue;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.common.AutoClearValue;
+import com.example.ledwisdom1.common.BindingAdapters;
 
 import java.util.List;
 

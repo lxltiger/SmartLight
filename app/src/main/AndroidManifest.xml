@@ -70,7 +70,8 @@
         <activity
             android:name=".home.HomeActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            />
 
         <service
             android:name=".sevice.TelinkLightService"
@@ -83,7 +84,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".mesh.MeshActivity" />
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
@@ -92,10 +92,15 @@
             android:launchMode="singleTop" />
         <activity
             android:name=".user.UserActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
         <activity android:name=".device.DeviceActivity" />
         <activity
             android:name=".clock.ClockActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mesh.MeshActivity2"
             android:screenOrientation="portrait"
             android:launchMode="singleTop" />
 

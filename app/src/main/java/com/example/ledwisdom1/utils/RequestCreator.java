@@ -64,7 +64,7 @@ public class RequestCreator {
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));
     }
 
-    //请求设备 包含灯具 面板 插座
+    //请求设备 包含灯具 面板 插座  typeId没有使用
     public static RequestBody requestDeviceList(String meshId, int typeId) {
         DeviceRequest request = new DeviceRequest(meshId, 1, 30, typeId);
         return RequestBody.create(MEDIATYPE, new Gson().toJson(request));

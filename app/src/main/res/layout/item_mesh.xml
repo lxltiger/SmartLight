@@ -16,8 +16,9 @@
     </data>
 
     <android.support.constraint.ConstraintLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp">
 
         <TextView
             android:id="@+id/btn_mesh"
@@ -28,6 +29,9 @@
             android:onLongClick="@{()->handler.onItemLongClick(mesh)}"
             android:text="@{mesh.homeName}"
             android:gravity="center"
+            android:ellipsize="end"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             android:textSize="14sp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"

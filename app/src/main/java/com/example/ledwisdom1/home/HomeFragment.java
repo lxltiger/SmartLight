@@ -21,23 +21,26 @@ import android.widget.PopupWindow;
 
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
-import com.example.ledwisdom1.api.ApiResponse;
+import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.app.SmartLightApp;
+import com.example.ledwisdom1.common.AutoClearValue;
 import com.example.ledwisdom1.databinding.FragmentHomeBinding;
 import com.example.ledwisdom1.databinding.HomeLayoutDetailBinding;
 import com.example.ledwisdom1.databinding.HomeLayoutEmptyBinding;
 import com.example.ledwisdom1.databinding.HomePopMoreBinding;
 import com.example.ledwisdom1.device.entity.LampCmd;
+import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.mesh.HomeAdapter;
-import com.example.ledwisdom1.mesh.MeshActivity;
+import com.example.ledwisdom1.mesh.MeshActivity2;
 import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.scene.OnHandleSceneListener;
 import com.example.ledwisdom1.scene.Scene;
-import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.sevice.TelinkLightService;
-import com.example.ledwisdom1.utils.AutoClearValue;
+import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.LightCommandUtils;
+import com.example.ledwisdom1.utils.ToastUtil;
 import com.google.gson.Gson;
+import com.telink.bluetooth.light.LightAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,43 +125,60 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
+        handleMesh();
     }
 
+    private void handleMesh() {
+        Profile profile = SmartLightApp.INSTANCE().getProfile();
+        if (TextUtils.isEmpty(profile.meshId)) {
+            binding.get().viewPager.setCurrentItem(1);
+        } else {
+            viewModel.sceneListRequest.setValue(1);
+            binding.get().viewPager.setCurrentItem(0);
+        }
+
+        DefaultMesh mesh = SmartLightApp.INSTANCE().getDefaultMesh();
+        bindingDetail.get().setMesh(mesh);
+    }
+
+
+
     private void subscribeUI(HomeViewModel homeViewModel) {
-        homeViewModel.profile.observe(this, profile -> {
-            if (profile == null) {
-                return;
-            }
-            if (TextUtils.isEmpty(profile.meshId)) {
-                binding.get().viewPager.setCurrentItem(1);
-            } else {
-                binding.get().viewPager.setCurrentItem(0);
-            }
-        });
-
-        homeViewModel.defaultMeshObserver.observe(this, defaultMesh -> {
-            bindingDetail.get().setMesh(defaultMesh);
-
-        });
-
-        viewModel.sceneListObserver.observe(this, new Observer<ApiResponse<SceneList>>() {
+        /*homeViewModel.sceneListObserver.observe(this, new Observer<ApiResponse<SceneList>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<SceneList> sceneListApiResponse) {
                 if (sceneListApiResponse.isSuccessful()) {
                     SceneList body = sceneListApiResponse.body;
                     List<Scene> list = body.getList();
                     if (list != null) {
-                        int size=list.size();
-                        bindingDetail.get().setShowScene(size>0);
+                        int size = list.size();
+                        bindingDetail.get().setShowScene(size > 0);
                         if (size > 0) {
                             //最多显示三个
-                            sceneAdapter.addScenes(list.subList(0,Math.min(size,3)));
+                            sceneAdapter.addScenes(list.subList(0, Math.min(size, 3)));
                         }
                     }
-                }else {
+                } else {
                     bindingDetail.get().setShowScene(false);
+                }
+            }
+        });*/
+
+        homeViewModel.sceneListObserver.observe(this, new Observer<Resource<List<Scene>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<Scene>> listResource) {
+                if (null!=listResource.data) {
+                    int size = listResource.data.size();
+                    bindingDetail.get().setShowScene(size > 0);
+                    if (size > 0) {
+                        //最多显示三个
+                        sceneAdapter.addScenes(listResource.data.subList(0, Math.min(size, 3)));
+                    }
+                }else{
+                    bindingDetail.get().setShowScene(false);
+
                 }
             }
         });
@@ -184,13 +204,10 @@ public class HomeFragment extends Fragment {
     };
 
 
-
     public void handleClick(View v) {
         switch (v.getId()) {
             case R.id.add_mesh: {
-                Intent intent = new Intent(getActivity(), MeshActivity.class);
-                intent.putExtra("action", MeshActivity.ACTION_ADD_MESH);
-                startActivity(intent);
+                MeshActivity2.start(getActivity(), MeshActivity2.ACTION_ADD_MESH);
             }
             break;
             case R.id.scan_mesh:
@@ -207,29 +224,73 @@ public class HomeFragment extends Fragment {
                 popupWindow.showAsDropDown(bindingDetail.get().more);
                 break;
             case R.id.pop_mesh_list: {
-                Intent intent = new Intent(getActivity(), MeshActivity.class);
-                intent.putExtra("action", MeshActivity.ACTION_MESH_LIST);
-                startActivity(intent);
+                MeshActivity2.start(getActivity(), MeshActivity2.ACTION_MESH_LIST);
                 popupWindow.dismiss();
             }
             break;
             case R.id.avatar: {
-                Intent intent = new Intent(getActivity(), MeshActivity.class);
-                intent.putExtra("action", MeshActivity.ACTION_MESH_DETAIL);
-                startActivity(intent);
+                MeshActivity2.start(getActivity(), MeshActivity2.ACTION_MESH_DETAIL, bindingDetail.get().getMesh());
             }
             break;
             case R.id.open_all:
-                LightCommandUtils.toggleLamp(0xffff,true);
-
-//                toggle(true);
+                LightCommandUtils.toggleLamp(0xffff, true);
+//                handleCommand(true);
                 break;
             case R.id.close_all:
-                LightCommandUtils.toggleLamp(0xffff,false);
-
-//                toggle(false);
+                LightCommandUtils.toggleLamp(0xffff, false);
+//                handleCommand(false);
                 break;
         }
+    }
+
+    private void handleCommand(boolean status) {
+        if (handleMeshStatus()) {
+            LightCommandUtils.toggleLamp(0xffff, status);
+        }
+        /*Integer value = viewModel.meshStatus().getValue();
+        if (value != null) {
+            switch (value) {
+                case LightAdapter.STATUS_LOGIN:
+                    LightCommandUtils.toggleLamp(0xffff, status);
+                    break;
+                case LightAdapter.STATUS_LOGOUT:
+                    ToastUtil.showToast("失去连接");
+                    break;
+                case LightAdapter.STATUS_CONNECTING:
+                    ToastUtil.showToast("正在连接");
+                    break;
+                case -1:
+                    ToastUtil.showToast("蓝牙网络离线");
+                    break;
+                case -2:
+                    ToastUtil.showToast("蓝牙出了问题 重启试试");
+                    break;
+            }
+        }*/
+    }
+
+    private boolean handleMeshStatus() {
+//        Integer value = viewModel.meshStatus().getValue();
+        int value = SmartLightApp.INSTANCE().getMeshStatus();
+        switch (value) {
+            case LightAdapter.STATUS_LOGIN:
+                return true;
+            case LightAdapter.STATUS_LOGOUT:
+                ToastUtil.showToast("失去连接");
+                return false;
+            case LightAdapter.STATUS_CONNECTING:
+                ToastUtil.showToast("正在连接");
+                return false;
+            case -1:
+                ToastUtil.showToast("蓝牙网络离线");
+                return false;
+            case -2:
+                ToastUtil.showToast("蓝牙出了问题 重启试试");
+                return false;
+        }
+
+        return false;
+
     }
 
     /**
@@ -238,7 +299,7 @@ public class HomeFragment extends Fragment {
      * @param open
      */
     public void toggle(boolean open) {
-        LightCommandUtils.toggleLamp(0xffff,true);
+        LightCommandUtils.toggleLamp(0xffff, true);
         byte opcode = (byte) 0xD0;
         int address = 0xFFFF;
         byte[] params;

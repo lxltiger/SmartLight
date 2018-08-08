@@ -7,6 +7,7 @@ import com.example.ledwisdom1.device.entity.LampCmd;
 import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.google.gson.Gson;
+import com.telink.bluetooth.light.LightAdapter;
 import com.telink.bluetooth.light.Opcode;
 
 import java.text.DateFormat;
@@ -18,13 +19,13 @@ import static com.telink.bluetooth.light.Opcode.BLE_GATT_OP_CTRL_EF;
 
 public class LightCommandUtils {
     private static final String TAG = "LightCommandUtils";
-
-
     public static void setBrightness(int brightness, int addr) {
         boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
         if (blueTooth) {
-            byte[] params = new byte[]{(byte) brightness};
-            TelinkLightService.Instance().sendCommandNoResponse(Opcode.BLE_GATT_OP_CTRL_D2.getValue(), addr, params);
+//            byte[] params = new byte[]{(byte) brightness};
+            if (isStatusValid()) {
+                TelinkLightService.Instance().sendCommandNoResponse(Opcode.BLE_GATT_OP_CTRL_D2.getValue(), addr, new byte[]{(byte) brightness});
+            }
         } else {
             LampCmd lampCmd = new LampCmd(5, addr, 1, "0", brightness);
             String message = new Gson().toJson(lampCmd);
@@ -32,11 +33,40 @@ public class LightCommandUtils {
         }
     }
 
+    /**
+     * 检验状态是否有效
+     * @return
+     */
+    public static boolean isStatusValid() {
+        int value = SmartLightApp.INSTANCE().getMeshStatus();
+        switch (value) {
+            case LightAdapter.STATUS_LOGIN:
+                return true;
+            case LightAdapter.STATUS_LOGOUT:
+                ToastUtil.showToast("失去连接");
+                return  false;
+            case LightAdapter.STATUS_CONNECTING:
+                ToastUtil.showToast("正在连接");
+                return  false;
+            case -1:
+                ToastUtil.showToast("蓝牙网络离线");
+                return  false;
+            case -2:
+                ToastUtil.showToast("蓝牙出了问题 重启试试");
+                return  false;
+        }
+
+        return  false;
+
+    }
+
 
     public static void toggleLamp(int addr, boolean on) {
         boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
         if (blueTooth) {
-            TelinkLightService.Instance().sendCommandNoResponse(Opcode.BLE_GATT_OP_CTRL_D0.getValue(), addr, new byte[]{(byte) (on ? 0x01 : 0x00), 0x00, 0x00});
+            if (isStatusValid()) {
+                TelinkLightService.Instance().sendCommandNoResponse(Opcode.BLE_GATT_OP_CTRL_D0.getValue(), addr, new byte[]{(byte) (on ? 0x01 : 0x00), 0x00, 0x00});
+            }
         } else {
             LampCmd lampCmd = new LampCmd(5, addr, 1, "0", on ? 100 : 0);
             String message = new Gson().toJson(lampCmd);
@@ -47,7 +77,9 @@ public class LightCommandUtils {
     public static void toggleLampWithDelay(int addr, boolean on) {
         boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
         if (blueTooth) {
-            TelinkLightService.Instance().sendCommandNoResponse(Opcode.BLE_GATT_OP_CTRL_D0.getValue(), addr, new byte[]{(byte) (on ? 0x01 : 0x00), (byte) 0x88, 0x13});
+            if (isStatusValid()) {
+                TelinkLightService.Instance().sendCommandNoResponse(Opcode.BLE_GATT_OP_CTRL_D0.getValue(), addr, new byte[]{(byte) (on ? 0x01 : 0x00), (byte) 0x88, 0x13});
+            }
         } else {
             LampCmd lampCmd = new LampCmd(5, addr, 1, "0", on ? 100 : 0);
             String message = new Gson().toJson(lampCmd);

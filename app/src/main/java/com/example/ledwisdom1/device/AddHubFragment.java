@@ -72,12 +72,10 @@ public class AddHubFragment extends Fragment implements TitleBar.OnTitleClickLis
 
     private EsptouchAsyncTask4 mTask;
 
-//网关的序列号
-
-
+    //网关的序列号
     public ObservableField<String> mSerialNumber = new ObservableField<>("1102F483CD9E6123");
     public ObservableField<String> mSSID = new ObservableField<>("");
-    public ObservableField<String> mPassword = new ObservableField<>("12345678");
+    public ObservableField<String> mPassword = new ObservableField<>("kimascend456");
     /*
      *是否能连接Hub和WiFi，默认false获取到Wifi SSID才能连接*/
 

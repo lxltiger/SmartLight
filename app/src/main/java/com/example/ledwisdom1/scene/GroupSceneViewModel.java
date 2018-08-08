@@ -20,8 +20,8 @@ import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.model.CommonItem;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
-import com.example.ledwisdom1.utils.AbsentLiveData;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.common.AbsentLiveData;
+import com.example.ledwisdom1.common.BindingAdapters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +81,7 @@ public class GroupSceneViewModel extends AndroidViewModel {
 //    情景列表请求
     public final MutableLiveData<Integer> sceneListRequest = new MutableLiveData<>();
 
-    public final LiveData<ApiResponse<SceneList>> sceneListObserver;
+//    public final LiveData<ApiResponse<SceneList>> sceneListObserver;
 
     public final ObservableBoolean isLoading=new ObservableBoolean(false);
 
@@ -95,7 +95,7 @@ public class GroupSceneViewModel extends AndroidViewModel {
             }
         });
         updateGroupObserver =Transformations.switchMap(updateGroupRequest, repository::updateGroupScene);
-        sceneListObserver=Transformations.switchMap(sceneListRequest, repository::getSceneList);
+//        sceneListObserver=Transformations.switchMap(sceneListRequest, repository::getSceneList);
 
         addGroupObserver=Transformations.switchMap(addGroupRequest, new Function<GroupSceneRequest, LiveData<ApiResponse<AddGroupSceneResult>>>() {
             @Override
@@ -197,6 +197,7 @@ public class GroupSceneViewModel extends AndroidViewModel {
      * 删除场景或情景
      * @param isGroup 是否是场景
      */
+/*
     public void deleteGroup(boolean isGroup) {
         LiveData<ApiResponse<RequestResult>> responseLiveData = isGroup ? repository.deleteGroup(groupSceneId.getValue()) : repository.deleteScene(groupSceneId.getValue());
         deleteGroupObserver.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
@@ -209,6 +210,7 @@ public class GroupSceneViewModel extends AndroidViewModel {
 
 
     }
+*/
 
 
 

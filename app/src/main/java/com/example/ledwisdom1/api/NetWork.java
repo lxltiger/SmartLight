@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.ledwisdom1.app.SmartLightApp;
 import com.example.ledwisdom1.repository.HomeRepository;
+import com.example.ledwisdom1.user.Profile;
 
 import java.io.IOException;
 
@@ -66,9 +67,14 @@ public class NetWork {
     private static class HeaderInterceptor implements Interceptor {
         @Override
         public Response intercept(Chain chain) throws IOException {
+            String sessionId = "";
             SmartLightApp lightApp = SmartLightApp.INSTANCE();
-            HomeRepository repository = HomeRepository.INSTANCE(lightApp);
-            String sessionId = repository.getSessionId();
+            Profile profile = lightApp.getProfile();
+            if (profile != null) {
+                sessionId = profile.sessionid;
+            }
+//            HomeRepository repository = HomeRepository.INSTANCE(lightApp);
+//            String sessionId = repository.getSessionId();
 
 //            Profile userProfile = repository.profileObserver.getValue();
 //            Profile userProfile = SmartLightApp.INSTANCE().getUserProfile();

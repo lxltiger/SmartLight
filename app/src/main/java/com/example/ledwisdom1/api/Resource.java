@@ -32,7 +32,7 @@ public class Resource<T> {
     }
 
     public static <T> Resource<T> loading(T data) {
-        return new Resource<>(LOADING, data, null);
+        return new Resource<>(LOADING, data, "");
     }
 
     public static <T> Resource<T> error(T data, String msg) {

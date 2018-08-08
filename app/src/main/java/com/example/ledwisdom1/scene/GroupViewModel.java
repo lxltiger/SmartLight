@@ -14,7 +14,7 @@ import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.common.BindingAdapters;
 
 import java.util.ArrayList;
 import java.util.List;

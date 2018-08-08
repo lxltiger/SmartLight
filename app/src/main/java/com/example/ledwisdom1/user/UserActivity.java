@@ -1,13 +1,13 @@
 package com.example.ledwisdom1.user;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.utils.NavigatorController;
+import com.example.ledwisdom1.common.NavigatorController;
 
 /**
  * 开机启动页面
@@ -40,19 +40,31 @@ public class UserActivity extends AppCompatActivity {
     public static final int EMPTY_CONTACT = 57;
     private String action;
 
+    public static void start(Context context, String action) {
+        Intent intent = new Intent(context, UserActivity.class);
+        intent.putExtra("action", action);
+        context.startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_general);
         mController = new NavigatorController(this, R.id.fl_container);
         if (savedInstanceState == null) {
-            handleNavigate();
+            handleNavigate(getIntent());
         }
 
     }
 
-    private void handleNavigate() {
-        Intent intent = getIntent();
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleNavigate(intent);
+    }
+
+    private void handleNavigate(Intent intent) {
+//        Intent intent = getIntent();
         if (intent != null) {
             action = intent.getStringExtra("action");
             switch (action) {
@@ -72,10 +84,6 @@ public class UserActivity extends AppCompatActivity {
         }
     }
 
-    public void logout() {
-        mController.navigateToLogin();
-        setResult(Activity.RESULT_OK);
-    }
 
 
     @Override

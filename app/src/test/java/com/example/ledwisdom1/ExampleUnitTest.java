@@ -1,5 +1,6 @@
 package com.example.ledwisdom1;
 
+import com.example.ledwisdom1.user.Profile;
 import com.google.gson.Gson;
 import com.telink.util.NumberUtils;
 
@@ -91,11 +92,14 @@ public class ExampleUnitTest {
 
     @Test
     public void testJson() {
-        List<String> deviceIds = new ArrayList<>();
+        /*List<String> deviceIds = new ArrayList<>();
         deviceIds.add("hgei");
         deviceIds.add("hgei");
         String s = new Gson().toJson(deviceIds);
-        System.out.println(s);
+        System.out.println(s);*/
+        String rsult = "";
+        Profile profile = new Gson().fromJson(rsult, Profile.class);
+        assert profile==null;
     }
 
     @Test

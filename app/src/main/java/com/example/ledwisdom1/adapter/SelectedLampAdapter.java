@@ -10,7 +10,7 @@ import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.databinding.ItemLampSelectBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.OnHandleLampListener;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.common.BindingAdapters;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;

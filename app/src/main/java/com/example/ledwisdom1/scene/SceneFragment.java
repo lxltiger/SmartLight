@@ -13,7 +13,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +43,7 @@ import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.model.CommonItem;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.utils.BindingAdapters;
+import com.example.ledwisdom1.common.BindingAdapters;
 import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.example.ledwisdom1.utils.ToastUtil;
 import com.google.gson.Gson;
@@ -345,12 +344,12 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             }
         });
 
-        viewModel.deleteSceneObserver.observe(this, new Observer<RequestResult>() {
+        viewModel.deleteSceneObserver.observe(this, new Observer<SceneRequest>() {
             @Override
-            public void onChanged(@Nullable RequestResult apiResponse) {
+            public void onChanged(@Nullable SceneRequest apiResponse) {
                 if (apiResponse != null) {
                     showToast("删除成功");
-
+                    LightCommandUtils.deleteAllDevicesFromScene(sceneRequest.sceneAddress);
                     getActivity().onBackPressed();
                 } else {
                     showToast("删除失败");
@@ -411,7 +410,9 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                 editBinding.setName("");
                 break;
             case R.id.delete:
-                viewModel.deleteScene(sceneRequest);
+                viewModel.deleteSceneRequest.setValue(sceneRequest);
+
+//                viewModel.deleteScene(sceneRequest);
                 break;
             case R.id.rl_group:
                 binding.viewPager.setCurrentItem(7);

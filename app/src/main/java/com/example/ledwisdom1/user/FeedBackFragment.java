@@ -14,7 +14,7 @@ import android.widget.Toast;
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.databinding.FragmentFeedBackBinding;
-import com.example.ledwisdom1.utils.AutoClearValue;
+import com.example.ledwisdom1.common.AutoClearValue;
 
 /**
  * A simple {@link Fragment} subclass.

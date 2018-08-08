@@ -33,6 +33,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="8dp"
+                app:deviceIcon="@{lamp.typeId}"
                 android:background="@drawable/icon_light" />
 
 

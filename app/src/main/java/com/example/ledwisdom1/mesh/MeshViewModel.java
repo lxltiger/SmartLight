@@ -9,17 +9,12 @@ import android.arch.lifecycle.Transformations;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
-import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
-import com.example.ledwisdom1.user.Profile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class MeshViewModel extends AndroidViewModel {
     private static final String TAG = MeshViewModel.class.getSimpleName();
@@ -30,9 +25,9 @@ public class MeshViewModel extends AndroidViewModel {
     public ObservableInt type = new ObservableInt();
 
     //    用户资料
-    public final LiveData<Profile> profile;
+//    public final LiveData<Profile> profile;
     //    默认的Mesh
-    public final LiveData<DefaultMesh> defaultMeshObserver;
+//    public final LiveData<DefaultMesh> defaultMeshObserver;
 
     public List<String> meshDetailName = new ArrayList<>();
     /**
@@ -42,69 +37,47 @@ public class MeshViewModel extends AndroidViewModel {
     /**
      * 添加Mesh的结果监听
      */
-    public final LiveData<Resource<AddMeshResult>> addMeshObserver;
- /**
+    public final LiveData<Resource<Boolean>> addMeshObserver;
+    /**
      * 修改mesh网络的请求监听
      */
     public final MutableLiveData<ReportMesh> modifymeshRequest = new MutableLiveData<>();
     /**
      * 修改Mesh的结果监听
      */
-    public final LiveData<ApiResponse<RequestResult>> modifyMeshObserver;
+    public final LiveData<Resource<Boolean>> modifyMeshObserver;
 
-    public MutableLiveData<Integer> pagerNo = new MutableLiveData<>();
+    public MutableLiveData<Integer> meshListRequest = new MutableLiveData<>();
 
     //    蓝牙网路列表
-    public final LiveData<Resource<List<Mesh>>> meshList;
+    public final LiveData<Resource<List<Mesh>>> meshListObserver;
 
-    public MutableLiveData<String> setDefaultMeshRequest = new MutableLiveData<>();
+    public MutableLiveData<Mesh> setDefaultMeshRequest = new MutableLiveData<>();
     //    mesh detail
     public final LiveData<Resource<Boolean>> setDefaultMeshObserver;
 
     public MutableLiveData<Mesh> deleteMeshRequest = new MutableLiveData<>();
     //    mesh
-    public final LiveData<Resource<Boolean>> deleteMeshObserver;
-
+    public final LiveData<Resource<Mesh>> deleteMeshObserver;
 
     private final HomeRepository repository;
 
     public MeshViewModel(@NonNull Application application) {
         super(application);
         repository = HomeRepository.INSTANCE(application);
-        profile = repository.profileObserver;
-        defaultMeshObserver = repository.defaultMeshObserver;
         populateMesh();
-        addMeshObserver = Transformations.switchMap(meshObserver, reportMesh -> {
-            if (reportMesh == null) {
-                return null;
-            }
-            reportMesh.homeName = name.get();
-            reportMesh.meshName = account.get();
-            reportMesh.meshPassword = password.get();
-            Log.d(TAG, reportMesh.toString());
-            return repository.addMesh(reportMesh);
-        });
+        addMeshObserver = Transformations.switchMap(meshObserver, repository::addMesh);
 
-        modifyMeshObserver = Transformations.switchMap(modifymeshRequest, reportMesh -> {
-            if (reportMesh == null) {
-                return null;
-            }
-//            reportMesh.homeName = reportMesh.homeName;
-            Log.d(TAG, reportMesh.toString());
-            return repository.modifyMesh(reportMesh);
-        });
+        modifyMeshObserver = Transformations.switchMap(modifymeshRequest, repository::modifyMesh);
 
-        meshList = Transformations.switchMap(pagerNo, pageNo -> {
-//            RequestBody requestBody = RequestCreator.createPage(1, 40);
-            return repository.loadMeshList();
-        });
+        meshListObserver = Transformations.switchMap(meshListRequest, pageNo -> repository.loadMeshList());
 
 
         setDefaultMeshObserver = Transformations.switchMap(setDefaultMeshRequest, repository::setDefaultMesh);
 
-        deleteMeshObserver = Transformations.switchMap(deleteMeshRequest, new Function<Mesh, LiveData<Resource<Boolean>>>() {
+        deleteMeshObserver = Transformations.switchMap(deleteMeshRequest, new Function<Mesh, LiveData<Resource<Mesh>>>() {
             @Override
-            public LiveData<Resource<Boolean>> apply(Mesh Mesh) {
+            public LiveData<Resource<Mesh>> apply(Mesh Mesh) {
                 return repository.deleteMesh(Mesh);
             }
         });
@@ -113,16 +86,15 @@ public class MeshViewModel extends AndroidViewModel {
     }
 
     private void populateMesh() {
-        name.set("home name");
-        account.set(UUID.randomUUID().toString().substring(0, 6));
-        password.set(UUID.randomUUID().toString().substring(0, 6));
+//        name.set("home name");
+//        account.set(UUID.randomUUID().toString().substring(0, 6));
+//        password.set(UUID.randomUUID().toString().substring(0, 6));
         meshDetailName.add("图片");
         meshDetailName.add("名称");
         meshDetailName.add("网络");
-        meshDetailName.add("网关");
+//        meshDetailName.add("网关");
         meshDetailName.add("设备总数量");
     }
-
 
 
 }

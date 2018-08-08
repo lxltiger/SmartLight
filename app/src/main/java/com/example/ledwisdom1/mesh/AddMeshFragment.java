@@ -1,21 +1,42 @@
 package com.example.ledwisdom1.mesh;
 
 
+import android.arch.lifecycle.ViewModelProviders;
+import android.databinding.DataBindingUtil;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.example.ledwisdom1.CallBack;
+import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.api.Status;
+import com.example.ledwisdom1.common.AutoClearValue;
+import com.example.ledwisdom1.databinding.FragmentAddMeshBinding;
+import com.example.ledwisdom1.fragment.ProduceAvatarFragment;
+import com.example.ledwisdom1.sevice.TelinkLightService;
+
+import java.io.File;
+import java.util.UUID;
+
+import static com.example.ledwisdom1.utils.ToastUtil.showToast;
 
 /**
- * A simple {@link Fragment} subclass.
  * 添加mesh页面
  */
-@Deprecated
-public class AddMeshFragment extends Fragment {/*
+public class AddMeshFragment extends Fragment implements CallBack ,ProduceAvatarFragment.Listener{
 
     public static final String TAG = AddMeshFragment.class.getSimpleName();
 
-    private AutoClearValue<HomeLayoutAddmeshBinding> binding;
-    private DialogManager dialogManager;
+    private AutoClearValue<FragmentAddMeshBinding> binding;
     private MeshViewModel meshViewModel;
-    private ReportMesh reportMesh;
+    private ReportMesh reportMesh = new ReportMesh();
+
     public static AddMeshFragment newInstance() {
         Bundle args = new Bundle();
         AddMeshFragment fragment = new AddMeshFragment();
@@ -27,12 +48,19 @@ public class AddMeshFragment extends Fragment {/*
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        reportMesh.meshName = UUID.randomUUID().toString().substring(0, 6);
+        reportMesh.meshPassword = UUID.randomUUID().toString().substring(0, 6);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        HomeLayoutAddmeshBinding meshBinding = DataBindingUtil.inflate(inflater, R.layout.mesh_layout_add, container, false);
+        FragmentAddMeshBinding meshBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_mesh, container, false);
+        meshBinding.setReportMesh(reportMesh);
+        meshBinding.setHandler(this);
         binding = new AutoClearValue<>(this, meshBinding);
         return meshBinding.getRoot();
     }
@@ -40,16 +68,17 @@ public class AddMeshFragment extends Fragment {/*
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        dialogManager = new DialogManager(getActivity());
-        meshViewModel = ViewModelProviders.of(getActivity()).get(MeshViewModel.class);
-        reportMesh = new ReportMesh();
-        binding.get().setHandler(this);
-        binding.get().setViewModel(meshViewModel);
-
-        meshViewModel.addMeshObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
-            @Override
-            public void onChanged(@Nullable ApiResponse<RequestResult> requestResultApiResponse) {
-
+        meshViewModel = ViewModelProviders.of(this).get(MeshViewModel.class);
+        meshViewModel.addMeshObserver.observe(this, resource -> {
+            //控制进度条的可见性
+            binding.get().setResource(resource);
+            if (Status.SUCCESS == resource.status) {
+                showToast(resource.message);
+                //断开旧连接，这样进入HomeActivity会重连新的mesh
+                TelinkLightService.Instance().idleMode(true);
+                getActivity().finish();
+            } else if (Status.ERROR == resource.status) {
+                showToast(resource.message);
             }
         });
 
@@ -59,79 +88,29 @@ public class AddMeshFragment extends Fragment {/*
     public void handleClick(View v) {
         switch (v.getId()) {
             case R.id.avatar:
-                doChoosePhoto();
+                ProduceAvatarFragment.newInstance().show(getChildFragmentManager(), ProduceAvatarFragment.TAG);
                 break;
-            case R.id.user_name:
-                meshViewModel.type.set(MeshActivity.TYPE_EDIT_NAME);
-                dialogManager.showDialog(MeshDialog.TAG, MeshDialog.newInstance());
-                break;
-            case R.id.account:
-                meshViewModel.type.set(MeshActivity.TYPE_EDIT_ACCOUNT);
-                dialogManager.showDialog(MeshDialog.TAG, MeshDialog.newInstance());
-                break;
-            case R.id.password:
-                meshViewModel.type.set(MeshActivity.TYPE_EDIT_PSW);
-                dialogManager.showDialog(MeshDialog.TAG, MeshDialog.newInstance());
+            case R.id.iv_back:
+                getActivity().onBackPressed();
                 break;
             case R.id.confirm:
+                if (TextUtils.isEmpty(reportMesh.homeName)||reportMesh.homeName.length()>10) {
+                    Toast.makeText(getActivity(), "名称在1到10个字符之间", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (null == reportMesh.homeIcon) {
                     Toast.makeText(getActivity(), "还没有选择头像", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
                 meshViewModel.meshObserver.setValue(reportMesh);
                 break;
         }
     }
 
-    *//*
-     * 从相册中选取图片并裁剪
-     *//*
-    private void doChoosePhoto() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
-        intent.setType("image/*");
-        intent.putExtra("crop", "true");
-        intent.putExtra("aspectX", 1);
-        intent.putExtra("aspectY", 1);
-        intent.putExtra("outputX", 150);
-        intent.putExtra("outputY", 150);
-        intent.putExtra("scale", true);
-        intent.putExtra("return-data", true);
-        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-        startActivityForResult(intent, 0);
-    }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_CANCELED) return;
-
-        switch (requestCode) {
-           *//* case Constant.CAMERA:
-                Bitmap bitmap = data.getExtras().getParcelable("data");
-                Uri uri= ImageUtil.saveBitmap(bitmap, mAvatarTempFile);
-                startImageZoom(uri);
-                break;*//*
-            case 0:
-                if (data != null) {
-                    Bitmap bitmap2 = data.getParcelableExtra("data");
-                    File file_upload = SDCardUtils.createPrivatePhotoFile(getActivity(), System.currentTimeMillis() + ".png");
-                    ImageUtil.compressToFile(bitmap2, file_upload);
-                    reportMesh.homeIcon=file_upload;
-//                    Map<String, File> fileParam = new ArrayMap<>();
-//                    fileParam.put("Head_url", file_upload);
-//                    updateAvatar(fileParam, file_upload);
-                }
-                break;
-            *//*case Constant.CROP:
-                Bitmap bitamp_final=data.getExtras().getParcelable("data");
-                File file_upload = SDCardUtils.createPrivatePhotoFile(mContext, System.currentTimeMillis()+".png");
-                ImageUtil.compressToFile(bitamp_final, file_upload);
-                Map<String, File> fileParam = new ArrayMap<>();
-                fileParam.put("Head_url", file_upload);
-                updateAvatar(fileParam, file_upload);
-                break;*//*
-
-        }
+    public void onItemClicked(File file) {
+        Glide.with(this).load(file).into(binding.get().avatar);
+        reportMesh.homeIcon = file;
     }
-*/}
+}

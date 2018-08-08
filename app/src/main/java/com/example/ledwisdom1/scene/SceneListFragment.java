@@ -15,25 +15,24 @@ import android.view.ViewGroup;
 
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.api.ApiResponse;
+import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.databinding.FragmentSceneListBinding;
 import com.example.ledwisdom1.utils.LightCommandUtils;
 
 import java.util.List;
 
 /**
- *
  * 情景列表页面
  * 情景不仅能控制多个灯具 还能控制多个场景
  */
-public class SceneListFragment extends Fragment implements CallBack{
+public class SceneListFragment extends Fragment implements CallBack {
     public static final String TAG = SceneListFragment.class.getSimpleName();
     private SceneAdapter sceneAdapter;
     private SceneViewModel viewModel;
+    private FragmentSceneListBinding binding;
 
 
     public SceneListFragment() {
-        // Required empty public constructor
     }
 
     public static SceneListFragment newInstance() {
@@ -46,13 +45,12 @@ public class SceneListFragment extends Fragment implements CallBack{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        FragmentSceneListBinding mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_scene_list, container, false);
-        mBinding.setHandler(this);
-        mBinding.scenes.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_scene_list, container, false);
+        binding.setHandler(this);
+        binding.scenes.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         sceneAdapter = new SceneAdapter(mHandleSceneListener);
-        mBinding.scenes.setAdapter(sceneAdapter);
-        return mBinding.getRoot();
+        binding.scenes.setAdapter(sceneAdapter);
+        return binding.getRoot();
     }
 
     private OnHandleSceneListener mHandleSceneListener = new OnHandleSceneListener() {
@@ -63,7 +61,7 @@ public class SceneListFragment extends Fragment implements CallBack{
 
         @Override
         public void onEditClick(Scene scene) {
-            GroupSceneActivity.start(getContext(),GroupSceneActivity.ACTION_SCENE,scene);
+            GroupSceneActivity.start(getContext(), GroupSceneActivity.ACTION_SCENE, scene);
         }
     };
 
@@ -72,7 +70,7 @@ public class SceneListFragment extends Fragment implements CallBack{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         viewModel = ViewModelProviders.of(this).get(SceneViewModel.class);
-        viewModel.sceneListObserver.observe(this, new Observer<ApiResponse<SceneList>>() {
+       /* viewModel.sceneListObserver.observe(this, new Observer<ApiResponse<SceneList>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<SceneList> apiResponse) {
                 if (apiResponse.isSuccessful()) {
@@ -82,6 +80,16 @@ public class SceneListFragment extends Fragment implements CallBack{
                             sceneAdapter.addScenes(list);
                         }
                     }
+                }
+            }
+        });*/
+
+        viewModel.sceneListObserver.observe(this, new Observer<Resource<List<Scene>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<Scene>> resource) {
+                binding.setResource(resource);
+                if (null != resource.data) {
+                    sceneAdapter.addScenes(resource.data);
                 }
             }
         });
@@ -115,7 +123,7 @@ public class SceneListFragment extends Fragment implements CallBack{
                 getActivity().finish();
                 break;
             case R.id.btn_add:
-                GroupSceneActivity.start(getContext(),GroupSceneActivity.ACTION_SCENE,null);
+                GroupSceneActivity.start(getContext(), GroupSceneActivity.ACTION_SCENE, null);
                 break;
 
         }

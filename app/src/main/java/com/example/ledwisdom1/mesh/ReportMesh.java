@@ -11,6 +11,10 @@ public class ReportMesh {
 
   public  String othersId;
 
+  public String imageUrl;
+
+  public int deviceCount;
+
   public File homeIcon ;
 
 

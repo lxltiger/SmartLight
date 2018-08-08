@@ -21,15 +21,15 @@ public class MeshAdapter extends RecyclerView.Adapter<MeshAdapter.ViewHolder> {
 
     private final OnMeshListener mOnMeshListener;
 
-    public MeshAdapter( OnMeshListener meshListener) {
+    public MeshAdapter(OnMeshListener meshListener) {
         mOnMeshListener = meshListener;
-        mMeshBeanList =new ArrayList<>();
+        mMeshBeanList = new ArrayList<>();
     }
-
 
 
     /**
      * 分页加载的时候添加更多
+     *
      * @param meshBeans
      */
     public void addMoreMeshes(List<Mesh> meshBeans) {
@@ -39,6 +39,7 @@ public class MeshAdapter extends RecyclerView.Adapter<MeshAdapter.ViewHolder> {
 
     /**
      * 刷新添加 先情况再更新
+     *
      * @param meshBeans
      */
     public void addMeshes(List<Mesh> meshBeans) {
@@ -47,15 +48,15 @@ public class MeshAdapter extends RecyclerView.Adapter<MeshAdapter.ViewHolder> {
         notifyDataSetChanged();
     }
 
-//    添加非好友的mesh
+    //    添加非好友的mesh
     public void addNonFriendMesh(Mesh meshBean) {
         mMeshBeanList.add(meshBean);
     }
 
 
-       //获取第一个mesh todo 添加选择标记
+    //获取第一个mesh todo 添加选择标记
     public Mesh getMesh() {
-        Mesh meshBean=null;
+        Mesh meshBean = null;
         if (mMeshBeanList.size() > 0) {
             meshBean = mMeshBeanList.get(0);
         }
@@ -64,29 +65,38 @@ public class MeshAdapter extends RecyclerView.Adapter<MeshAdapter.ViewHolder> {
 
 
     /**
-     *改变默认的mesh
+     * 改变默认的mesh
+     *
      * @param mesh 点击的mesh 选为默认的
      */
     public void changeDefaultMesh(Mesh mesh) {
         for (Mesh mesh1 : mMeshBeanList) {
             if (mesh1.equals(mesh)) {
                 mesh1.setIsDefault(1);
-            }else{
+            } else {
                 mesh1.setIsDefault(0);
             }
         }
         notifyDataSetChanged();
     }
 
+    private boolean deleteMode;
+
     public void showDeleteIcon(boolean show) {
+        deleteMode = show;
         for (Mesh mesh : mMeshBeanList) {
             mesh.setShowDeleteIcon(show);
         }
         notifyDataSetChanged();
     }
 
+    public boolean isDeleteMode() {
+        return deleteMode;
+    }
+
     /**
      * 移除蓝牙网络 更新当前蓝牙网络
+     *
      * @param meshBean
      */
     public void removeMesh(Mesh meshBean) {
@@ -98,7 +108,7 @@ public class MeshAdapter extends RecyclerView.Adapter<MeshAdapter.ViewHolder> {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemMeshBinding binding= DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_mesh, parent, false);
+        ItemMeshBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_mesh, parent, false);
         binding.setHandler(mOnMeshListener);
         return new ViewHolder(binding);
     }
@@ -114,17 +124,17 @@ public class MeshAdapter extends RecyclerView.Adapter<MeshAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mMeshBeanList ==null?0: mMeshBeanList.size();
+        return mMeshBeanList == null ? 0 : mMeshBeanList.size();
     }
 
-     static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-         private final ItemMeshBinding mBinding;
+        private final ItemMeshBinding mBinding;
 
-         public ViewHolder(ItemMeshBinding binding) {
+        public ViewHolder(ItemMeshBinding binding) {
             super(binding.getRoot());
-             mBinding = binding;
-         }
+            mBinding = binding;
+        }
     }
 }
 

@@ -128,7 +128,7 @@ public class GroupFragment extends Fragment implements CallBack, ProduceAvatarFr
                 }
                 break;
             case R.id.delete:
-                viewModel.deleteGroup(true);
+//                viewModel.deleteGroup(true);
                 break;
         }
 

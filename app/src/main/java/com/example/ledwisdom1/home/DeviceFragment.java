@@ -32,7 +32,7 @@ import com.example.ledwisdom1.device.DeviceActivity;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.entity.Hub;
 import com.example.ledwisdom1.home.entity.HubList;
-import com.example.ledwisdom1.utils.AutoClearValue;
+import com.example.ledwisdom1.common.AutoClearValue;
 import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.example.ledwisdom1.utils.ToastUtil;
 import com.telink.bluetooth.event.MeshEvent;
@@ -368,7 +368,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
                 //添加类型
                 intent.putExtra("type", binding.get().viewPager.getCurrentItem());
                 //如果添加成功会设置成功信号
-                startActivityForResult(intent, 0);
+                startActivityForResult(intent, 1);
                 break;
             case R.id.temp:
                 if (toggle) {
@@ -388,7 +388,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
-        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             viewModel.deviceListRequest.setValue(1);
         }
 

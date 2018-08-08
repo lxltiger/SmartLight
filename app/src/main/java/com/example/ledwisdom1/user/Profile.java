@@ -10,18 +10,18 @@ import com.example.ledwisdom1.model.RequestResult;
  * 用户个人资料
  */
 @Entity(tableName = "profile")
-public class Profile extends RequestResult{
+public class Profile extends RequestResult {
 
     @PrimaryKey
     @NonNull
-   public final String phone;
-   public final String isValidatjeesiteLogin;
-   public final String icon;
-   public final String sessionid;
-   public final String userId;
-   public final String meshOwner;
-//   当前默认的mesh 为空说明没有mesh
-   public final String meshId;
+    public final String phone;
+    public final String isValidatjeesiteLogin;
+    public final String icon;
+    public final String sessionid;
+    public final String userId;
+    public final String meshOwner;
+    //   当前默认的mesh 为空说明没有mesh
+    public String meshId;
 
 
     public Profile(@NonNull String phone, String isValidatjeesiteLogin, String icon, String sessionid, String userId, String meshOwner, String meshId) {
@@ -44,9 +44,12 @@ public class Profile extends RequestResult{
         return userId;
     }
 
-    @Deprecated
     public String getMeshId() {
         return meshId;
+    }
+
+    public void setMeshId(String meshId) {
+        this.meshId = meshId;
     }
 
     @Override

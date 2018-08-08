@@ -1,7 +1,6 @@
 package com.example.ledwisdom1.home;
 
 import android.app.AlertDialog;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -11,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -20,15 +18,13 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.app.SmartLightApp;
 import com.example.ledwisdom1.mesh.DefaultMesh;
-import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.LightCommandUtils;
-import com.example.ledwisdom1.utils.NavigatorController;
+import com.example.ledwisdom1.common.NavigatorController;
 import com.example.ledwisdom1.utils.ToastUtil;
 import com.telink.bluetooth.LeBluetooth;
 import com.telink.bluetooth.event.DeviceEvent;
@@ -51,7 +47,6 @@ import java.util.List;
 
 /**
  * 主页含4个UI
- * fixme 蓝牙连接bug；添加灯具后断开了连接，必须选择mesh来激活
  */
 public class HomeActivity extends AppCompatActivity
         implements RadioGroup.OnCheckedChangeListener, EventListener<String> {
@@ -60,16 +55,16 @@ public class HomeActivity extends AppCompatActivity
     private NavigatorController navigatorController;
 
     private boolean isEmptyMesh = true;
-    private DefaultMesh mesh;
+//    private DefaultMesh mesh;
     private HomeViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
+        Log.d(TAG, "onCreate: ");
         addBlueToothStatusReceiver();
         addEventListener();
-
         //底部选项按钮
         RadioGroup rgMainRadioGroup = (RadioGroup) findViewById(R.id.rg_main_group);
         rgMainRadioGroup.setOnCheckedChangeListener(this);
@@ -78,8 +73,10 @@ public class HomeActivity extends AppCompatActivity
             navigatorController.navigateToHome();
         }
         viewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
-        subscribeUI(viewModel);
+        Profile profile = SmartLightApp.INSTANCE().getProfile();
+        isEmptyMesh = TextUtils.isEmpty(profile.meshId);
 
+//        subscribeUI(viewModel);
         try {
             MQTTClient.INSTANCE().startConnect();
         } catch (IOException e) {
@@ -88,17 +85,18 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
+
     private void subscribeUI(HomeViewModel viewModel) {
-        viewModel.profile.observe(this, new Observer<Profile>() {
+        /*viewModel.profile.observe(this, new Observer<Profile>() {
             @Override
             public void onChanged(@Nullable Profile profile) {
                 if (profile != null) {
                     isEmptyMesh = TextUtils.isEmpty(profile.meshId);
                 }
             }
-        });
+        });*/
 
-        viewModel.defaultMeshObserver.observe(this, defaultMesh -> {
+       /* viewModel.defaultMeshObserver.observe(this, defaultMesh -> {
             if (defaultMesh != null) {
                 Log.d(TAG, "mesh " + defaultMesh.toString());
                 mesh = defaultMesh;
@@ -109,10 +107,10 @@ public class HomeActivity extends AppCompatActivity
                 TelinkLightService.Instance().idleMode(true);
                 autoConnect();
             }
-        });
+        });*/
 
 //        todo  切换mesh
-        viewModel.shareMeshObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
+        /*viewModel.shareMeshObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> response) {
                 if (response.isSuccessful()) {
@@ -122,7 +120,7 @@ public class HomeActivity extends AppCompatActivity
 
                 }
             }
-        });
+        });*/
     }
 
 
@@ -177,12 +175,14 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(mBlueToothStatusReceiver);
         removeEventListener();
         TelinkLightService.Instance().disableAutoRefreshNotify();
+        unregisterReceiver(mBlueToothStatusReceiver);
+        SmartLightApp.INSTANCE().doDestroy();
         handler.removeCallbacks(null);
         MQTTClient.INSTANCE().exit();
         super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
     }
 
     private void requireBlueTooth() {
@@ -218,6 +218,7 @@ public class HomeActivity extends AppCompatActivity
         smartLightApp.addEventListener(NotificationEvent.GET_TIME, this);
         smartLightApp.addEventListener(NotificationEvent.ONLINE_STATUS, this);
         smartLightApp.addEventListener(ServiceEvent.SERVICE_CONNECTED, this);
+        smartLightApp.addEventListener(ServiceEvent.SERVICE_DISCONNECTED, this);
         smartLightApp.addEventListener(MeshEvent.OFFLINE, this);
         smartLightApp.addEventListener(MeshEvent.ERROR, this);
     }
@@ -229,16 +230,15 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
+        if (isEmptyMesh) {
+            ToastUtil.showToast("请先添加一个家");
+        }
         switch (checkedId) {
             case R.id.rb_home:
                 navigatorController.navigateToHome();
                 break;
             case R.id.rb_device:
-                if (isEmptyMesh) {
-                    Toast.makeText(this, "请先添加一个家", Toast.LENGTH_SHORT).show();
-                } else {
-                    navigatorController.navigateToDevice();
-                }
+                navigatorController.navigateToDevice();
                 break;
             case R.id.rb_scene:
                 navigatorController.navigateToGroup();
@@ -248,7 +248,6 @@ public class HomeActivity extends AppCompatActivity
                 break;
         }
     }
-
 
 
     @Override
@@ -272,16 +271,20 @@ public class HomeActivity extends AppCompatActivity
                 break;
             }
             case MeshEvent.OFFLINE:
+                SmartLightApp.INSTANCE().setMeshStatus(-1);
                 viewModel.onMeshOff();
                 break;
             case MeshEvent.ERROR:
+                SmartLightApp.INSTANCE().setMeshStatus(-2);
 //               onMeshError((MeshEvent) event);
                 ToastUtil.showToast("蓝牙出了问题 重启试试");
                 break;
             case ServiceEvent.SERVICE_CONNECTED:
+                Log.d(TAG, "performed: connected");
                 autoConnect();
                 break;
             case ServiceEvent.SERVICE_DISCONNECTED:
+                Log.d(TAG, "performed: disconnected");
 //                onServiceDisconnected((ServiceEvent) event);
                 break;
         }
@@ -297,11 +300,12 @@ public class HomeActivity extends AppCompatActivity
             if (TelinkLightService.Instance().getMode() != LightAdapter.MODE_AUTO_CONNECT_MESH) {
                 //自动重连参数
                 Log.d(TAG, "connect");
+                DefaultMesh mesh = SmartLightApp.INSTANCE().getDefaultMesh();
                 if (null == mesh) {
                     return;
                 }
                 String meshName = mesh.name;
-                String psw = mesh.password;
+                String psw =mesh.password;
                 Log.d(TAG, meshName + "--" + psw);
                 LeAutoConnectParameters connectParams = Parameters.createAutoConnectParameters();
                 connectParams.setMeshName(meshName);
@@ -323,25 +327,31 @@ public class HomeActivity extends AppCompatActivity
     private void onDeviceStatusChanged(DeviceEvent event) {
         DeviceInfo deviceInfo = event.getArgs();
         String meshName;
-        if (mesh != null) {
+       /* if (mesh != null) {
             meshName = mesh.aijiaName;
         } else {
             meshName = deviceInfo.meshName;
-        }
+        }*/
         switch (deviceInfo.status) {
             case LightAdapter.STATUS_LOGIN:
                 Log.d(TAG, "connecting success");
-//                Toast.makeText(this, "连接成功 " + meshName, Toast.LENGTH_SHORT).show();
+                ToastUtil.showToast("连接成功");
                 //        获取灯具时间
+                SmartLightApp.INSTANCE().setMeshStatus(LightAdapter.STATUS_LOGIN);
+//                viewModel.setMeshStatus(LightAdapter.STATUS_LOGIN);
                 handler.removeCallbacksAndMessages(null);
                 handler.postDelayed(LightCommandUtils::getLampTime, 3 * 1000);
 //                handler.postDelayed(() -> TelinkLightService.Instance().sendCommandNoResponse((byte) 0xE4, 0xFFFF, new byte[]{}), 3 * 1000);
                 break;
             case LightAdapter.STATUS_CONNECTING:
+                SmartLightApp.INSTANCE().setMeshStatus(LightAdapter.STATUS_CONNECTING);
+//                viewModel.setMeshStatus(LightAdapter.STATUS_CONNECTING);
 //                Toast.makeText(this, "正在连接 " + meshName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "connecting");
                 break;
             case LightAdapter.STATUS_LOGOUT:
+                SmartLightApp.INSTANCE().setMeshStatus(LightAdapter.STATUS_LOGOUT);
+//                viewModel.setMeshStatus(LightAdapter.STATUS_LOGOUT);
 //                Toast.makeText(this, "失去连接 " + meshName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "disconnect");
                 break;
@@ -396,16 +406,20 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-   /* @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
-        if (resultCode!= Activity.RESULT_OK) {
+        if (resultCode != Activity.RESULT_OK) {
             return;
         }
         switch (requestCode) {
+            case 0:
+                UserActivity.start(this,UserActivity.ACTION_LOGIN);
+                finish();
+                break;
             case 10:
                 Log.d(TAG, "set requset");
-                viewModel.sceneListRequest.setValue(1);
+//                viewModel.sceneListRequest.setValue(1);
                 break;
         }
     }*/

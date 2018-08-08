@@ -1,6 +1,7 @@
 package com.example.ledwisdom1.user;
 
 
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
@@ -26,7 +27,7 @@ import com.example.ledwisdom1.databinding.SettingLayoutModifypswBinding;
 import com.example.ledwisdom1.databinding.SettingLayoutProfileBinding;
 import com.example.ledwisdom1.fragment.ProduceAvatarFragment;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.utils.AutoClearValue;
+import com.example.ledwisdom1.common.AutoClearValue;
 import com.example.ledwisdom1.utils.ToastUtil;
 
 import java.io.File;
@@ -141,8 +142,10 @@ public class SettingFragment extends Fragment implements CallBack, ProduceAvatar
             @Override
             public void onChanged(@Nullable Resource<Boolean> apiResponse) {
                 if (apiResponse.data) {
-                    UserActivity activity = (UserActivity) getActivity();
-                    activity.logout();
+                    getActivity().setResult(Activity.RESULT_OK);
+                    getActivity().finish();
+                    /*UserActivity activity = (UserActivity) getActivity();
+                    activity.logout();*/
                 }
                 showToast(apiResponse.message);
             }
