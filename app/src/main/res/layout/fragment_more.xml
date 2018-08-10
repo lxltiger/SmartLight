@@ -8,9 +8,6 @@
 
         <import type="com.example.ledwisdom1.view.ImageTransformationType" />
 
-        <variable
-            name="viewModel"
-            type="com.example.ledwisdom1.home.HomeViewModel" />
 
         <variable
             name="homeIcon"
@@ -19,6 +16,7 @@
         <variable
             name="name"
             type="String" />
+
 
         <variable
             name="handler"
@@ -41,20 +39,20 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:onClick="@{handler::handleClick}"
-            app:imageUrl="@{homeIcon}"
+            app:avatar="@{homeIcon}"
             app:layout_constraintBottom_toBottomOf="@+id/portrait_bg"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:type="@{ImageTransformationType.CIRCLE}"
             tools:background="@drawable/pic_portrait" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:text="@{name}"
+            android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/portrait"

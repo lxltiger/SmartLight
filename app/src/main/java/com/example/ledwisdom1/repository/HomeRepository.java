@@ -40,6 +40,7 @@ import com.example.ledwisdom1.mesh.Mesh;
 import com.example.ledwisdom1.mesh.MeshList;
 import com.example.ledwisdom1.mesh.ReportMesh;
 import com.example.ledwisdom1.model.RequestResult;
+import com.example.ledwisdom1.model.User;
 import com.example.ledwisdom1.scene.AddGroupSceneResult;
 import com.example.ledwisdom1.scene.GroupDevice;
 import com.example.ledwisdom1.scene.GroupRequest;
@@ -49,6 +50,9 @@ import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.scene.SceneRequest;
 import com.example.ledwisdom1.user.Profile;
 import com.telink.bluetooth.light.OnlineStatusNotificationParser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -93,8 +97,6 @@ public class HomeRepository {
         lampDao = mDataBase.lamp();
         kimService = NetWork.kimService();
         executors = SmartLightApp.INSTANCE().appExecutors();
-//        profileObserver = userDao.loadProfile();
-//        loadDefaultMesh();
     }
 
     public static HomeRepository INSTANCE(Context context) {
@@ -130,6 +132,20 @@ public class HomeRepository {
         return profile != null ? profile.userId : "";
     }
 
+    public LiveData<User> getUserInfo() {
+        MediatorLiveData<User> result=new MediatorLiveData<>();
+        LiveData<ApiResponse<User>> userInfo = kimService.getUserInfo();
+        result.addSource(userInfo, new Observer<ApiResponse<User>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<User> apiResponse) {
+                if (apiResponse.isSuccessful()) {
+                    result.setValue(apiResponse.body);
+                }
+            }
+        });
+        return result;
+
+    }
 
     /**
      * @param request 创建场景或情景的参数
@@ -474,6 +490,7 @@ public class HomeRepository {
 
     //    更新场景 情景
 
+    @Deprecated
     public LiveData<ApiResponse<AddGroupSceneResult>> updateGroupScene(GroupSceneRequest addGroup) {
         String id = getMeshId();
         boolean isGroup = addGroup.isGroup;
@@ -522,6 +539,10 @@ public class HomeRepository {
                     //如果相等说明没有更新
                     if (groupRequest.oldDeviceId.equals(groupRequest.newDeviceId)) {
                         updateResult.setValue(groupRequest);
+                    }else if (TextUtils.isEmpty(groupRequest.oldDeviceId)) {
+                        //没有旧设备
+                        groupRequest.deviceId = groupRequest.newDeviceId;
+                        addNewDeviceToGroup(updateResult,groupRequest);
                     } else {
                         groupRequest.deviceId = groupRequest.oldDeviceId;
                         deleteGroupDevice(updateResult, groupRequest);
@@ -773,14 +794,8 @@ public class HomeRepository {
             result.removeSource(apiResponseLiveData);
 //                Http请求是否成功, 返回数据是否正确
             if (response.isSuccessful() && response.body.succeed()) {
-//                updateMeshId(response.body.meshId);
                 loadDefaultMesh(result, response.body.meshId);
-                /*if (response.body.succeed()) {
-                    //新加的mesh成为默认的 所以需要 更新数据库 获取详细的mesh
-                    result.setValue(Resource.success(response.body, response.body.resultMsg));
-                } else {
-                    result.setValue(Resource.error(null, response.body.resultMsg));
-                }*/
+
             } else {
                 result.setValue(Resource.error(false, response.errorMsg));
             }
@@ -820,15 +835,6 @@ public class HomeRepository {
 
         return result;
 
-
-    }
-
-    /**
-     * @param meshId
-     */
-    private void updateMeshId(String meshId) {
-//        userDao.updateMeshId(profileObserver.getValue().phone, meshId);
-//        SmartLightApp.INSTANCE().getProfile().meshId = meshId;
 
     }
 
@@ -887,6 +893,36 @@ public class HomeRepository {
         return result;
     }
 
+    public LiveData<Resource<Boolean>> shareMesh(String input) {
+        MediatorLiveData<Resource<Boolean>> result = new MediatorLiveData<>();
+        RequestBody requestBody = RequestCreator.createShareMesh(input);
+        result.setValue(Resource.loading(false));
+        LiveData<ApiResponse<RequestResult>> response = kimService.shareMesh(requestBody);
+        result.addSource(response, new Observer<ApiResponse<RequestResult>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
+                result.removeSource(response);
+                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(input);
+                        String meshId = jsonObject.optString("meshId","");
+                        loadDefaultMesh(result, meshId);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        result.setValue(Resource.error(false, "获取meshId失败"));
+
+                    }
+
+                } else {
+                    result.setValue(Resource.error(false, apiResponse.errorMsg));
+                }
+            }
+        });
+
+        return result;
+
+    }
+
     /**
      * 删除mesh  成功后需要删除本地数据
      * 删除默认的mesh该如何处理
@@ -930,9 +966,7 @@ public class HomeRepository {
     }
 
 
-    public LiveData<ApiResponse<RequestResult>> shareMesh(RequestBody requestBody) {
-        return kimService.shareMesh(requestBody);
-    }
+
 
 
     //    获取灯具列表

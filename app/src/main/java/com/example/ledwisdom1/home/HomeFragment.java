@@ -130,7 +130,7 @@ public class HomeFragment extends Fragment {
         handleMesh();
     }
 
-    private void handleMesh() {
+    public void handleMesh() {
         Profile profile = SmartLightApp.INSTANCE().getProfile();
         if (TextUtils.isEmpty(profile.meshId)) {
             binding.get().viewPager.setCurrentItem(1);
@@ -144,44 +144,26 @@ public class HomeFragment extends Fragment {
     }
 
 
-
     private void subscribeUI(HomeViewModel homeViewModel) {
-        /*homeViewModel.sceneListObserver.observe(this, new Observer<ApiResponse<SceneList>>() {
-            @Override
-            public void onChanged(@Nullable ApiResponse<SceneList> sceneListApiResponse) {
-                if (sceneListApiResponse.isSuccessful()) {
-                    SceneList body = sceneListApiResponse.body;
-                    List<Scene> list = body.getList();
-                    if (list != null) {
-                        int size = list.size();
-                        bindingDetail.get().setShowScene(size > 0);
-                        if (size > 0) {
-                            //最多显示三个
-                            sceneAdapter.addScenes(list.subList(0, Math.min(size, 3)));
-                        }
-                    }
-                } else {
-                    bindingDetail.get().setShowScene(false);
-                }
-            }
-        });*/
-
         homeViewModel.sceneListObserver.observe(this, new Observer<Resource<List<Scene>>>() {
             @Override
             public void onChanged(@Nullable Resource<List<Scene>> listResource) {
-                if (null!=listResource.data) {
+                if (null != listResource.data) {
                     int size = listResource.data.size();
                     bindingDetail.get().setShowScene(size > 0);
                     if (size > 0) {
                         //最多显示三个
                         sceneAdapter.addScenes(listResource.data.subList(0, Math.min(size, 3)));
                     }
-                }else{
+                } else {
                     bindingDetail.get().setShowScene(false);
 
                 }
             }
         });
+
+
+
 
     }
 

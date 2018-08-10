@@ -2,6 +2,7 @@ package com.example.ledwisdom1.home;
 
 
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -14,12 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.ledwisdom1.CallBack;
+import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.clock.ClockActivity;
+import com.example.ledwisdom1.common.AutoClearValue;
 import com.example.ledwisdom1.databinding.FragmentMoreBinding;
+import com.example.ledwisdom1.model.User;
 import com.example.ledwisdom1.scene.GroupSceneActivity;
 import com.example.ledwisdom1.user.UserActivity;
-import com.example.ledwisdom1.common.AutoClearValue;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -52,19 +55,29 @@ public class MoreFragment extends Fragment implements CallBack {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        viewModel = ViewModelProviders.of(getActivity()).get(HomeViewModel.class);
-//        binding.setViewModel(viewModel);
+        viewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         subscribeUI(viewModel);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        viewModel.userInfoRequest.setValue(1);
+    }
+
     private void subscribeUI(HomeViewModel homeViewModel) {
-       /* homeViewModel.defaultMeshObserver.observe(this, new Observer<DefaultMesh>() {
+        homeViewModel.userInfoObserver.observe(this, new Observer<User>() {
             @Override
-            public void onChanged(@Nullable DefaultMesh defaultMesh) {
-                binding.get().setHomeIcon(defaultMesh.aijiaIcon);
-                binding.get().setName(defaultMesh.aijiaName);
+            public void onChanged(@Nullable User user) {
+                if (user != null) {
+                    binding.get().setHomeIcon(Config.IMG_PREFIX.concat(user.getIcon()));
+                    binding.get().setName(user.getAccount());
+                } else {
+                    binding.get().setHomeIcon("");
+                    binding.get().setName("未设置");
+                }
             }
-        });*/
+        });
     }
 
     public void handleClick(View v) {

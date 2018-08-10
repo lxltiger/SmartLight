@@ -12,6 +12,7 @@ import com.example.ledwisdom1.mesh.AddMeshResult;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.mesh.MeshList;
 import com.example.ledwisdom1.model.RequestResult;
+import com.example.ledwisdom1.model.User;
 import com.example.ledwisdom1.scene.AddGroupSceneResult;
 import com.example.ledwisdom1.scene.GroupDevice;
 import com.example.ledwisdom1.scene.SceneList;
@@ -163,6 +164,9 @@ public interface KimAscendService {
     @Multipart
     @POST("user/updateUser")
     LiveData<ApiResponse<RequestResult>> updateUser(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
+
+    @POST("user/getUserInfo")
+    LiveData<ApiResponse<User>> getUserInfo();
 
     @Multipart
     @POST("scene/updateScene")

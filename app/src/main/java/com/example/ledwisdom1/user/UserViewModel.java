@@ -17,9 +17,11 @@ import android.util.SparseArray;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
+import com.example.ledwisdom1.app.SmartLightApp;
+import com.example.ledwisdom1.common.RequestCreator;
 import com.example.ledwisdom1.model.CommonRequest;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.common.RequestCreator;
+import com.example.ledwisdom1.model.User;
 
 import okhttp3.RequestBody;
 
@@ -94,7 +96,7 @@ public class UserViewModel extends AndroidViewModel {
     public LiveData<ApiResponse<RequestResult>> registerResponseObserver;
 
     // TODO: 2018/7/13 0013 直接使用
-    public final LiveData<Profile> profileLiveData;
+//    public final LiveData<Profile> profileLiveData;
 
 
     //    修改密码请求
@@ -123,12 +125,15 @@ public class UserViewModel extends AndroidViewModel {
     //用来获取资源文件
     private Application application;
     private String PHONE_NUMBER_REG = "^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\\d{8}$";
+    public final LiveData<User> userInfoObserver;
 
     public UserViewModel(@NonNull Application application) {
         super(application);
         this.application = application;
         userRepository = new UserRepository(application);
-        profileLiveData = userRepository.loadProfile();
+//        profileLiveData = userRepository.loadProfile();
+        userInfoObserver =userRepository.getUserInfo();
+
         populateErrMsg();
         loginResponseObserver = Transformations.switchMap(loginRequest, input -> userRepository.login(input));
         authCodeResponseObserver = Transformations.switchMap(authCodeRequest, input -> userRepository.getAuthCode(input));
@@ -288,7 +293,8 @@ public class UserViewModel extends AndroidViewModel {
             setErrType(SAME_PSW);
             return;
         }
-        Profile userProfile = profileLiveData.getValue();
+//        Profile userProfile = profileLiveData.getValue();
+        Profile userProfile = SmartLightApp.INSTANCE().getProfile();
         String account = userProfile.phone;
 
         RequestBody modifyPsw = RequestCreator.createModifyPsw(account, psw_origin, psw);

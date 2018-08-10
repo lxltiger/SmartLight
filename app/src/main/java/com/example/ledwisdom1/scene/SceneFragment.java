@@ -382,7 +382,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             public void onChanged(@Nullable SceneRequest groupRequest) {
                 binding.setIsLoading(false);
                 if (groupRequest != null) {
-                    showToast("更新成功");
                     List<Lamp> lamps = selectedLampAdapter.getmLampList();
                     lampForSceneAdapter.addLamps(lamps);
                     binding.viewPager.setCurrentItem(6);
@@ -465,7 +464,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             //灯具设置页面
             case 7:
                 handleLightSetting();
-
                 break;
             //场景完成设置
             case 5:

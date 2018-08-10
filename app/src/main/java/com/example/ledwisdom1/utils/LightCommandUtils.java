@@ -19,6 +19,7 @@ import static com.telink.bluetooth.light.Opcode.BLE_GATT_OP_CTRL_EF;
 
 public class LightCommandUtils {
     private static final String TAG = "LightCommandUtils";
+
     public static void setBrightness(int brightness, int addr) {
         boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
         if (blueTooth) {
@@ -35,6 +36,7 @@ public class LightCommandUtils {
 
     /**
      * 检验状态是否有效
+     *
      * @return
      */
     public static boolean isStatusValid() {
@@ -44,19 +46,19 @@ public class LightCommandUtils {
                 return true;
             case LightAdapter.STATUS_LOGOUT:
                 ToastUtil.showToast("失去连接");
-                return  false;
+                return false;
             case LightAdapter.STATUS_CONNECTING:
                 ToastUtil.showToast("正在连接");
-                return  false;
+                return false;
             case -1:
                 ToastUtil.showToast("蓝牙网络离线");
-                return  false;
+                return false;
             case -2:
                 ToastUtil.showToast("蓝牙出了问题 重启试试");
-                return  false;
+                return false;
         }
 
-        return  false;
+        return false;
 
     }
 
@@ -184,11 +186,18 @@ public class LightCommandUtils {
         deleteDeviceFromScene(sceneAddress, 0xffff);
     }
 
-    //触发场景
+    //触发情景景
     public static void loadScene(int sceneAddress) {
         Log.d(TAG, "loadScene() called with: sceneAddress = [" + sceneAddress + "]");
-        byte[] params = new byte[]{(byte) (sceneAddress & 0xFF)};
-        TelinkLightService.Instance().sendCommand(BLE_GATT_OP_CTRL_EF.getValue(), 0xffff, params);
+        boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
+        if (blueTooth) {
+            if (isStatusValid()) {
+                byte[] params = new byte[]{(byte) (sceneAddress & 0xFF)};
+                TelinkLightService.Instance().sendCommand(BLE_GATT_OP_CTRL_EF.getValue(), 0xffff, params);
+            }
+        } else {
+
+        }
     }
 
 

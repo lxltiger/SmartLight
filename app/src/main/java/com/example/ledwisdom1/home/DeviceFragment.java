@@ -33,6 +33,7 @@ import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.entity.Hub;
 import com.example.ledwisdom1.home.entity.HubList;
 import com.example.ledwisdom1.common.AutoClearValue;
+import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.example.ledwisdom1.utils.ToastUtil;
 import com.telink.bluetooth.event.MeshEvent;
@@ -123,7 +124,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        addEventListener();
+//        addEventListener();
     }
 
     @Override
@@ -138,14 +139,13 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        removeEventListener();
+//        removeEventListener();
     }
 
     private void subscribeUI(HomeViewModel viewModel) {
         viewModel.deviceListObserver.observe(this, new Observer<Resource<List<Lamp>>>() {
             @Override
             public void onChanged(@Nullable Resource<List<Lamp>> resource) {
-                Log.d(TAG, "deviceListObserver: " + resource.status);
                 binding.get().setResource(resource);
                 List<Lamp> data = resource.data;
                 if (data != null) {
@@ -219,9 +219,9 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
     }
 
     private void addEventListener() {
-        SmartLightApp smartLightApp = SmartLightApp.INSTANCE();
+//        SmartLightApp smartLightApp = SmartLightApp.INSTANCE();
 //        smartLightApp.addEventListener(NotificationEvent.ONLINE_STATUS, eventListener);
-        smartLightApp.addEventListener(NotificationEvent.GET_ALARM, eventListener);
+//        smartLightApp.addEventListener(NotificationEvent.GET_ALARM, eventListener);
 //        smartLightApp.addEventListener(NotificationEvent.GET_TIME, eventListener);
 //        smartLightApp.addEventListener(MeshEvent.OFFLINE, eventListener);
     }
@@ -230,7 +230,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
     public void onResume() {
         super.onResume();
         //获取灯具的时间
-        LightCommandUtils.getLampTime();
+//        LightCommandUtils.getLampTime();
 //        LightCommandUtils.getAlarm();
 
     }
@@ -332,7 +332,12 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
 
         @Override
         public void onDeleteClick(Hub hub) {
-            viewModel.deleteHubRequest.setValue(hub);
+            DefaultMesh defaultMesh = SmartLightApp.INSTANCE().getDefaultMesh();
+            if (defaultMesh.isMine) {
+                viewModel.deleteHubRequest.setValue(hub);
+            }else{
+                ToastUtil.showToast("不是自己的蓝牙网络");
+            }
         }
     };
 
@@ -353,7 +358,12 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
 
         @Override
         public void onDeleteClick(Lamp lamp) {
-            viewModel.deleteLampRequest.setValue(lamp);
+            DefaultMesh defaultMesh = SmartLightApp.INSTANCE().getDefaultMesh();
+            if (defaultMesh.isMine) {
+                viewModel.deleteLampRequest.setValue(lamp);
+            }else{
+                ToastUtil.showToast("不是自己的蓝牙网络");
+            }
         }
     };
 

@@ -22,7 +22,7 @@
 
         <variable
             name="showScene"
-            type="boolean"/>
+            type="boolean" />
 
         <!--是否使用蓝牙-->
         <variable
@@ -78,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     app:cardUseCompatPadding="true">
-
+                    <!--                            app:type="@{ImageTransformationType.ROUND}"-->
                     <android.support.constraint.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
@@ -93,27 +93,25 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:type="@{ImageTransformationType.ROUND}"
                             tools:background="@mipmap/ic_launcher" />
 
                         <CheckBox
                             android:id="@+id/mesh_switch"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:checked="@{ble}"
+                            android:background="@drawable/selector_switch_thumb"
                             android:button="@null"
+                            android:checked="@{ble}"
+                            android:paddingBottom="4dp"
+                            android:paddingEnd="24dp"
+                            android:paddingStart="24dp"
+                            android:text="@{ble?@string/switch_ble:@string/switch_wifi}"
                             android:textColor="@android:color/white"
                             android:textSize="18sp"
-                            android:paddingStart="24dp"
-                            android:paddingEnd="24dp"
-                            android:paddingBottom="4dp"
                             app:customGravity="@{ble}"
-                            android:background="@drawable/selector_switch_thumb"
-                            android:text="@{ble?@string/switch_ble:@string/switch_wifi}"
                             app:layout_constraintLeft_toLeftOf="@+id/close_all"
                             app:layout_constraintRight_toRightOf="@+id/open_all"
-                            app:layout_constraintTop_toTopOf="parent"
-                            />
+                            app:layout_constraintTop_toTopOf="parent" />
 
                         <Button
                             android:id="@+id/close_all"
@@ -151,14 +149,13 @@
                 <!--                    android:background="#f6f6f9"-->
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                   >
+                    android:layout_height="wrap_content">
 
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/home_no_scene"
-                        app:visibleGone="@{!showScene}"/>
+                        app:visibleGone="@{!showScene}" />
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/recyclerViewScene"
@@ -166,7 +163,7 @@
                         android:layout_height="wrap_content"
                         android:paddingBottom="8dp"
                         android:paddingTop="8dp"
-                        app:visibleGone="@{showScene}"/>
+                        app:visibleGone="@{showScene}" />
 
                 </android.support.constraint.ConstraintLayout>
 

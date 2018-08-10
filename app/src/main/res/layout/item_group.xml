@@ -36,7 +36,6 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:type="@{ImageTransformationType.ROUND}"
             tools:background="@mipmap/ic_launcher"
 
             />

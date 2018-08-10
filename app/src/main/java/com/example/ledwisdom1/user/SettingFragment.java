@@ -15,11 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.ledwisdom1.CallBack;
+import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
+import com.example.ledwisdom1.common.AutoClearValue;
 import com.example.ledwisdom1.databinding.FragmentSettingBinding;
 import com.example.ledwisdom1.databinding.SettingLayoutAccountBinding;
 import com.example.ledwisdom1.databinding.SettingLayoutMainBinding;
@@ -27,7 +30,7 @@ import com.example.ledwisdom1.databinding.SettingLayoutModifypswBinding;
 import com.example.ledwisdom1.databinding.SettingLayoutProfileBinding;
 import com.example.ledwisdom1.fragment.ProduceAvatarFragment;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.common.AutoClearValue;
+import com.example.ledwisdom1.model.User;
 import com.example.ledwisdom1.utils.ToastUtil;
 
 import java.io.File;
@@ -46,7 +49,6 @@ public class SettingFragment extends Fragment implements CallBack, ProduceAvatar
     private AutoClearValue<SettingLayoutProfileBinding> bindingProfile;
     private AutoClearValue<SettingLayoutModifypswBinding> bindingModify;
     private UserViewModel viewModel;
-//    private String userName = "";
     private UserRequest request = new UserRequest();
 
     public static SettingFragment newInstance() {
@@ -71,7 +73,8 @@ public class SettingFragment extends Fragment implements CallBack, ProduceAvatar
 
         SettingLayoutProfileBinding settingLayoutProfileBinding = DataBindingUtil.inflate(inflater, R.layout.setting_layout_profile, container, false);
         settingLayoutProfileBinding.setHandler(this);
-        settingLayoutProfileBinding.setUserName(request.userName);
+
+//        settingLayoutProfileBinding.setUserName(request.userName);
 
         SettingLayoutModifypswBinding settingLayoutModifypswBinding = DataBindingUtil.inflate(inflater, R.layout.setting_layout_modifypsw, container, false);
         settingLayoutModifypswBinding.setHandler(this);
@@ -131,10 +134,23 @@ public class SettingFragment extends Fragment implements CallBack, ProduceAvatar
             }
         });
 
-        viewModel.profileLiveData.observe(this, profile -> {
+        /*viewModel.profileLiveData.observe(this, profile -> {
             if (profile != null) {
                 bindingProfile.get().setProfile(profile);
                 bindingAccount.get().setAccount("手机账号：".concat(profile.phone));
+            }
+        });*/
+
+        viewModel.userInfoObserver.observe(this, new Observer<User>() {
+            @Override
+            public void onChanged(@Nullable User user) {
+                if (user != null) {
+                    bindingProfile.get().setAvatar(Config.IMG_PREFIX.concat(user.getIcon()));
+                    bindingProfile.get().setUserName(user.getAccount());
+                    request.userName = user.getAccount();
+                } else {
+                    bindingProfile.get().setAvatar("");
+                }
             }
         });
 
@@ -230,7 +246,8 @@ public class SettingFragment extends Fragment implements CallBack, ProduceAvatar
 
     @Override
     public void onItemClicked(File file) {
-        bindingProfile.get().setAvatar(file.getAbsolutePath());
+        Glide.with(this).load(file).into(bindingProfile.get().avatar);
+//        bindingProfile.get().setAvatar(file.getAbsolutePath());
         request.userIcon = file;
     }
 }

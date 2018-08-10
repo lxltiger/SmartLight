@@ -8,9 +8,6 @@
             name="handler"
             type="com.example.ledwisdom1.CallBack" />
 
-        <variable
-            name="profile"
-            type="com.example.ledwisdom1.user.Profile"/>
 
         <variable
             name="userName"
@@ -33,9 +30,9 @@
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginTop="64dp"
-            android:src="@mipmap/ic_launcher"
+            tools:src="@mipmap/ic_launcher"
             android:onClick="@{handler::handleClick}"
-            app:dynamicImage="@{avatar}"
+            app:avatar="@{avatar}"
             />
 
         <EditText

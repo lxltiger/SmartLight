@@ -3,7 +3,9 @@ package com.example.ledwisdom1.user;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
@@ -13,11 +15,12 @@ import com.example.ledwisdom1.api.NetWork;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.app.AppExecutors;
 import com.example.ledwisdom1.app.SmartLightApp;
+import com.example.ledwisdom1.common.RequestCreator;
 import com.example.ledwisdom1.database.SmartLightDataBase;
 import com.example.ledwisdom1.database.UserDao;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.common.RequestCreator;
+import com.example.ledwisdom1.model.User;
 import com.example.ledwisdom1.utils.SharePrefencesUtil;
 import com.google.gson.Gson;
 
@@ -172,5 +175,19 @@ public class UserRepository {
         return userDao.loadProfile();
     }
 
+    public LiveData<User> getUserInfo() {
+        MediatorLiveData<User> result=new MediatorLiveData<>();
+        LiveData<ApiResponse<User>> userInfo = kimService.getUserInfo();
+        result.addSource(userInfo, new Observer<ApiResponse<User>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<User> apiResponse) {
+                if (apiResponse.isSuccessful()) {
+                    result.setValue(apiResponse.body);
+                }
+            }
+        });
+        return result;
+
+    }
 
 }

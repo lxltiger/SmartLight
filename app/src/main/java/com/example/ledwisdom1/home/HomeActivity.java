@@ -1,6 +1,7 @@
 package com.example.ledwisdom1.home;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -18,13 +20,15 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.api.Resource;
+import com.example.ledwisdom1.api.Status;
 import com.example.ledwisdom1.app.SmartLightApp;
+import com.example.ledwisdom1.common.NavigatorController;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.LightCommandUtils;
-import com.example.ledwisdom1.common.NavigatorController;
 import com.example.ledwisdom1.utils.ToastUtil;
 import com.telink.bluetooth.LeBluetooth;
 import com.telink.bluetooth.event.DeviceEvent;
@@ -44,6 +48,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.List;
+
+import static com.example.ledwisdom1.utils.ToastUtil.showToast;
 
 /**
  * 主页含4个UI
@@ -109,18 +115,27 @@ public class HomeActivity extends AppCompatActivity
             }
         });*/
 
-//        todo  切换mesh
-        /*viewModel.shareMeshObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
-            @Override
-            public void onChanged(@Nullable ApiResponse<RequestResult> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(HomeActivity.this, response.body.resultMsg, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(HomeActivity.this, response.errorMsg, Toast.LENGTH_SHORT).show();
 
+        viewModel.shareMeshObserver.observe(this, new Observer<Resource<Boolean>>() {
+            @Override
+            public void onChanged(@Nullable Resource<Boolean> resource) {
+                if (Status.SUCCESS == resource.status) {
+                    Log.d(TAG, "onChanged:shareMeshObserver ");
+                    showToast(resource.message);
+                    TelinkLightService.Instance().idleMode(true);
+                    HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(HomeFragment.TAG);
+                    if (homeFragment != null) {
+                       homeFragment.handleMesh();
+                    }
+                    autoConnect();
+
+                }else if(Status.ERROR == resource.status){
+                    showToast(resource.message);
                 }
             }
-        });*/
+        });
+
+
     }
 
 
@@ -294,7 +309,7 @@ public class HomeActivity extends AppCompatActivity
      * 自动重连
      * 使用蓝牙控制灯具之前需要连接mesh
      */
-    protected void autoConnect() {
+    public void autoConnect() {
         Log.d(TAG, "autoConnect() called");
         if (TelinkLightService.Instance() != null) {
             if (TelinkLightService.Instance().getMode() != LightAdapter.MODE_AUTO_CONNECT_MESH) {

@@ -9,20 +9,16 @@ import android.support.annotation.NonNull;
 
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
-import com.example.ledwisdom1.common.RequestCreator;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.home.entity.Hub;
 import com.example.ledwisdom1.home.entity.HubList;
-import com.example.ledwisdom1.model.RequestResult;
+import com.example.ledwisdom1.model.User;
 import com.example.ledwisdom1.repository.HomeRepository;
 import com.example.ledwisdom1.scene.Scene;
 import com.telink.bluetooth.light.OnlineStatusNotificationParser;
 
 import java.util.List;
-import java.util.Objects;
-
-import okhttp3.RequestBody;
 
 /**
  * 负责首页各页面的网络请求 并提供数据返回接口供UI监听
@@ -39,7 +35,7 @@ public class HomeViewModel extends AndroidViewModel {
     //    分享mesh
     public MutableLiveData<String> shareMeshRequest = new MutableLiveData<>();
     // 分享mesh监听
-    public final LiveData<ApiResponse<RequestResult>> shareMeshObserver;
+    public final LiveData<Resource<Boolean>> shareMeshObserver;
 
 
     // lamp列表请求
@@ -81,15 +77,18 @@ public class HomeViewModel extends AndroidViewModel {
     public final MutableLiveData<Integer> sceneListRequest = new MutableLiveData<>();
     public final LiveData<Resource<List<Scene>>> sceneListObserver;
 
+
+    public final MutableLiveData<Integer> userInfoRequest = new MutableLiveData<>();
+    public final LiveData<User> userInfoObserver;
+
+
+
     public HomeViewModel(@NonNull Application application) {
         super(application);
         repository = HomeRepository.INSTANCE(application);
-//        profile = repository.profileObserver;
-//        defaultMeshObserver = repository.defaultMeshObserver;
 
         shareMeshObserver = Transformations.switchMap(shareMeshRequest, input -> {
-            RequestBody requestBody = RequestCreator.createShareMesh(input);
-            return repository.shareMesh(requestBody);
+            return repository.shareMesh(input);
         });
 
 //        lampListObserver = Transformations.switchMap(lampListRequest, input -> repository.getDeviceList(input));
@@ -108,6 +107,7 @@ public class HomeViewModel extends AndroidViewModel {
 
         deleteHubObserver = Transformations.switchMap(deleteHubRequest, repository::deleteHub);
 
+        userInfoObserver =Transformations.switchMap(userInfoRequest, input -> repository.getUserInfo());
     }
 
 
@@ -120,15 +120,5 @@ public class HomeViewModel extends AndroidViewModel {
         repository.updateDevicesStatus(notificationInfoList);
     }
 
-    public void setMeshStatus(int status) {
-        if (Objects.equals(repository.meshStatus.getValue(),status)) {
-            return;
 
-        }
-        repository.meshStatus.setValue(status);
-    }
-
-    public LiveData<Integer> meshStatus() {
-        return repository.meshStatus;
-    }
 }

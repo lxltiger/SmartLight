@@ -12,6 +12,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.view.CircleTransform;
@@ -24,7 +27,7 @@ import com.example.ledwisdom1.view.RoundTransform;
  * 在这里处理负责逻辑
  */
 public class BindingAdapters {
-
+    private static final String TAG = "BindingAdapters";
     public static final int LIGHT_HIDE = -1;
     public static final int LIGHT_OFF = 0;
     public static final int LIGHT_ON = 1;
@@ -35,8 +38,6 @@ public class BindingAdapters {
     public static final int ADD = 0;
     public static final int ADDING = 1;
     public static final int ADDED = 2;
-
-
 
 
     public static final int INVISIBLE = -1;
@@ -111,7 +112,7 @@ public class BindingAdapters {
             view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.bg_green_circle));
         } else if (brightness == 0) {
             view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.bg_red_circle));
-        }else{
+        } else {
             view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.bg_grey_circle));
 
         }
@@ -119,7 +120,6 @@ public class BindingAdapters {
     }
 
     /**
-     *
      * @param view
      * @param type
      */
@@ -143,22 +143,40 @@ public class BindingAdapters {
     public static void loadImageUrl(ImageView view, String url, ImageTransformationType type) {
         if (!TextUtils.isEmpty(url)) {
             Context context = view.getContext();
-            if (type == null) {type = ImageTransformationType.NONE;}
+            if (type == null) {
+                type = ImageTransformationType.NONE;
+            }
             switch (type) {
                 case ROUND:
-                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new RoundTransform(context,2)).crossFade(1000).into(view);
+//                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new RoundTransform(context, 2)).listener(drawableRequestListener).into(view);
+                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new RoundTransform(context, 2)).crossFade(1000).into(view);
                     break;
                 case CIRCLE:
                     Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new CircleTransform(context)).crossFade(1000).into(view);
                     break;
                 case NONE:
                 default:
-                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).into(view);
+                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).listener(drawableRequestListener).into(view);
                     break;
             }
         }
-
     }
+
+    private static RequestListener<String,GlideDrawable> drawableRequestListener=new RequestListener<String, GlideDrawable>() {
+        @Override
+        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+            Log.e(TAG,e.toString()+"  model:"+model+" isFirstResource: "+isFirstResource);
+
+            return false;
+        }
+
+        @Override
+        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+            Log.e(TAG,"isFromMemoryCache:"+isFromMemoryCache+"  model:"+model+" isFirstResource: "+isFirstResource);
+
+            return false;
+        }
+    };
 
 
     /*
@@ -167,23 +185,35 @@ public class BindingAdapters {
     @BindingAdapter(value = {"dynamicImage", "resId"}, requireAll = false)
     public static void loadDynamicImage(ImageView view, String dynamicImage, int resId) {
         if (!TextUtils.isEmpty(dynamicImage)) {
-            Glide.with(view.getContext()).load(dynamicImage).into(view);
-        } else if (resId >0) {
+            Glide.with(view.getContext()).load(dynamicImage).listener(drawableRequestListener).into(view);
+        } else if (resId > 0) {
             view.setImageResource(resId);
         }
+    }
+
+    @BindingAdapter(value = {"avatar", "resId"}, requireAll = false)
+    public static void loadAvatar(ImageView view, String avatar, int resId) {
+        Context context = view.getContext();
+        if (!TextUtils.isEmpty(avatar)) {
+            Glide.with(context).load(avatar).transform(new CircleTransform(context)).listener(drawableRequestListener).into(view);
+        } else  {
+            Glide.with(context).load(R.drawable.pic_portrait).transform(new CircleTransform(context)).into(view);
+        }
+
 
     }
 
 
+
+
     @BindingAdapter("visibleGone")
     public static void setVisible(View view, boolean show) {
-        Log.d("BindingAdapters", "show:" + show);
         view.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
 
     @BindingAdapter("customGravity")
     public static void setCheckBoxGravity(CheckBox view, boolean isChecked) {
-        view.setGravity(isChecked? Gravity.START|Gravity.CENTER_VERTICAL:Gravity.END|Gravity.CENTER_VERTICAL);
+        view.setGravity(isChecked ? Gravity.START | Gravity.CENTER_VERTICAL : Gravity.END | Gravity.CENTER_VERTICAL);
     }
 }
