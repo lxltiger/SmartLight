@@ -10,4 +10,9 @@
         android:layout_height="match_parent"
         android:background="@drawable/light"/>
 
+    <!--<fragment
+        android:id="@+id/fag"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.example.ledwisdom1.user.SplashFragment" />-->
 </android.support.constraint.ConstraintLayout>

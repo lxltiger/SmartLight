@@ -42,6 +42,7 @@ import com.example.ledwisdom1.mesh.ReportMesh;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.model.User;
 import com.example.ledwisdom1.scene.AddGroupSceneResult;
+import com.example.ledwisdom1.scene.DeviceSetting;
 import com.example.ledwisdom1.scene.GroupDevice;
 import com.example.ledwisdom1.scene.GroupRequest;
 import com.example.ledwisdom1.scene.GroupSceneRequest;
@@ -120,7 +121,6 @@ public class HomeRepository {
     }
 
 
-
     private String getMeshId() {
         Profile profile = SmartLightApp.INSTANCE().getProfile();
         return profile != null ? profile.meshId : "";
@@ -133,13 +133,15 @@ public class HomeRepository {
     }
 
     public LiveData<User> getUserInfo() {
-        MediatorLiveData<User> result=new MediatorLiveData<>();
+        MediatorLiveData<User> result = new MediatorLiveData<>();
         LiveData<ApiResponse<User>> userInfo = kimService.getUserInfo();
         result.addSource(userInfo, new Observer<ApiResponse<User>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<User> apiResponse) {
                 if (apiResponse.isSuccessful()) {
                     result.setValue(apiResponse.body);
+                } else {
+                    result.setValue(null);
                 }
             }
         });
@@ -319,21 +321,47 @@ public class HomeRepository {
         });
     }
 
-    private void getDeviceSetting(MediatorLiveData<SceneRequest> addSceneResult, SceneRequest sceneRequest) {
+    public  LiveData<List<DeviceSetting>> getDeviceSetting(String sceneId) {
         Log.d(TAG, "getDeviceSetting: ");
-        RequestBody requestBody = RequestCreator.requestDeviceSetting(sceneRequest.sceneId);
-        LiveData<ApiResponse<GroupDevice>> apiResponseLiveData = kimService.getDeviceSettingByObjectId(requestBody);
-        addSceneResult.addSource(apiResponseLiveData, new Observer<ApiResponse<GroupDevice>>() {
+        MediatorLiveData<List<DeviceSetting>> result=new MediatorLiveData<>();
+        RequestBody requestBody = RequestCreator.requestDeviceSetting(sceneId);
+        LiveData<ApiResponse<List<DeviceSetting>>> apiResponseLiveData = kimService.getDeviceSettingByObjectId(requestBody);
+        result.addSource(apiResponseLiveData, new Observer<ApiResponse<List<DeviceSetting>>>() {
             @Override
-            public void onChanged(@Nullable ApiResponse<GroupDevice> groupDeviceApiResponse) {
-                addSceneResult.removeSource(apiResponseLiveData);
-                if (groupDeviceApiResponse.isSuccessful()) {
-                    addSceneResult.setValue(sceneRequest);
-                } else {
-                    addSceneResult.setValue(null);
+            public void onChanged(@Nullable ApiResponse<List<DeviceSetting>> listApiResponse) {
+                result.removeSource(apiResponseLiveData);
+                if (listApiResponse!=null && listApiResponse.body != null) {
+                    Log.d(TAG, "onChanged:getDeviceSetting ");
+                    result.setValue(listApiResponse.body);
+                }else {
+                    result.setValue(null);
                 }
             }
         });
+
+        return result;
+    }
+
+
+    public  LiveData<ApiResponse<List<DeviceSetting>>> getDeviceSetting2(String sceneId) {
+        Log.d(TAG, "getDeviceSetting: ");
+//        MediatorLiveData<List<DeviceSetting>> result=new MediatorLiveData<>();
+        RequestBody requestBody = RequestCreator.requestDeviceSetting(sceneId);
+        return kimService.getDeviceSettingByObjectId(requestBody);
+        /*result.addSource(apiResponseLiveData, new Observer<ApiResponse<List<DeviceSetting>>>() {
+            @Override
+            public void onChanged(@Nullable ApiResponse<List<DeviceSetting>> listApiResponse) {
+                result.removeSource(apiResponseLiveData);
+                if (listApiResponse!=null && listApiResponse.body != null) {
+                    Log.d(TAG, "onChanged:getDeviceSetting ");
+                    result.setValue(listApiResponse.body);
+                }else {
+                    result.setValue(null);
+                }
+            }
+        });
+*/
+//        return result;
     }
 
     /**
@@ -539,10 +567,10 @@ public class HomeRepository {
                     //如果相等说明没有更新
                     if (groupRequest.oldDeviceId.equals(groupRequest.newDeviceId)) {
                         updateResult.setValue(groupRequest);
-                    }else if (TextUtils.isEmpty(groupRequest.oldDeviceId)) {
+                    } else if (TextUtils.isEmpty(groupRequest.oldDeviceId)) {
                         //没有旧设备
                         groupRequest.deviceId = groupRequest.newDeviceId;
-                        addNewDeviceToGroup(updateResult,groupRequest);
+                        addNewDeviceToGroup(updateResult, groupRequest);
                     } else {
                         groupRequest.deviceId = groupRequest.oldDeviceId;
                         deleteGroupDevice(updateResult, groupRequest);
@@ -590,8 +618,8 @@ public class HomeRepository {
                     } else if (TextUtils.isEmpty(sceneRequest.oldDeviceId)) {
                         //没有旧设备
                         sceneRequest.deviceId = sceneRequest.newDeviceId;
-                        addNewDeviceToScene(updateResult,sceneRequest);
-                    }else{
+                        addNewDeviceToScene(updateResult, sceneRequest);
+                    } else {
 //                        有旧设备先删除
                         sceneRequest.deviceId = sceneRequest.oldDeviceId;
                         deleteSceneDevice(updateResult, sceneRequest);
@@ -735,7 +763,7 @@ public class HomeRepository {
     }
 
     public LiveData<SceneRequest> deleteScene(SceneRequest sceneRequest) {
-        MediatorLiveData<SceneRequest> result =new MediatorLiveData<>();
+        MediatorLiveData<SceneRequest> result = new MediatorLiveData<>();
         RequestBody requestBody = RequestCreator.requestDeleteScene(sceneRequest.sceneId);
         LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.deleteScene(requestBody);
         result.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
@@ -753,7 +781,6 @@ public class HomeRepository {
 
         return result;
     }
-
 
 
     public LiveData<ApiResponse<RequestResult>> deleteClock(String id) {
@@ -839,7 +866,7 @@ public class HomeRepository {
     }
 
 
-//    在添加 更新 切换mesh都需要加载mesh详情
+    //    在添加 更新 切换mesh都需要加载mesh详情
     public void loadDefaultMesh(MediatorLiveData<Resource<Boolean>> result, final String meshId) {
         RequestBody requestBody = RequestCreator.createMeshDetail(meshId);
         LiveData<ApiResponse<DefaultMesh>> apiResponseLiveData = kimService.meshDetail(requestBody);
@@ -905,7 +932,7 @@ public class HomeRepository {
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
                     try {
                         JSONObject jsonObject = new JSONObject(input);
-                        String meshId = jsonObject.optString("meshId","");
+                        String meshId = jsonObject.optString("meshId", "");
                         loadDefaultMesh(result, meshId);
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -964,9 +991,6 @@ public class HomeRepository {
 
         return result;
     }
-
-
-
 
 
     //    获取灯具列表
@@ -1079,7 +1103,7 @@ public class HomeRepository {
 
 
     //加载场景下的设备 如果是修改标记已选择设备
-    public LiveData<List<Lamp>> loadLampForGroup(String groupId) {
+    public LiveData<List<Lamp>> loadLampForGroup2(String groupId) {
         MediatorLiveData<List<Lamp>> data = new MediatorLiveData<>();
         String meshId = getMeshId();
 //        String meshId = profileObserver.getValue().meshId;
@@ -1131,11 +1155,61 @@ public class HomeRepository {
         });
         return data;
 
-    } //加载场景下的设备 如果是修改标记已选择设备
+    }
+
+    public LiveData<List<Lamp>> loadLampForGroup(String groupId) {
+        MediatorLiveData<List<Lamp>> data = new MediatorLiveData<>();
+        String meshId = getMeshId();
+        LiveData<List<Lamp>> local = lampDao.loadDevices(meshId);
+//        RequestBody requestBody = RequestCreator.requestLampList(meshId, 1);
+//        LiveData<ApiResponse<LampList>> apiResponseLiveData = kimService.deviceList(requestBody);
+        data.addSource(local, new Observer<List<Lamp>>() {
+            @Override
+            public void onChanged(@Nullable List<Lamp> list) {
+                data.removeSource(local);
+                if (list != null && !list.isEmpty()) {
+                    //为空 说明是添加
+                    if (TextUtils.isEmpty(groupId)) {
+                        for (Lamp lamp : list) {
+                            lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+                        }
+                        data.setValue(list);
+                    } else {
+                        RequestBody requestBody = RequestCreator.requestGroupDevices(groupId);
+                        LiveData<ApiResponse<GroupDevice>> devices = kimService.getDevicesByGroupId(requestBody);
+                        data.addSource(devices, new Observer<ApiResponse<GroupDevice>>() {
+                            @Override
+                            public void onChanged(@Nullable ApiResponse<GroupDevice> apiResponse) {
+                                data.removeSource(devices);
+                                if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body != null) {
+                                    List<Lamp> selectedList = apiResponse.body.getList();
+                                    //标记已选择数据
+                                    if (selectedList != null) {
+                                        for (Lamp lamp : list) {
+                                            if (selectedList.contains(lamp)) {
+                                                lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
+                                            } else {
+                                                lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+                                            }
+                                        }
+                                    }
+                                }
+                                data.setValue(list);
+                            }
+                        });
+                    }
+                } else {
+                    data.setValue(null);
+                }
+            }
+        });
+        return data;
+
+    }
 
 
     //加载情景景下的设备 如果是修改标记已选择设备
-    public LiveData<List<Lamp>> loadLampForScene(String sceneId) {
+    public LiveData<List<Lamp>> loadLampForScene2(String sceneId) {
         MediatorLiveData<List<Lamp>> data = new MediatorLiveData<>();
         String meshId = getMeshId();
 //        String meshId = profileObserver.getValue().meshId;
@@ -1181,6 +1255,59 @@ public class HomeRepository {
                             }
                         });
                     }
+                }
+
+            }
+        });
+        return data;
+
+    }
+
+
+    public LiveData<List<Lamp>> loadLampForScene(String sceneId) {
+        MediatorLiveData<List<Lamp>> data = new MediatorLiveData<>();
+        String meshId = getMeshId();
+        LiveData<List<Lamp>> local = lampDao.loadDevices(meshId);
+
+//        RequestBody requestBody = RequestCreator.requestLampList(meshId, 1);
+//        LiveData<ApiResponse<LampList>> apiResponseLiveData = kimService.deviceList(requestBody);
+        data.addSource(local, new Observer<List<Lamp>>() {
+            @Override
+            public void onChanged(@Nullable List<Lamp> list) {
+                data.removeSource(local);
+                if (list != null && !list.isEmpty()) {
+                    //为空 说明是添加
+                    if (TextUtils.isEmpty(sceneId)) {
+                        for (Lamp lamp : list) {
+                            lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+                        }
+                        data.setValue(list);
+                    } else {
+                        RequestBody requestBody = RequestCreator.requestSceneDevices(sceneId);
+                        LiveData<ApiResponse<GroupDevice>> devices = kimService.getDevicesBySceneId(requestBody);
+                        data.addSource(devices, new Observer<ApiResponse<GroupDevice>>() {
+                            @Override
+                            public void onChanged(@Nullable ApiResponse<GroupDevice> apiResponse) {
+                                data.removeSource(devices);
+                                if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body != null) {
+                                    List<Lamp> selectedList = apiResponse.body.getList();
+                                    //标记已选择数据
+                                    if (selectedList != null) {
+                                        for (Lamp lamp : list) {
+                                            if (selectedList.contains(lamp)) {
+                                                lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
+                                            } else {
+                                                lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+                                            }
+                                        }
+                                    }
+                                }
+                                data.setValue(list);
+                            }
+                        });
+                    }
+                } else {
+                    data.setValue(null);
                 }
 
             }
@@ -1274,14 +1401,14 @@ public class HomeRepository {
 
     public LiveData<Resource<List<Scene>>> getSceneList(int pageNo) {
         String meshId = getMeshId();
-        return new NetWorkBoundResource<SceneList,List<Scene>>(executors){
+        return new NetWorkBoundResource<SceneList, List<Scene>>(executors) {
 
             @Override
             protected void saveResult(SceneList body) {
                 List<Scene> list = body.getList();
-                if (list != null&&!list.isEmpty()) {
+                if (list != null && !list.isEmpty()) {
                     userDao.insertScene(list);
-                }else{
+                } else {
                     userDao.deleteScenes(meshId);
                 }
             }

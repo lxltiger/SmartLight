@@ -28,39 +28,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
-
-            <ImageView
-                android:id="@+id/iv_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/icon_back"
-                android:onClick="@{handler::handleClick}" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="家庭详情"
-                android:textColor="@android:color/white"
-                android:textSize="20sp" />
-
-            <ImageView
-                android:id="@+id/confirm_update"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/icon_ok"
-                android:onClick="@{handler::handleClick}" />
-        </android.support.v7.widget.Toolbar>
 
         <LinearLayout
             android:id="@+id/container"
@@ -69,7 +36,7 @@
             android:orientation="vertical"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar">
+            >
 
             <include
                 android:id="@+id/modify_mesh"

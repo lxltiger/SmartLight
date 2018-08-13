@@ -69,10 +69,12 @@ public class MoreFragment extends Fragment implements CallBack {
         homeViewModel.userInfoObserver.observe(this, new Observer<User>() {
             @Override
             public void onChanged(@Nullable User user) {
+                Log.d(TAG, "onChanged: user");
                 if (user != null) {
                     binding.get().setHomeIcon(Config.IMG_PREFIX.concat(user.getIcon()));
                     binding.get().setName(user.getAccount());
                 } else {
+                    Log.d(TAG, "onChanged: null");
                     binding.get().setHomeIcon("");
                     binding.get().setName("未设置");
                 }

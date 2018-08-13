@@ -12,10 +12,9 @@ import com.example.ledwisdom1.user.UserActivity;
 
 /**
  * 启动页
- * 通过数据库个人资料判断跳转页面
  */
 public class SplashActivity extends AppCompatActivity {
-
+    private static final String TAG = "SplashActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,4 +36,6 @@ public class SplashActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+
 }

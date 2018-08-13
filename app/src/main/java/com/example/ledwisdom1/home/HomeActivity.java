@@ -59,9 +59,7 @@ public class HomeActivity extends AppCompatActivity
     private static final String TAG = HomeActivity.class.getSimpleName();
     private Handler handler = new Handler();
     private NavigatorController navigatorController;
-
     private boolean isEmptyMesh = true;
-//    private DefaultMesh mesh;
     private HomeViewModel viewModel;
 
     @Override
@@ -81,7 +79,6 @@ public class HomeActivity extends AppCompatActivity
         viewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         Profile profile = SmartLightApp.INSTANCE().getProfile();
         isEmptyMesh = TextUtils.isEmpty(profile.meshId);
-
 //        subscribeUI(viewModel);
         try {
             MQTTClient.INSTANCE().startConnect();
@@ -319,6 +316,7 @@ public class HomeActivity extends AppCompatActivity
                 if (null == mesh) {
                     return;
                 }
+                SmartLightApp.INSTANCE().setMeshStatus(LightAdapter.STATUS_CONNECTING);
                 String meshName = mesh.name;
                 String psw =mesh.password;
                 Log.d(TAG, meshName + "--" + psw);

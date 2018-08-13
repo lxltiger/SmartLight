@@ -14,10 +14,12 @@ import com.example.ledwisdom1.mesh.MeshList;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.model.User;
 import com.example.ledwisdom1.scene.AddGroupSceneResult;
+import com.example.ledwisdom1.scene.DeviceSetting;
 import com.example.ledwisdom1.scene.GroupDevice;
 import com.example.ledwisdom1.scene.SceneList;
 import com.example.ledwisdom1.user.Profile;
 
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
@@ -165,6 +167,9 @@ public interface KimAscendService {
     @POST("user/updateUser")
     LiveData<ApiResponse<RequestResult>> updateUser(@Part MultipartBody.Part file, @QueryMap Map<String, String> map);
 
+    @POST("user/updateUser")
+    LiveData<ApiResponse<RequestResult>> updateUser( @QueryMap Map<String, String> map);
+
     @POST("user/getUserInfo")
     LiveData<ApiResponse<User>> getUserInfo();
 
@@ -194,7 +199,7 @@ public interface KimAscendService {
     LiveData<ApiResponse<GroupList>> getGroupsBySceneId(@Body RequestBody request);
 
     @POST("device/getDeviceSettingByObjectId")
-    LiveData<ApiResponse<GroupDevice>> getDeviceSettingByObjectId(@Body RequestBody request);
+    LiveData<ApiResponse<List<DeviceSetting>>> getDeviceSettingByObjectId(@Body RequestBody request);
 
     @POST("device/createDeviceSetting")
     LiveData<ApiResponse<RequestResult>> createDeviceSetting(@Body RequestBody request);

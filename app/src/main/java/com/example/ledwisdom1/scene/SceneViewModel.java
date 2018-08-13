@@ -63,8 +63,10 @@ public class SceneViewModel extends AndroidViewModel {
 
     public MutableLiveData<SceneRequest> deleteSceneRequest = new MutableLiveData<>();
 
+    //已设置的灯具
+    public MutableLiveData<String> settingLampRequest = new MutableLiveData<>();
 
-
+    public LiveData<List<DeviceSetting>> settingObserver;
     public SceneViewModel(@NonNull Application application) {
         super(application);
         repository = HomeRepository.INSTANCE(application);
@@ -75,6 +77,8 @@ public class SceneViewModel extends AndroidViewModel {
         addSceneObserver=Transformations.switchMap(addSceneRequest, repository::addScene);
         deviceSettingObserver = Transformations.switchMap(deviceSettingRequest, repository::createDeviceSetting);
         deleteSceneObserver = Transformations.switchMap(deleteSceneRequest, repository::deleteScene);
+        settingObserver = Transformations.switchMap(settingLampRequest, repository::getDeviceSetting);
+
     }
 
 

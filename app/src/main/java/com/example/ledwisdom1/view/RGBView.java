@@ -5,54 +5,39 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
-import java.util.Arrays;
 
 /**
  * Created by Administrator on 2017/2/28.
  */
-public class ColorRGBView extends View {
+public class RGBView extends View {
     private final static String TAG = "ColorRGBView";
     private Paint mPaintLine;
     private Paint mPaintCircle;
     private OnColorChangedListener mChangedListener;
-    public static int ColorText = Color.rgb(255, 0, 0);
-    private float mDegree;
-    private int startY1, radius1;
-    private int radius2 = 0;
-
+    public int ColorText = Color.rgb(255, 0, 0);
+    private int[] rgb = new int[3];
     private float mWidth2, mHeight2;
-    private int i2 = 2;
 
     // ### 内部类 ###
     public interface OnColorChangedListener {
-        void onColorChanged(int color, int degree);
+        void onColorChanged(int red, int green, int blue, float degree);
 
     }
 
-    public void setColor(int color) {
-        mDegree = (float) color;
-        Log.d(TAG, "mDegree:" + mDegree);
-//        int mDegree = color;
-        int[] rgb = getRGB(mDegree);
-        mPaintCircle.setARGB(255, rgb[0], rgb[1], rgb[2]);
-        invalidate();
-    }
 
     public void setOnColorChangedListenner(OnColorChangedListener listener) {
         mChangedListener = listener;
     }
 
-    public ColorRGBView(Context context) {
+    public RGBView(Context context) {
         this(context, null);
     }
 
-    public ColorRGBView(Context context, AttributeSet attrs) {
+    public RGBView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initPaint();
+//        initPaint();
     }
 
     /**
@@ -76,11 +61,10 @@ public class ColorRGBView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        float mWidth = getWidth();
-        float mHeight = getHeight();
-        mWidth2 = mWidth / i2;
-        mHeight2 = mHeight / i2;
+        mWidth2 = getWidth() / 2;
+        mHeight2 = getHeight() / 2;
 
+/*
         int startY1 = (int) (mWidth / 500 * 50);
         int radius1 = startY1;
         int radius2 = (int) (mWidth / 500 * 20);
@@ -97,7 +81,7 @@ public class ColorRGBView extends View {
         //画色盘上的圆
         canvas.drawCircle(mWidth2, startY1, radius2, mPaintCircle);
         //画色盘上的圆
-        canvas.drawCircle(mWidth2, startY1, radius2, mPaintLine);
+        canvas.drawCircle(mWidth2, startY1, radius2, mPaintLine);*/
 
     }
 
@@ -137,28 +121,20 @@ public class ColorRGBView extends View {
         float y = event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_MOVE:
-//                Log.e(TAG, "ColorView===x:" + x + ";y:" + y);
-//                mDegree = (float)getDegree(mWidth / 2, mHeight / 2-160,mWidth / 2, mHeight / 2,x,y);
-                int mDegree = (int) calcAngle(x, y);
-//                Log.e(TAG, "mDegree===Degree:" + mDegree);
-                int[] rgb = getRGB(mDegree);
-                Log.d(TAG, Arrays.toString(rgb));
-                mPaintCircle.setARGB(255, rgb[0], rgb[1], rgb[2]);
-                ColorText = Color.rgb(rgb[0], rgb[1], rgb[2]);
-                setColor(mDegree);
-//                postInvalidate();
-//                mChangedListener.onColorChanged(ColorText, mDegree);
+                float degree = calcAngle(x, y);
+                getRGB(degree);
+                if (mChangedListener != null) {
+                    mChangedListener.onColorChanged(rgb[0], rgb[1], rgb[2], degree);
+                }
                 break;
         }
         return true;
 
     }
 
-
-    public void setmDegree(float mDegree) {
-        this.mDegree = mDegree;
+    public int[] getRgb() {
+        return rgb;
     }
-
 
     /**
      * 以按钮圆心为坐标圆点，建立坐标系，求出(targetX, targetY)坐标与x轴的夹角
@@ -197,14 +173,40 @@ public class ColorRGBView extends View {
         return (float) (((radian * 180) / Math.PI) + 90) % 360;
     }
 
+
+    public float getDegreeByColor(int red, int green, int blue) {
+        float degree = 0f;
+        if (red == 255) {
+            if (blue == 0) {
+                degree = green * 60 / 255f;
+            } else if (green == 0) {
+                degree = (255 - blue) * 60 / 255f + 300;
+            }
+        } else if (green == 255) {
+            if (blue == 0) {
+                degree = (255 - red) * 60 / 255f + 60;
+            } else if (red == 0) {
+                degree = blue * 60 / 255f + 120;
+            }
+        } else if (blue == 255) {
+            if (red == 0) {
+                degree = (255 - green) * 60 / 255f + 180;
+            } else if (green == 0) {
+                degree = red * 60 / 255f + 240;
+            }
+        }
+
+        return degree;
+    }
+
     /**
      * 根据角度获取颜色的值
      *
      * @param degree
      * @return
      */
-    public int[] getRGB(float degree) {
-        int[] rgb = new int[3];
+
+    private void getRGB(float degree) {
         if (0 <= degree && degree <= 60) {
             rgb[0] = 255;
             rgb[1] = (int) (degree / 60 * 255);
@@ -230,7 +232,7 @@ public class ColorRGBView extends View {
             rgb[1] = 0;
             rgb[2] = 255 - (int) ((degree - 300) / 60 * 255);
         }
-        return rgb;
+//        return rgb;
     }
 
 }

@@ -21,6 +21,7 @@ import com.example.ledwisdom1.adapter.CommonItemAdapter;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.adapter.SelectedLampAdapter;
 import com.example.ledwisdom1.adapter.UnSelectedLampAdapter;
+import com.example.ledwisdom1.common.BindingAdapters;
 import com.example.ledwisdom1.databinding.FragmentGroup2Binding;
 import com.example.ledwisdom1.databinding.LayoutEditBinding;
 import com.example.ledwisdom1.databinding.LayoutGroupBinding;
@@ -32,7 +33,7 @@ import com.example.ledwisdom1.home.OnHandleLampListener;
 import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.model.CommonItem;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.common.BindingAdapters;
+import com.example.ledwisdom1.utils.KeyBoardUtils;
 import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.example.ledwisdom1.utils.ToastUtil;
 
@@ -256,6 +257,7 @@ public class GroupFragment2 extends Fragment implements CallBack, ProduceAvatarF
                 getActivity().finish();
                 break;
             case 0:
+                KeyBoardUtils.closeKeyboard(editBinding.content,getActivity());
                 binding.viewPager.setCurrentItem(1);
                 break;
         }
@@ -284,6 +286,7 @@ public class GroupFragment2 extends Fragment implements CallBack, ProduceAvatarF
                     editBinding.content.requestFocus();
                     return;
                 }
+                KeyBoardUtils.closeKeyboard(editBinding.content,getActivity());
                 groupRequest.name = name;
                 //更新UI
                 CommonItem item = itemAdapter.getItem(1);

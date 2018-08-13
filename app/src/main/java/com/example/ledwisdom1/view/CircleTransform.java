@@ -32,9 +32,9 @@ public class CircleTransform extends BitmapTransformation {
         int x = (source.getWidth() - size) / 2;
         int y = (source.getHeight() - size) / 2;
         Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
-        if (squaredBitmap != source) {
+        /*if (squaredBitmap != source) {
             source.recycle();
-        }
+        }*/
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();

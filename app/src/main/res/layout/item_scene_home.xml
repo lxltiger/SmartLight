@@ -19,26 +19,24 @@
 
 
     <android.support.constraint.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="12dp">
 
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/card"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:adjustViewBounds="true"
             android:onClick="@{()->handler.onItemClick(scene)}"
-            android:scaleType="centerCrop"
+            app:civ_border_color="#0FB1F1"
+            app:civ_border_width="2dp"
             app:imageUrl="@{scene.icon}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:type="@{ImageTransformationType.CIRCLE}"
-            tools:background="@mipmap/ic_launcher"
+            tools:background="@mipmap/ic_launcher" />
 
-            />
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"

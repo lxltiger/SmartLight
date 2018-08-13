@@ -59,7 +59,10 @@ dependencies {
     implementation deps.okhttp_logging_interceptor
 //    图片加载库
     implementation deps.glide
+//    配合OK3加载图片 解决2500ms超时问题
     implementation 'com.github.bumptech.glide:okhttp3-integration:1.5.0@aar'
+    //圆形图片控件 使用BitmapTransform 会导致Can't call reconfigure() on a recycled bitmap
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
 //    UI布局库
     implementation deps.constraint_layout
 
@@ -71,7 +74,6 @@ dependencies {
 //    二维码库
     implementation project(':zxinglib')
 //    implementation 'com.google.code.gson:gson:2.8.2'
-//    implementation 'com.github.bumptech.glide:glide:3.7.0'
     //侧滑控件
     implementation 'com.github.mcxtzhang:SwipeDelMenuLayout:V1.3.0'
     //MQTT库

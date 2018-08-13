@@ -17,9 +17,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.view.CircleTransform;
 import com.example.ledwisdom1.view.ImageTransformationType;
-import com.example.ledwisdom1.view.RoundTransform;
 
 /**
  * xml中不要出现复杂的表达式
@@ -143,22 +141,21 @@ public class BindingAdapters {
     public static void loadImageUrl(ImageView view, String url, ImageTransformationType type) {
         if (!TextUtils.isEmpty(url)) {
             Context context = view.getContext();
-            if (type == null) {
+            Glide.with(context).load(Config.IMG_PREFIX.concat(url)).listener(drawableRequestListener).into(view);
+            /*if (type == null) {
                 type = ImageTransformationType.NONE;
             }
             switch (type) {
                 case ROUND:
-//                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new RoundTransform(context, 2)).listener(drawableRequestListener).into(view);
                     Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new RoundTransform(context, 2)).crossFade(1000).into(view);
                     break;
                 case CIRCLE:
-                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new CircleTransform(context)).crossFade(1000).into(view);
+                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).transform(new CircleTransform(context)).crossFade(1000).listener(drawableRequestListener).into(view);
                     break;
                 case NONE:
                 default:
-                    Glide.with(context).load(Config.IMG_PREFIX.concat(url)).listener(drawableRequestListener).into(view);
                     break;
-            }
+            }*/
         }
     }
 
@@ -194,13 +191,14 @@ public class BindingAdapters {
     @BindingAdapter(value = {"avatar", "resId"}, requireAll = false)
     public static void loadAvatar(ImageView view, String avatar, int resId) {
         Context context = view.getContext();
-        if (!TextUtils.isEmpty(avatar)) {
-            Glide.with(context).load(avatar).transform(new CircleTransform(context)).listener(drawableRequestListener).into(view);
-        } else  {
-            Glide.with(context).load(R.drawable.pic_portrait).transform(new CircleTransform(context)).into(view);
+        //第一次收到未空，因为采用Observer模式，视图加载完还没有设置地址
+        if (avatar != null) {
+            Glide.with(context).load(avatar).error(R.drawable.pic_portrait).listener(drawableRequestListener).into(view);
         }
-
-
+       /* if (!TextUtils.isEmpty(avatar)) {
+        } else  {
+            Glide.with(context).load(R.drawable.pic_portrait).into(view);
+        }*/
     }
 
 

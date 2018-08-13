@@ -101,10 +101,16 @@ public class UserRepository {
     public LiveData<ApiResponse<RequestResult>> updateUser(UserRequest request) {
         ArrayMap<String, String> map = new ArrayMap<>();
         map.put("userName", request.userName);
-        RequestBody requestFile = RequestBody.create(RequestCreator.MEDIATYPE, request.userIcon);
-        MultipartBody.Part icon =
-                MultipartBody.Part.createFormData("userIcon", request.userIcon.getName(), requestFile);
-        return  kimService.updateUser(icon, map);
+        LiveData<ApiResponse<RequestResult>> responseLiveData;
+        if (null !=  request.userIcon) {
+            RequestBody requestFile = RequestBody.create(RequestCreator.MEDIATYPE, request.userIcon);
+            MultipartBody.Part icon =MultipartBody.Part.createFormData("userIcon", request.userIcon.getName(), requestFile);
+            responseLiveData = kimService.updateUser(icon, map);
+        } else {
+//            RequestBody requestBody = RequestCreator.createDeviceSetting(new Gson().toJson(map));
+            responseLiveData = kimService.updateUser(map);
+        }
+        return responseLiveData;
 
     }
     public LiveData<ApiResponse<RequestResult>> getAuthCode(RequestBody requestBody) {

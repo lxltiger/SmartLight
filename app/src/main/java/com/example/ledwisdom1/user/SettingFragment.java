@@ -13,7 +13,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.ledwisdom1.CallBack;
@@ -31,11 +30,12 @@ import com.example.ledwisdom1.databinding.SettingLayoutProfileBinding;
 import com.example.ledwisdom1.fragment.ProduceAvatarFragment;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.model.User;
-import com.example.ledwisdom1.utils.ToastUtil;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.ledwisdom1.utils.ToastUtil.showToast;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -171,18 +171,16 @@ public class SettingFragment extends Fragment implements CallBack, ProduceAvatar
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
-                    ToastUtil.showToast(apiResponse.body.resultMsg);
+                    showToast(apiResponse.body.resultMsg);
                     getActivity().finish();
                 }else{
-                    ToastUtil.showToast("编辑失败");
+                    showToast("设置失败");
                 }
             }
         });
     }
 
-    private void showToast(String msg) {
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
-    }
+
 
     @Override
     public void handleClick(View view) {
@@ -211,11 +209,12 @@ public class SettingFragment extends Fragment implements CallBack, ProduceAvatar
             case R.id.confirm:
                 request.userName = bindingProfile.get().getUserName();
                 if (TextUtils.isEmpty(request.userName)) {
-                    ToastUtil.showToast("用户名不能为空");
+                    showToast("用户名不能为空");
                     return;
                 }
-                if (null == request.userIcon) {
-                    ToastUtil.showToast("还没有选择头像");
+                //头像文件为空并且不是修改
+                if (null == request.userIcon&&TextUtils.isEmpty(bindingProfile.get().getAvatar())) {
+                    showToast("还没有选择头像");
                     return;
                 }
                 viewModel.userRequest.setValue(request);

@@ -9,13 +9,16 @@ import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.ledwisdom1.CallBack;
@@ -27,6 +30,7 @@ import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.adapter.SelectedLampAdapter;
 import com.example.ledwisdom1.adapter.UnSelectedLampAdapter;
 import com.example.ledwisdom1.api.ApiResponse;
+import com.example.ledwisdom1.common.BindingAdapters;
 import com.example.ledwisdom1.databinding.FragmentSceneBinding;
 import com.example.ledwisdom1.databinding.LayoutDeviceSettingBinding;
 import com.example.ledwisdom1.databinding.LayoutEditBinding;
@@ -43,9 +47,10 @@ import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.model.CommonItem;
 import com.example.ledwisdom1.model.RequestResult;
-import com.example.ledwisdom1.common.BindingAdapters;
+import com.example.ledwisdom1.utils.KeyBoardUtils;
 import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.example.ledwisdom1.utils.ToastUtil;
+import com.example.ledwisdom1.view.RGBView;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -82,6 +87,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
     private LayoutGroupToSettingBinding groupToSettingBinding;
     private LayoutDeviceSettingBinding deviceSettingBinding;
     private LampForSceneAdapter lampForSceneAdapter;
+    private VectorDrawableCompat vectorDrawableCompat;
 
     public static SceneFragment newInstance(Scene scene) {
         Bundle args = new Bundle();
@@ -94,6 +100,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        vectorDrawableCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_arrow_drop_down_black_24dp, getActivity().getTheme());
         Scene scene = getArguments().getParcelable("scene");
         if (scene != null && !TextUtils.isEmpty(scene.getId())) {
             sceneRequest.isAdd = false;
@@ -146,6 +153,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         groupToSettingBinding.setHandler(this);
         //要设置的灯具
         LayoutLampToSettingBinding lampToSettingBinding = DataBindingUtil.inflate(inflater, R.layout.layout_lamp_to_setting, container, false);
+
         lampForSceneAdapter = new LampForSceneAdapter(handleLampSettingListener);
         lampToSettingBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         lampToSettingBinding.recyclerView.setAdapter(lampForSceneAdapter);
@@ -153,6 +161,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         lampToSettingBinding.setHandler(this);
 //        设置页面
         deviceSettingBinding = DataBindingUtil.inflate(inflater, R.layout.layout_device_setting, container, false);
+        deviceSettingBinding.ivRgb.setOnColorChangedListenner(listener);
         deviceSettingBinding.setHandler(this);
 
 
@@ -217,6 +226,21 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         @Override
         public void onItemClick(Lamp lamp) {
             deviceSettingBinding.setLamp(lamp);
+            float degreeByColor=0;
+            int color = lamp.getColor();
+            // 不为0说明已设置过 需要根据颜色获取旋转角度
+            if (color!= 0) {
+                degreeByColor = deviceSettingBinding.ivRgb.getDegreeByColor(Color.red(color), Color.green(color),Color.blue(color));
+            }else{
+//                默认旋转角度为0 为红色
+                color = Color.rgb(255, 0, 0);
+            }
+            deviceSettingBinding.view.setRotation(degreeByColor);
+//            更新指示器颜色
+            tintIndicator(deviceSettingBinding.indicator, color);
+//            deviceSettingBinding.sbBrightness.setProgress(lamp.getBrightness());
+            deviceSettingBinding.setProgress(lamp.getBrightness());
+
             binding.viewPager.setCurrentItem(7);
         }
 
@@ -230,6 +254,28 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
 
         }
     };
+
+
+    private RGBView.OnColorChangedListener listener = new RGBView.OnColorChangedListener() {
+        @Override
+        public void onColorChanged(int red, int green, int blue, float degree) {
+            deviceSettingBinding.view.setRotation(degree);
+            tintIndicator(deviceSettingBinding.indicator, Color.rgb(red, green, blue));
+//            float degreeByColor = binding.ivRgb.getDegreeByColor(red, green, blue);
+//            Log.d(TAG, "degreeByColor:" + degreeByColor);
+        }
+
+    };
+
+    //当旋转的时候 渲染指示器表明当前选择的颜色
+    private void tintIndicator(ImageView view, int color) {
+        if (vectorDrawableCompat != null) {
+            vectorDrawableCompat.setTint(color);
+            view.setImageDrawable(vectorDrawableCompat);
+        }
+
+    }
+
 
     private void updateSelectDeviceNum() {
         //已选设备数量
@@ -282,6 +328,10 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         subscribeUI(viewModel);
         //获取灯具 如果是修改，sceneId不为空 在全部灯具中会将已选的灯具会被标记为selected
         viewModel.lampListRequest.setValue(sceneRequest.sceneId);
+        if (!TextUtils.isEmpty(sceneRequest.sceneId)) {
+            Log.d(TAG, "onActivityCreated: ");
+            viewModel.settingLampRequest.setValue(sceneRequest.sceneId);
+        }
     }
 
 
@@ -365,7 +415,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                     if (sceneRequest.isGroupSetting) {
                         binding.viewPager.setCurrentItem(5);
                         groupToSettingBinding.setIsSetting(true);
-                    }else{
+                    } else {
                         binding.viewPager.setCurrentItem(6);
                         Lamp lamp = deviceSettingBinding.getLamp();
                         lamp.isSetting = true;
@@ -377,12 +427,37 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             }
         });
 
+        viewModel.settingObserver.observe(this, new Observer<List<DeviceSetting>>() {
+            @Override
+            public void onChanged(@Nullable List<DeviceSetting> deviceSettings) {
+                if (deviceSettings != null/*&&deviceSettings.isSuccessful()*/) {
+                    Log.d(TAG, "body.size():" + deviceSettings.size());
+                }
+            }
+        });
+
         viewModel.updateSceneObserver.observe(this, new Observer<SceneRequest>() {
             @Override
             public void onChanged(@Nullable SceneRequest groupRequest) {
                 binding.setIsLoading(false);
                 if (groupRequest != null) {
                     List<Lamp> lamps = selectedLampAdapter.getmLampList();
+                    //获取已设置的灯具
+                    List<DeviceSetting> deviceSettings = viewModel.settingObserver.getValue();
+                    Gson gson=new Gson();
+                    if (deviceSettings != null && !deviceSettings.isEmpty()) {
+                        for (Lamp lamp : lamps) {
+                            for (DeviceSetting deviceSetting : deviceSettings) {
+                                if (deviceSetting.getSonId().equals(lamp.getId())) {
+                                    DeviceSetting.Setting setting = gson.fromJson(deviceSetting.getSetting(),DeviceSetting.Setting.class);
+                                    lamp.isSetting = true;
+                                    lamp.setBrightness(setting.getLight());
+                                    lamp.setColor(Color.rgb(setting.getRed(), setting.getGreen(), setting.getBlue()));
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     lampForSceneAdapter.addLamps(lamps);
                     binding.viewPager.setCurrentItem(6);
                 } else {
@@ -410,8 +485,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                 break;
             case R.id.delete:
                 viewModel.deleteSceneRequest.setValue(sceneRequest);
-
-//                viewModel.deleteScene(sceneRequest);
                 break;
             case R.id.rl_group:
                 binding.viewPager.setCurrentItem(7);
@@ -426,13 +499,12 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             case 7:
                 if (sceneRequest.isGroupSetting) {
                     binding.viewPager.setCurrentItem(5);
-                }else{
+                } else {
                     binding.viewPager.setCurrentItem(6);
                 }
                 break;
             case 5:
             case 6:
-//                binding.viewPager.setCurrentItem(4);
                 getActivity().onBackPressed();
                 break;
             case 4:
@@ -447,6 +519,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                 getActivity().onBackPressed();
                 break;
             case 1:
+                KeyBoardUtils.closeKeyboard(editBinding.content, getActivity());
                 binding.viewPager.setCurrentItem(2);
                 break;
             case 0:
@@ -489,6 +562,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                     editBinding.content.requestFocus();
                     return;
                 }
+                KeyBoardUtils.closeKeyboard(editBinding.content, getActivity());
                 sceneRequest.name = name;
                 //更新UI
                 CommonItem item = itemAdapter.getItem(1);
@@ -508,10 +582,10 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
     private void handleLightSetting() {
         ArrayMap<String, Integer> map = new ArrayMap<>();
         int progress = deviceSettingBinding.sbBrightness.getProgress();
-        int colorText = deviceSettingBinding.ivRgb.ColorText;
-        int blue = Color.blue(colorText);
-        int red = Color.red(colorText);
-        int green = Color.green(colorText);
+        int[] rgb = deviceSettingBinding.ivRgb.getRgb();
+        int blue = rgb[0];
+        int red = rgb[1];
+        int green = rgb[2];
         map.put("light", progress);
         map.put("red", red);
         map.put("green", green);
@@ -527,7 +601,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             Lamp lamp = deviceSettingBinding.getLamp();
             map2.put("sonId", lamp.getId());
             //添加到情景
-            LightCommandUtils.addDeviceToScene(sceneRequest.sceneAddress, lamp.getDevice_id(), progress,red,green,blue);
+            LightCommandUtils.addDeviceToScene(sceneRequest.sceneAddress, lamp.getDevice_id(), progress, red, green, blue);
         }
         String request = gson.toJson(map2);
         binding.setIsLoading(true);
