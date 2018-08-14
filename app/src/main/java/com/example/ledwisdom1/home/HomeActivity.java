@@ -55,7 +55,7 @@ import static com.example.ledwisdom1.utils.ToastUtil.showToast;
  * 主页含4个UI
  */
 public class HomeActivity extends AppCompatActivity
-        implements RadioGroup.OnCheckedChangeListener, EventListener<String> {
+        implements /*RadioGroup.OnCheckedChangeListener,*/ EventListener<String> {
     private static final String TAG = HomeActivity.class.getSimpleName();
     private Handler handler = new Handler();
     private NavigatorController navigatorController;
@@ -66,12 +66,11 @@ public class HomeActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
-        Log.d(TAG, "onCreate: ");
         addBlueToothStatusReceiver();
         addEventListener();
         //底部选项按钮
         RadioGroup rgMainRadioGroup = (RadioGroup) findViewById(R.id.rg_main_group);
-        rgMainRadioGroup.setOnCheckedChangeListener(this);
+        rgMainRadioGroup.setOnCheckedChangeListener(this::onCheckedChanged);
         navigatorController = new NavigatorController(this, R.id.fl_main_container);
         if (savedInstanceState == null) {
             navigatorController.navigateToHome();
@@ -79,7 +78,7 @@ public class HomeActivity extends AppCompatActivity
         viewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         Profile profile = SmartLightApp.INSTANCE().getProfile();
         isEmptyMesh = TextUtils.isEmpty(profile.meshId);
-//        subscribeUI(viewModel);
+        subscribeUI(viewModel);
         try {
             MQTTClient.INSTANCE().startConnect();
         } catch (IOException e) {
@@ -90,28 +89,6 @@ public class HomeActivity extends AppCompatActivity
 
 
     private void subscribeUI(HomeViewModel viewModel) {
-        /*viewModel.profile.observe(this, new Observer<Profile>() {
-            @Override
-            public void onChanged(@Nullable Profile profile) {
-                if (profile != null) {
-                    isEmptyMesh = TextUtils.isEmpty(profile.meshId);
-                }
-            }
-        });*/
-
-       /* viewModel.defaultMeshObserver.observe(this, defaultMesh -> {
-            if (defaultMesh != null) {
-                Log.d(TAG, "mesh " + defaultMesh.toString());
-                mesh = defaultMesh;
-                if (!TextUtils.isEmpty(defaultMesh.id)) {
-                    //情景景列表
-                    viewModel.sceneListRequest.setValue(1);
-                }
-                TelinkLightService.Instance().idleMode(true);
-                autoConnect();
-            }
-        });*/
-
 
         viewModel.shareMeshObserver.observe(this, new Observer<Resource<Boolean>>() {
             @Override
@@ -131,7 +108,6 @@ public class HomeActivity extends AppCompatActivity
                 }
             }
         });
-
 
     }
 
@@ -240,7 +216,7 @@ public class HomeActivity extends AppCompatActivity
         smartLightApp.removeEventListener(this);
     }
 
-    @Override
+//    @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
         if (isEmptyMesh) {
             ToastUtil.showToast("请先添加一个家");
@@ -351,20 +327,16 @@ public class HomeActivity extends AppCompatActivity
                 ToastUtil.showToast("连接成功");
                 //        获取灯具时间
                 SmartLightApp.INSTANCE().setMeshStatus(LightAdapter.STATUS_LOGIN);
-//                viewModel.setMeshStatus(LightAdapter.STATUS_LOGIN);
-                handler.removeCallbacksAndMessages(null);
-                handler.postDelayed(LightCommandUtils::getLampTime, 3 * 1000);
-//                handler.postDelayed(() -> TelinkLightService.Instance().sendCommandNoResponse((byte) 0xE4, 0xFFFF, new byte[]{}), 3 * 1000);
+               /* handler.removeCallbacksAndMessages(null);
+                handler.postDelayed(LightCommandUtils::getLampTime, 3 * 1000);*/
                 break;
             case LightAdapter.STATUS_CONNECTING:
                 SmartLightApp.INSTANCE().setMeshStatus(LightAdapter.STATUS_CONNECTING);
-//                viewModel.setMeshStatus(LightAdapter.STATUS_CONNECTING);
 //                Toast.makeText(this, "正在连接 " + meshName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "connecting");
                 break;
             case LightAdapter.STATUS_LOGOUT:
                 SmartLightApp.INSTANCE().setMeshStatus(LightAdapter.STATUS_LOGOUT);
-//                viewModel.setMeshStatus(LightAdapter.STATUS_LOGOUT);
 //                Toast.makeText(this, "失去连接 " + meshName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "disconnect");
                 break;

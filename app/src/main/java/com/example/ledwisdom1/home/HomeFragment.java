@@ -28,19 +28,13 @@ import com.example.ledwisdom1.databinding.FragmentHomeBinding;
 import com.example.ledwisdom1.databinding.HomeLayoutDetailBinding;
 import com.example.ledwisdom1.databinding.HomeLayoutEmptyBinding;
 import com.example.ledwisdom1.databinding.HomePopMoreBinding;
-import com.example.ledwisdom1.device.entity.LampCmd;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.mesh.HomeAdapter;
 import com.example.ledwisdom1.mesh.MeshActivity2;
-import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.scene.OnHandleSceneListener;
 import com.example.ledwisdom1.scene.Scene;
-import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.user.Profile;
 import com.example.ledwisdom1.utils.LightCommandUtils;
-import com.example.ledwisdom1.utils.ToastUtil;
-import com.google.gson.Gson;
-import com.telink.bluetooth.light.LightAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +83,6 @@ public class HomeFragment extends Fragment {
         homeBinding.viewPager.setAdapter(pagerAdapter);
 
         layoutDetailBinding.recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-//        layoutDetailBinding.recyclerView.addItemDecoration(new InsetDecoration(getActivity()));
         HomeAdapter adapter = new HomeAdapter();
         layoutDetailBinding.recyclerView.setAdapter(adapter);
 
@@ -162,9 +155,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-
-
-
     }
 
 
@@ -216,88 +206,10 @@ public class HomeFragment extends Fragment {
             break;
             case R.id.open_all:
                 LightCommandUtils.toggleLamp(0xffff, true);
-//                handleCommand(true);
                 break;
             case R.id.close_all:
                 LightCommandUtils.toggleLamp(0xffff, false);
-//                handleCommand(false);
                 break;
-        }
-    }
-
-    private void handleCommand(boolean status) {
-        if (handleMeshStatus()) {
-            LightCommandUtils.toggleLamp(0xffff, status);
-        }
-        /*Integer value = viewModel.meshStatus().getValue();
-        if (value != null) {
-            switch (value) {
-                case LightAdapter.STATUS_LOGIN:
-                    LightCommandUtils.toggleLamp(0xffff, status);
-                    break;
-                case LightAdapter.STATUS_LOGOUT:
-                    ToastUtil.showToast("失去连接");
-                    break;
-                case LightAdapter.STATUS_CONNECTING:
-                    ToastUtil.showToast("正在连接");
-                    break;
-                case -1:
-                    ToastUtil.showToast("蓝牙网络离线");
-                    break;
-                case -2:
-                    ToastUtil.showToast("蓝牙出了问题 重启试试");
-                    break;
-            }
-        }*/
-    }
-
-    private boolean handleMeshStatus() {
-//        Integer value = viewModel.meshStatus().getValue();
-        int value = SmartLightApp.INSTANCE().getMeshStatus();
-        switch (value) {
-            case LightAdapter.STATUS_LOGIN:
-                return true;
-            case LightAdapter.STATUS_LOGOUT:
-                ToastUtil.showToast("失去连接");
-                return false;
-            case LightAdapter.STATUS_CONNECTING:
-                ToastUtil.showToast("正在连接");
-                return false;
-            case -1:
-                ToastUtil.showToast("蓝牙网络离线");
-                return false;
-            case -2:
-                ToastUtil.showToast("蓝牙出了问题 重启试试");
-                return false;
-        }
-
-        return false;
-
-    }
-
-    /**
-     * 切换灯具的开关
-     *
-     * @param open
-     */
-    public void toggle(boolean open) {
-        LightCommandUtils.toggleLamp(0xffff, true);
-        byte opcode = (byte) 0xD0;
-        int address = 0xFFFF;
-        byte[] params;
-        if (open) {
-            params = new byte[]{0x01, 0x00, 0x00};
-
-        } else {
-            params = new byte[]{0x00, 0x00, 0x00};
-        }
-        boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
-        if (blueTooth) {
-            TelinkLightService.Instance().sendCommandNoResponse(opcode, address, params);
-        } else {
-            LampCmd lampCmd = new LampCmd(5, 255, 1, "0", open ? 100 : 0);
-            String message = new Gson().toJson(lampCmd);
-            MQTTClient.INSTANCE().publishLampControlMessage("1102F483CD9E6123", message);
         }
     }
 

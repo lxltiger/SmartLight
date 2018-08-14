@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    tools:parentTag="android.widget.RelativeLayout">
+
+    <RadioGroup
+        android:id="@+id/rg_main_group"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bg_title"
+        android:orientation="horizontal">
+
+        <android.support.constraint.Placeholder
+            android:id="@+id/holder1"
+            style="@style/main_radioButton"
+            app:content="@+id/rb_home" />
+
+        <android.support.constraint.Placeholder
+            android:id="@+id/holder2"
+            style="@style/main_radioButton"
+            app:content="@+id/rb_device" />
+
+        <android.support.constraint.Placeholder
+            android:id="@+id/holder3"
+            style="@style/main_radioButton"
+            app:content="@+id/rb_scene" />
+
+        <android.support.constraint.Placeholder
+            android:id="@+id/holder4"
+            style="@style/main_radioButton"
+            app:content="@+id/rb_more" />
+
+    </RadioGroup>
+
+</merge>

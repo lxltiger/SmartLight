@@ -7,10 +7,6 @@
 
         <import type="com.example.ledwisdom1.api.Status" />
 
-        <variable
-            name="handler"
-            type="com.example.ledwisdom1.CallBack" />
-
 
         <variable
             name="resource"
@@ -21,42 +17,10 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <android.support.v7.widget.Toolbar
+        <include
             android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
-
-            <TextView
-                android:id="@+id/temp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:onClick="@{handler::handleClick}"
-                android:text="设备"
-                android:textColor="@android:color/white"
-                android:textSize="20sp" />
-
-            <ImageView
-                android:id="@+id/iv_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/btn_add"
-                android:onClick="@{handler::handleClick}" />
-
-            <ImageView
-                android:id="@+id/iv_search"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/btn_seach"
-                android:onClick="@{handler::handleClick}" />
-        </android.support.v7.widget.Toolbar>
+            layout="@layout/layout_title_bar"
+            app:title="@{@string/title_main_device}"/>
 
         <RadioGroup
             android:id="@+id/device"

@@ -16,4 +16,9 @@ public interface Config {
     int LAMP_TYPE = 256;
     int SOCKET_TYPE = 259;
     int PANEL_TYPE = 258;
+
+    //闹钟页面的三种类型
+    int CLOCK_OPEN = 1;
+    int CLOCK_CLOSE = 2;
+    int CLOCK_RGB = 3;
 }

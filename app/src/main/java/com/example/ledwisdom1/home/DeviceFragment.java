@@ -15,24 +15,24 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
-import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.api.Status;
 import com.example.ledwisdom1.app.SmartLightApp;
+import com.example.ledwisdom1.common.AutoClearValue;
 import com.example.ledwisdom1.databinding.FragmentDeviceBinding;
 import com.example.ledwisdom1.databinding.ViewRecycleBinding;
 import com.example.ledwisdom1.device.DeviceActivity;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.entity.Hub;
 import com.example.ledwisdom1.home.entity.HubList;
-import com.example.ledwisdom1.common.AutoClearValue;
 import com.example.ledwisdom1.mesh.DefaultMesh;
 import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.example.ledwisdom1.utils.ToastUtil;
@@ -55,7 +55,7 @@ import java.util.List;
  * 设备页面 包含灯具 网关 面板灯
  */
 
-public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChangeListener, CallBack {
+public class DeviceFragment extends Fragment /*implements RadioGroup.OnCheckedChangeListener,CallBack */ {
     public static final String TAG = DeviceFragment.class.getSimpleName();
 
     private AutoClearValue<FragmentDeviceBinding> binding;
@@ -82,8 +82,9 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         FragmentDeviceBinding fragmentDeviceBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_device, container, false);
-        fragmentDeviceBinding.device.setOnCheckedChangeListener(this);
-        fragmentDeviceBinding.setHandler(this);
+        fragmentDeviceBinding.toolbar.toolbar.inflateMenu(R.menu.fragment_device);
+        fragmentDeviceBinding.toolbar.toolbar.setOnMenuItemClickListener(this::onMenuItemClick);
+        fragmentDeviceBinding.device.setOnCheckedChangeListener(this::onCheckedChanged);
 
         ViewRecycleBinding viewHubBinding = DataBindingUtil.inflate(inflater, R.layout.view_recycle, container, false);
         ViewRecycleBinding viewLampBinding = DataBindingUtil.inflate(inflater, R.layout.view_recycle, container, false);
@@ -301,7 +302,7 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
 
     }
 
-    @Override
+//    @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
         switch (checkedId) {
             case R.id.device_hub:
@@ -369,29 +370,32 @@ public class DeviceFragment extends Fragment implements RadioGroup.OnCheckedChan
 
     boolean toggle = true;
 
-    @Override
-    public void handleClick(View view) {
-        switch (view.getId()) {
-            case R.id.iv_add:
+
+
+    private void temp() {
+        if (toggle) {
+            LightCommandUtils.addAlarm();
+        } else {
+            LightCommandUtils.getAlarm();
+        }
+        toggle = !toggle;
+    }
+
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_add:
                 Intent intent = new Intent(getActivity(), DeviceActivity.class);
                 intent.putExtra("action", DeviceActivity.ACTION_ADD_DEVICE);
                 //添加类型
                 intent.putExtra("type", binding.get().viewPager.getCurrentItem());
                 //如果添加成功会设置成功信号
                 startActivityForResult(intent, 1);
-                break;
-            case R.id.temp:
-                if (toggle) {
-                    LightCommandUtils.addAlarm();
-                } else {
-                    LightCommandUtils.getAlarm();
-                }
-                toggle = !toggle;
-                break;
-            case R.id.iv_search:
-                ToastUtil.showToast("暂未实现");
-                break;
+                return true;
+                case R.id.action_search:
+                    ToastUtil.showToast("暂未实现");
+                    return true;
         }
+        return false;
     }
 
     //    接到成功信息 更新灯具列表

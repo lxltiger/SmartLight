@@ -5,7 +5,7 @@ public class ClockRequest {
     public String name;
     public String clockId;
     public String meshId;
-    public String type;
+    public int type;
     public String time;
     public String repeat;
     public String cycle;

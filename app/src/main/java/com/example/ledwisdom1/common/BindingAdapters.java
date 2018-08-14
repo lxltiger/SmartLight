@@ -137,6 +137,22 @@ public class BindingAdapters {
         }
     }
 
+    @BindingAdapter("clockIcon")
+    public static void setClockIcon(ImageView view, int type) {
+        switch (type) {
+            case Config.CLOCK_OPEN:
+                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.select_open));
+                break;
+            case Config.CLOCK_CLOSE:
+                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.select_close));
+                break;
+            case Config.CLOCK_RGB:
+                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.rgb_select_open));
+                break;
+
+        }
+    }
+
     @BindingAdapter(value = {"imageUrl", "type"}, requireAll = false)
     public static void loadImageUrl(ImageView view, String url, ImageTransformationType type) {
         if (!TextUtils.isEmpty(url)) {
@@ -210,6 +226,7 @@ public class BindingAdapters {
     }
 
 
+    //首页蓝牙和WIFI切换使用
     @BindingAdapter("customGravity")
     public static void setCheckBoxGravity(CheckBox view, boolean isChecked) {
         view.setGravity(isChecked ? Gravity.START | Gravity.CENTER_VERTICAL : Gravity.END | Gravity.CENTER_VERTICAL);

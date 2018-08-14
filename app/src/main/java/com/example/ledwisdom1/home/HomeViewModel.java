@@ -87,9 +87,7 @@ public class HomeViewModel extends AndroidViewModel {
         super(application);
         repository = HomeRepository.INSTANCE(application);
 
-        shareMeshObserver = Transformations.switchMap(shareMeshRequest, input -> {
-            return repository.shareMesh(input);
-        });
+        shareMeshObserver = Transformations.switchMap(shareMeshRequest, repository::shareMesh);
 
 //        lampListObserver = Transformations.switchMap(lampListRequest, input -> repository.getDeviceList(input));
 //        socketListObserver = Transformations.switchMap(socketListRequest, input -> repository.getDeviceList(input));

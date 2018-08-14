@@ -372,7 +372,7 @@ public class HomeRepository {
         MediatorLiveData<ClockResult> clockResult = new MediatorLiveData<>();
         Map<String, String> map = new ArrayMap<>();
         map.put("name", clockRequest.name);
-        map.put("type", clockRequest.type);
+        map.put("type", String.valueOf(clockRequest.type));
         map.put("meshId", getMeshId());
         map.put("cycle", clockRequest.cycle);
 //        RequestBody requestBody = RequestCreator.requestClock(clockRequest);
@@ -416,7 +416,7 @@ public class HomeRepository {
         Map<String, String> map = new ArrayMap<>();
         map.put("clockId", clockRequest.clockId);
         map.put("name", clockRequest.name);
-        map.put("type", clockRequest.type);
+        map.put("type", String.valueOf(clockRequest.type));
         map.put("meshId", getMeshId());
         map.put("cycle", clockRequest.cycle);
         LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.updateClock(map);
@@ -449,7 +449,7 @@ public class HomeRepository {
         Map<String, String> map = new ArrayMap<>();
         map.put("clockId", clockRequest.clockId);
         map.put("name", clockRequest.name);
-        map.put("type", clockRequest.type);
+        map.put("type", String.valueOf(clockRequest.type));
         map.put("meshId", getMeshId());
         map.put("cycle", clockRequest.cycle);
         LiveData<ApiResponse<RequestResult>> responseLiveData = kimService.updateClock(map);
@@ -929,15 +929,18 @@ public class HomeRepository {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 result.removeSource(response);
-                if (apiResponse.isSuccessful() && apiResponse.body.succeed()) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(input);
-                        String meshId = jsonObject.optString("meshId", "");
-                        loadDefaultMesh(result, meshId);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        result.setValue(Resource.error(false, "获取meshId失败"));
-
+                if (apiResponse.isSuccessful() ) {
+                    if (apiResponse.body.succeed()) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(input);
+                            String meshId = jsonObject.optString("meshId", "");
+                            loadDefaultMesh(result, meshId);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            result.setValue(Resource.error(false, "获取meshId失败"));
+                        }
+                    }else{
+                        result.setValue(Resource.error(false, apiResponse.body.resultMsg));
                     }
 
                 } else {

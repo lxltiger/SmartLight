@@ -16,6 +16,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.ledwisdom1.CallBack;
+import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.adapter.SelectedLampAdapter;
@@ -80,7 +81,7 @@ public class ClockFragment extends Fragment implements TimePickerFragment.Listen
         LayoutClockBinding clockBinding = DataBindingUtil.inflate(inflater, R.layout.layout_clock, container, false);
         clockBinding.setHandler(this);
         clockBinding.setTitle(clockRequest.isAdd ? "新建闹钟" : "修改闹钟");
-        clockBinding.setType(null != clock ? clock.getType() : 1);
+        clockBinding.setType(null != clock ? clock.getType() : Config.CLOCK_OPEN);
 //        handleClockType(clockBinding);
 
         LayoutLampSelectedBinding lampSelectedBinding = DataBindingUtil.inflate(inflater, R.layout.layout_lamp_selected, container, false);
@@ -294,15 +295,15 @@ public class ClockFragment extends Fragment implements TimePickerFragment.Listen
         switch (checkedId) {
             case R.id.rb_open:
                 clockRequest.name = "openClock";
-                clockRequest.type = "1";
+                clockRequest.type = Config.CLOCK_OPEN;
                 break;
             case R.id.rb_close:
                 clockRequest.name = "closeClock";
-                clockRequest.type = "2";
+                clockRequest.type = Config.CLOCK_CLOSE;
                 break;
             case R.id.rb_rgb:
                 clockRequest.name = "rgbClock";
-                clockRequest.type = "3";
+                clockRequest.type = Config.CLOCK_RGB;
                 break;
         }
     }
