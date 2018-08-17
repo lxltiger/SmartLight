@@ -66,7 +66,7 @@ public class DeviceSetting {
         private int red;
         private int blue;
         private int green;
-        private int light;
+        private float light;
 
 
         public int getRed() {
@@ -93,7 +93,7 @@ public class DeviceSetting {
             this.green = green;
         }
 
-        public int getLight() {
+        public float getLight() {
             return light;
         }
 

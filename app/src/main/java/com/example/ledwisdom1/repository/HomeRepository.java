@@ -205,7 +205,8 @@ public class HomeRepository {
 //                                将请求的参数返回 其包含所需要的参数
                                 addGroupResult.setValue(addDeviceResult);
                             } else {
-                                addGroupResult.setValue(null);
+                                addDeviceResult.resultMsg = "场景创建成功，设备添加失败";
+                                addGroupResult.setValue(addDeviceResult);
                             }
                         }
                     });
@@ -321,19 +322,19 @@ public class HomeRepository {
         });
     }
 
-    public  LiveData<List<DeviceSetting>> getDeviceSetting(String sceneId) {
+    public LiveData<List<DeviceSetting>> getDeviceSetting(String sceneId) {
         Log.d(TAG, "getDeviceSetting: ");
-        MediatorLiveData<List<DeviceSetting>> result=new MediatorLiveData<>();
+        MediatorLiveData<List<DeviceSetting>> result = new MediatorLiveData<>();
         RequestBody requestBody = RequestCreator.requestDeviceSetting(sceneId);
         LiveData<ApiResponse<List<DeviceSetting>>> apiResponseLiveData = kimService.getDeviceSettingByObjectId(requestBody);
         result.addSource(apiResponseLiveData, new Observer<ApiResponse<List<DeviceSetting>>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<List<DeviceSetting>> listApiResponse) {
                 result.removeSource(apiResponseLiveData);
-                if (listApiResponse!=null && listApiResponse.body != null) {
+                if (listApiResponse != null && listApiResponse.body != null) {
                     Log.d(TAG, "onChanged:getDeviceSetting ");
                     result.setValue(listApiResponse.body);
-                }else {
+                } else {
                     result.setValue(null);
                 }
             }
@@ -343,7 +344,7 @@ public class HomeRepository {
     }
 
 
-    public  LiveData<ApiResponse<List<DeviceSetting>>> getDeviceSetting2(String sceneId) {
+    public LiveData<ApiResponse<List<DeviceSetting>>> getDeviceSetting2(String sceneId) {
         Log.d(TAG, "getDeviceSetting: ");
 //        MediatorLiveData<List<DeviceSetting>> result=new MediatorLiveData<>();
         RequestBody requestBody = RequestCreator.requestDeviceSetting(sceneId);
@@ -929,7 +930,7 @@ public class HomeRepository {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 result.removeSource(response);
-                if (apiResponse.isSuccessful() ) {
+                if (apiResponse.isSuccessful()) {
                     if (apiResponse.body.succeed()) {
                         try {
                             JSONObject jsonObject = new JSONObject(input);
@@ -939,7 +940,7 @@ public class HomeRepository {
                             e.printStackTrace();
                             result.setValue(Resource.error(false, "获取meshId失败"));
                         }
-                    }else{
+                    } else {
                         result.setValue(Resource.error(false, apiResponse.body.resultMsg));
                     }
 
@@ -1160,54 +1161,93 @@ public class HomeRepository {
 
     }
 
+
+    /**
+     * 先从本地加载数据 如果为空则从网络加载，成功存入本地并继续执行操作A，失败返回null，如果本地不为空直接执行操作A
+     * <p>
+     * 操作A：
+     *
+     * @param groupId
+     * @return
+     */
     public LiveData<List<Lamp>> loadLampForGroup(String groupId) {
         MediatorLiveData<List<Lamp>> data = new MediatorLiveData<>();
         String meshId = getMeshId();
         LiveData<List<Lamp>> local = lampDao.loadDevices(meshId);
-//        RequestBody requestBody = RequestCreator.requestLampList(meshId, 1);
-//        LiveData<ApiResponse<LampList>> apiResponseLiveData = kimService.deviceList(requestBody);
         data.addSource(local, new Observer<List<Lamp>>() {
             @Override
             public void onChanged(@Nullable List<Lamp> list) {
                 data.removeSource(local);
-                if (list != null && !list.isEmpty()) {
-                    //为空 说明是添加
-                    if (TextUtils.isEmpty(groupId)) {
-                        for (Lamp lamp : list) {
-                            lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
-                        }
-                        data.setValue(list);
-                    } else {
-                        RequestBody requestBody = RequestCreator.requestGroupDevices(groupId);
-                        LiveData<ApiResponse<GroupDevice>> devices = kimService.getDevicesByGroupId(requestBody);
-                        data.addSource(devices, new Observer<ApiResponse<GroupDevice>>() {
-                            @Override
-                            public void onChanged(@Nullable ApiResponse<GroupDevice> apiResponse) {
-                                data.removeSource(devices);
-                                if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body != null) {
-                                    List<Lamp> selectedList = apiResponse.body.getList();
-                                    //标记已选择数据
-                                    if (selectedList != null) {
-                                        for (Lamp lamp : list) {
-                                            if (selectedList.contains(lamp)) {
-                                                lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
-                                            } else {
-                                                lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
-                                            }
-                                        }
+                if (list == null || list.isEmpty()) {
+                    Log.d(TAG, "local is empty");
+                    RequestBody requestBody = RequestCreator.requestDeviceList(meshId, 1);
+                    LiveData<ApiResponse<LampList>> apiResponseLiveData = kimService.deviceList(requestBody);
+                    data.addSource(apiResponseLiveData, new Observer<ApiResponse<LampList>>() {
+                        @Override
+                        public void onChanged(@Nullable ApiResponse<LampList> apiResponse) {
+                            if (apiResponse.isSuccessful() && apiResponse.body != null && apiResponse.body.getList() != null && !apiResponse.body.getList().isEmpty()) {
+                                executors.diskIO().execute(() -> {
+                                    List<Lamp> lamps = apiResponse.body.getList();
+                                    for (Lamp lamp : lamps) {
+                                        lamp.setMeshId(meshId);
                                     }
-                                }
-                                data.setValue(list);
+                                    lampDao.insertDevices(lamps);
+                                    executors.mainThread().execute(() -> {
+                                        LiveData<List<Lamp>> db = lampDao.loadDevices(meshId);
+                                        data.addSource(db, devices -> {
+                                            data.removeSource(local);
+                                            loadGroupDevice(data, devices, groupId);
+                                        });
+                                    });
+                                });
+                            } else {
+                                Log.d(TAG, "remote is empty");
+                                data.setValue(null);
                             }
-                        });
-                    }
+                        }
+                    });
+
                 } else {
-                    data.setValue(null);
+                    loadGroupDevice(data, list, groupId);
                 }
+
             }
         });
         return data;
 
+    }
+
+    //当Groupid不为空 说明是修改，加载场景已选的设备
+    private void loadGroupDevice(MediatorLiveData<List<Lamp>> data, List<Lamp> list, String groupId) {
+        if (TextUtils.isEmpty(groupId)) {
+            for (Lamp lamp : list) {
+                lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+            }
+            data.setValue(list);
+        } else {
+            RequestBody requestBody = RequestCreator.requestGroupDevices(groupId);
+            LiveData<ApiResponse<GroupDevice>> devices = kimService.getDevicesByGroupId(requestBody);
+            data.addSource(devices, new Observer<ApiResponse<GroupDevice>>() {
+                @Override
+                public void onChanged(@Nullable ApiResponse<GroupDevice> apiResponse) {
+                    data.removeSource(devices);
+                    if (apiResponse != null && apiResponse.isSuccessful() && apiResponse.body != null) {
+                        List<Lamp> selectedList = apiResponse.body.getList();
+                        //标记已选择数据
+                        if (selectedList != null) {
+                            for (Lamp lamp : list) {
+                                if (selectedList.contains(lamp)) {
+                                    lamp.lampStatus.set(BindingAdapters.LIGHT_SELECTED);
+                                } else {
+                                    lamp.lampStatus.set(BindingAdapters.LIGHT_HIDE);
+                                }
+                            }
+                        }
+                    }
+                    data.setValue(list);
+                }
+            });
+        }
     }
 
 

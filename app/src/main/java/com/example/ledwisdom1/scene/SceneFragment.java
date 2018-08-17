@@ -451,7 +451,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                                 if (deviceSetting.getSonId().equals(lamp.getId())) {
                                     DeviceSetting.Setting setting = gson.fromJson(deviceSetting.getSetting(),DeviceSetting.Setting.class);
                                     lamp.isSetting = true;
-                                    lamp.setBrightness(setting.getLight());
+                                    lamp.setBrightness((int) setting.getLight());
                                     lamp.setColor(Color.rgb(setting.getRed(), setting.getGreen(), setting.getBlue()));
                                     break;
                                 }

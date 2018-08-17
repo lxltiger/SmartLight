@@ -105,11 +105,6 @@ public class GroupViewModel extends AndroidViewModel {
                 }
             }
         });
-
-
     }
-
-
-
 
 }

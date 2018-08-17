@@ -101,8 +101,9 @@
 
         <com.example.ledwisdom1.view.RGBView
             android:id="@+id/iv_rgb"
-            android:layout_width="match_parent"
-            android:layout_height="196dp"
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            android:background="@drawable/bg_white_circle"
             app:layout_constraintBottom_toTopOf="@+id/sb_brightness"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

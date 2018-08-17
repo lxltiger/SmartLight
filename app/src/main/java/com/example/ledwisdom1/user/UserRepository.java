@@ -169,9 +169,11 @@ public class UserRepository {
         //清空session
 //        HomeRepository.INSTANCE(SmartLightApp.INSTANCE()).setSessionId("");
         SharePrefencesUtil.clear();
+
         db.runInTransaction(()->{
             userDao.deleteProfile();
             userDao.deleteAllMeshes();
+            db.lamp().deleteLamps();
         });
 
     }

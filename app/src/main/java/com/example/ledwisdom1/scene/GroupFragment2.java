@@ -35,7 +35,6 @@ import com.example.ledwisdom1.model.CommonItem;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.utils.KeyBoardUtils;
 import com.example.ledwisdom1.utils.LightCommandUtils;
-import com.example.ledwisdom1.utils.ToastUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -168,9 +167,9 @@ public class GroupFragment2 extends Fragment implements CallBack, ProduceAvatarF
                     //记录旧的设备
                     groupRequest.oldDeviceId = selectedLampAdapter.getIds();
                     updateSelectDeviceNum();
-                } else {
+                } /*else {
                     ToastUtil.showToast("没有数据");
-                }
+                }*/
             }
         });
 
@@ -184,7 +183,7 @@ public class GroupFragment2 extends Fragment implements CallBack, ProduceAvatarF
                         LightCommandUtils.allocDeviceGroup(addGroupSceneResult.groupId, lamp.getDevice_id(), BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get());
                     }
                     getActivity().finish();
-                    showToast("场景创建成功");
+                    showToast(addGroupSceneResult.resultMsg);
                 } else {
                     showToast("场景创建失败");
                 }

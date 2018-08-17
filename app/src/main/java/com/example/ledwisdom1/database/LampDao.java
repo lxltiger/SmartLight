@@ -29,6 +29,9 @@ public interface LampDao {
     @Query("delete  from lamp where  meshId=:meshId")
     void deleteLampsUnderMesh(String meshId);
 
+    @Query("delete  from lamp")
+    void deleteLamps();
+
 
     @Query("delete  from lamp where  meshId=:meshId and typeId=:typeId")
     void deleteDeviceFromMesh(String meshId,int typeId);
