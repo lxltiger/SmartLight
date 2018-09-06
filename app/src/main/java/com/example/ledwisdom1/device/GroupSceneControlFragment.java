@@ -22,9 +22,7 @@ import com.example.ledwisdom1.device.entity.LampCmd;
 import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.utils.LightCommandUtils;
-import com.example.ledwisdom1.utils.ToastUtil;
 import com.google.gson.Gson;
-import com.telink.bluetooth.light.LightAdapter;
 
 /**
  * 灯具控制 开关 亮度  延时开关
@@ -160,29 +158,7 @@ public class GroupSceneControlFragment extends Fragment {
 
 
 
-    private boolean handleMeshStatus() {
-        Integer value = viewModel.meshStatus().getValue();
-        if (value != null) {
-            switch (value) {
-                case LightAdapter.STATUS_LOGIN:
-                    return true;
-                case LightAdapter.STATUS_LOGOUT:
-                    ToastUtil.showToast("失去连接");
-                    return  false;
-                case LightAdapter.STATUS_CONNECTING:
-                    ToastUtil.showToast("正在连接");
-                    return  false;
-                case -1:
-                    ToastUtil.showToast("蓝牙网络离线");
-                    return  false;
-                case -2:
-                    ToastUtil.showToast("蓝牙出了问题 重启试试");
-                    return  false;
-            }
-        }
-        return  false;
 
-    }
 
     private void handleLightSetting(int brightness) {
         mBinding.setProgress(brightness);

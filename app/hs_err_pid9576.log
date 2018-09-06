@@ -1,0 +1,119 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 480104 bytes for AllocateHeap
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (memory/allocation.inline.hpp:61), pid=9576, tid=0x000000000000252c
+#
+# JRE version:  (8.0_152-b02) (build )
+# Java VM: OpenJDK 64-Bit Server VM (25.152-b02 mixed mode windows-amd64 compressed oops)
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00000000021a5000):  JavaThread "Unknown thread" [_thread_in_vm, id=9516, stack(0x00000000020a0000,0x00000000021a0000)]
+
+Stack: [0x00000000020a0000,0x00000000021a0000]
+[error occurred during error reporting (printing stack bounds), id 0xc0000005]
+
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+
+Other Threads:
+
+=>0x00000000021a5000 (exited) JavaThread "Unknown thread" [_thread_in_vm, id=9516, stack(0x00000000020a0000,0x00000000021a0000)]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (0 events):
+No events
+
+
+Dynamic libraries:
+0x00007ff7fab70000 - 0x00007ff7faba1000 	E:\Program Files\as\jre\bin\java.exe
+0x00007fffa46f0000 - 0x00007fffa4899000 	C:\Windows\SYSTEM32\ntdll.dll
+0x00007fffa3fd0000 - 0x00007fffa4109000 	C:\Windows\system32\KERNEL32.DLL
+0x00007fffa1dd0000 - 0x00007fffa1ede000 	C:\Windows\system32\KERNELBASE.dll
+0x00007fffa4110000 - 0x00007fffa41b5000 	C:\Windows\system32\ADVAPI32.dll
+0x00007fffa3800000 - 0x00007fffa3971000 	C:\Windows\system32\USER32.dll
+0x00007fff9f930000 - 0x00007fff9fb8a000 	C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.9600.16384_none_62475f7becb72503\COMCTL32.dll
+0x00007fffa2000000 - 0x00007fffa20a7000 	C:\Windows\system32\msvcrt.dll
+0x00007fffa34c0000 - 0x00007fffa3517000 	C:\Windows\SYSTEM32\sechost.dll
+0x00007fffa3980000 - 0x00007fffa3ab6000 	C:\Windows\system32\RPCRT4.dll
+0x00007fffa41c0000 - 0x00007fffa4305000 	C:\Windows\system32\GDI32.dll
+0x00007fffa3f90000 - 0x00007fffa3fc4000 	C:\Windows\system32\IMM32.DLL
+0x00007fffa3e40000 - 0x00007fffa3f79000 	C:\Windows\system32\MSCTF.dll
+0x000000005e560000 - 0x000000005e632000 	E:\Program Files\as\jre\jre\bin\msvcr100.dll
+0x000000005e750000 - 0x000000005ef8f000 	E:\Program Files\as\jre\jre\bin\server\jvm.dll
+0x00007fff9e750000 - 0x00007fff9e759000 	C:\Windows\SYSTEM32\WSOCK32.dll
+0x00007fff9aa40000 - 0x00007fff9aa5f000 	C:\Windows\SYSTEM32\WINMM.dll
+0x00007fff98d70000 - 0x00007fff98d7a000 	C:\Windows\SYSTEM32\VERSION.dll
+0x00007fffa3f80000 - 0x00007fffa3f87000 	C:\Windows\system32\PSAPI.DLL
+0x00007fffa1f80000 - 0x00007fffa1fd8000 	C:\Windows\system32\WS2_32.dll
+0x00007fff9aa10000 - 0x00007fff9aa3a000 	C:\Windows\SYSTEM32\WINMMBASE.dll
+0x00007fffa3b70000 - 0x00007fffa3b79000 	C:\Windows\system32\NSI.dll
+0x00007fffa1f30000 - 0x00007fffa1f7a000 	C:\Windows\SYSTEM32\cfgmgr32.dll
+0x00007fffa0900000 - 0x00007fffa0926000 	C:\Windows\SYSTEM32\DEVOBJ.dll
+0x00007fff9e740000 - 0x00007fff9e74f000 	E:\Program Files\as\jre\jre\bin\verify.dll
+0x00007fff9a9e0000 - 0x00007fff9aa09000 	E:\Program Files\as\jre\jre\bin\java.dll
+0x00007fff9a9c0000 - 0x00007fff9a9d6000 	E:\Program Files\as\jre\jre\bin\zip.dll
+
+VM Arguments:
+jvm_args: -Djava.awt.headless=true -Xmx64M -Dfile.encoding=GBK -Duser.country=CN -Duser.language=zh -Duser.variant 
+java_command: com.google.devtools.build.android.desugar.Desugar --input F:\lxl\android\SmartLight\app\build\intermediates\transforms\stackFramesFixer\debug\15.jar --output F:\lxl\android\SmartLight\app\build\intermediates\transforms\desugar\debug\18.jar --input F:\lxl\android\SmartLight\app\build\intermediates\transforms\stackFramesFixer\debug\34.jar --output F:\lxl\android\SmartLight\app\build\intermediates\transforms\desugar\debug\36.jar --input F:\lxl\android\SmartLight\zxinglib\build\intermediates\intermediate-jars\debug\classes.jar --output F:\lxl\android\SmartLight\app\build\intermediates\transforms\desugar\debug\0.jar --input F:\lxl\android\SmartLight\app\build\intermediates\transforms\stackFramesFixer\debug\47.jar --output F:\lxl\android\SmartLight\app\build\intermediates\transforms\desugar\debug\48.jar --input F:\lxl\android\SmartLight\app\build\intermediates\transforms\stackFramesFixer\debug\32.jar --output F:\lxl\android\SmartLight\app\build\intermediates\transforms\desugar\debug\34.jar --input F:\lxl\android\SmartLight\app\build\intermediates\transforms\stackFramesFixer\debug\24.jar --output F:\lxl\android\SmartLight\app\build\intermediates\transforms\desugar\debug\27.jar --input F:\lxl\android\SmartLight\app\build\intermediates\transforms\stackFramesFixer\debug\3.jar --output F:\lxl\android\SmartLight\app\build\intermediates\transforms\desugar\debug\6.jar --input F:\lxl\android\SmartLight\app\build\intermediates\transforms\stackFramesFixer\debug\11.jar --output F:\lxl\android\SmartLight\app\build\intermediates\transforms\desugar\debug\14.jar --input F:\lxl\android\SmartLight\app\build\intermediates\transforms\stackFramesFixer\debug\33.jar --output F:\lxl\android\SmartLight\app\build\intermediates\transforms\desugar\debug\35.jar --input F:\lxl\android\SmartLight\app\build\intermediates\transforms\stackFramesFixer\debug\16.jar --output F:\lxl\android\SmartLight\app\build\intermediates\transforms\desugar\debug\19.jar --input F:\lxl\android\SmartLight\app
+java_class_path (initial): C:\Users\Administrator\AppData\Local\Temp\desugar_deploy.jar4458703837492927782
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=F:\javaToos
+PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\F:\javaToos\bin;F:\SVN\bin;F:\Bandroidstudio\SDK\platform-tools;C:\Program Files\Git\cmd
+USERNAME=Administrator
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 60 Stepping 3, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 8.1 , 64 bit Build 9600 (6.3.9600.16656)
+
+CPU:total 4 (initial active 4) (4 cores per cpu, 1 threads per core) family 6 model 60 stepping 3, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, erms, lzcnt, tsc, tscinvbit, bmi1, bmi2
+
+Memory: 4k page, physical 8256784k(1570988k free), swap 8256784k(102604k free)
+
+vm_info: OpenJDK 64-Bit Server VM (25.152-b02) for windows-amd64 JRE (1.8.0_152-release-1024-b02), built by "builder" with MS VC++ 10.0 (VS2010)
+
+time: Thu Sep 06 15:26:06 2018
+elapsed time: 0 seconds (0d 0h 0m 0s)
+

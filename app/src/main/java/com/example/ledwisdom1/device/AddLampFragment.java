@@ -99,6 +99,7 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        deviceType.put(Config.LAMP_RGB, Config.LAMP_TYPE);
         deviceType.put(Config.LAMP, Config.LAMP_TYPE);
         deviceType.put(Config.SOCKET, Config.SOCKET_TYPE);
         deviceType.put(Config.PANEL, Config.PANEL_TYPE);

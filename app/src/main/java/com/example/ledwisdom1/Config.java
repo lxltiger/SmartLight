@@ -10,6 +10,7 @@ public interface Config {
     String FACTORY_NAME = "kimascend";
     String FACTORY_PASSWORD = "123456";
 
+    int LAMP_RGB = 1;
     int LAMP = 4;
     int SOCKET = 6;
     int PANEL = 9;

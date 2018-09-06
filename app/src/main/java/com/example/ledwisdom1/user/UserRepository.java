@@ -166,9 +166,9 @@ public class UserRepository {
 
 
     public void clearLocalData() {
-        //清空session
-//        HomeRepository.INSTANCE(SmartLightApp.INSTANCE()).setSessionId("");
-        SharePrefencesUtil.clear();
+        SmartLightApp.INSTANCE().setProfile(null);
+        SmartLightApp.INSTANCE().setDefaultMesh(null);
+//        SharePrefencesUtil.clear();
 
         db.runInTransaction(()->{
             userDao.deleteProfile();

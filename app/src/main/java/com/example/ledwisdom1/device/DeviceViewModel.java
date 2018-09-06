@@ -12,13 +12,11 @@ import android.support.annotation.Nullable;
 
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
-import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.model.Light;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class DeviceViewModel extends AndroidViewModel {
     private static final String TAG = "DeviceViewModel";
@@ -75,21 +73,7 @@ public class DeviceViewModel extends AndroidViewModel {
         });
     }
 
-    public LiveData<Lamp> observeLamp(int deviceId) {
-        return repository.observerLampStatus(deviceId);
-    }
 
-    public void setMeshStatus(int status) {
-        if (Objects.equals(repository.meshStatus.getValue(),status)) {
-            return;
-
-        }
-        repository.meshStatus.setValue(status);
-    }
-
-    public LiveData<Integer> meshStatus() {
-        return repository.meshStatus;
-    }
 
 
 

@@ -103,7 +103,7 @@
             android:id="@+id/view"
             android:layout_width="196dp"
             android:layout_height="196dp"
-            android:background="@drawable/sehuan"
+            android:background="@drawable/liuguang_nor"
             app:layout_constraintBottom_toTopOf="@+id/sb_brightness"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

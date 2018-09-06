@@ -23,7 +23,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
 
-
     private void handleNavigate() {
         Profile profile=SmartLightApp.INSTANCE().getProfile();
         Intent intent = null;

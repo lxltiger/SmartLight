@@ -25,7 +25,6 @@ import com.example.ledwisdom1.databinding.FragmentLightSettingBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.utils.LightCommandUtils;
-import com.example.ledwisdom1.view.ColorPicker;
 import com.example.ledwisdom1.view.RGBView;
 import com.telink.bluetooth.event.DeviceEvent;
 import com.telink.bluetooth.event.NotificationEvent;
@@ -80,7 +79,6 @@ public class LightSettingFragment extends Fragment implements EventListener<Stri
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_light_setting, container, false);
         binding.ivRgb.setOnColorChangedListenner(listener);
-//        binding.ivRgb.setOnColorChangeListener(colorChangedListener);
 
         binding.setHandler(this);
         int brightness = lamp.getBrightness();
@@ -103,23 +101,6 @@ public class LightSettingFragment extends Fragment implements EventListener<Stri
         SmartLightApp.INSTANCE().removeEventListener(this);
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        /*DeviceViewModel viewModel = ViewModelProviders.of(this).get(DeviceViewModel.class);
-        //当设备状态变更 会在DeviceFragment中更新数据库
-        viewModel.observeLamp(lamp.getDevice_id()).observe(this, new Observer<Lamp>() {
-            @Override
-            public void onChanged(@Nullable Lamp lamp) {
-                if (lamp != null) {
-                    int brightness = lamp.getBrightness();
-                    binding.setOn(brightness > 0);
-                    binding.setProgress(brightness);
-                }
-            }
-        });*/
-
-    }
 
     /**
      * SeekBar 调节亮度回调
@@ -162,56 +143,14 @@ public class LightSettingFragment extends Fragment implements EventListener<Stri
         }
     }
 
-    private ColorPicker.OnColorChangeListener colorChangedListener = new ColorPicker.OnColorChangeListener() {
 
-        private long preTime;
-        private int delayTime = 100;
-
-        @Override
-        public void onStartTrackingTouch(ColorPicker view) {
-            this.preTime = System.currentTimeMillis();
-            this.changeColor(view.getColor());
-        }
-
-        @Override
-        public void onStopTrackingTouch(ColorPicker view) {
-            this.changeColor(view.getColor());
-        }
-
-        @Override
-        public void onColorChanged(ColorPicker view, int color) {
-
-            long currentTime = System.currentTimeMillis();
-
-            if ((currentTime - this.preTime) >= this.delayTime) {
-                this.preTime = currentTime;
-                this.changeColor(color);
-            }
-        }
-
-        private void changeColor(int color) {
-
-            byte red = (byte) (color >> 16 & 0xFF);
-            byte green = (byte) (color >> 8 & 0xFF);
-            byte blue = (byte) (color & 0xFF);
-            tintIndicator(binding.indicator, Color.rgb(red, green, blue));
-
-            int addr = lamp.getDevice_id();
-            byte opcode = (byte) 0xE2;
-            byte[] params = new byte[]{0x04,  red, green,  blue};
-
-            TelinkLightService.Instance().sendCommandNoResponse(opcode, addr, params);
-        }
-    };
 
     private RGBView.OnColorChangedListener listener = new RGBView.OnColorChangedListener() {
         @Override
         public void onColorChanged(int red, int green, int blue, float degree) {
             binding.view.setRotation(degree);
-//            tintIndicator(binding.indicator, Color.rgb(red, green, blue));
-//            byte red = (byte) (color >> 16 & 0xFF);
-//            byte green = (byte) (color >> 8 & 0xFF);
-//            byte blue = (byte) (color & 0xFF);
+            int rgb = Color.rgb(red, green, blue);
+            tintIndicator(binding.indicator,rgb);
             int addr = lamp.getDevice_id();
             byte opcode = (byte) 0xE2;
             byte[] params = new byte[]{0x04, (byte) red, (byte) green, (byte) blue};
@@ -264,7 +203,6 @@ public class LightSettingFragment extends Fragment implements EventListener<Stri
         for (OnlineStatusNotificationParser.DeviceNotificationInfo notificationInfo : notificationInfoList) {
             int meshAddress = notificationInfo.meshAddress;
             int brightness = notificationInfo.brightness;
-            Log.d(TAG, meshAddress + "meshAddress:" + brightness);
             if (meshAddress == lamp.getDevice_id()) {
                 binding.setOn(brightness > 0);
                 binding.setProgress(brightness);

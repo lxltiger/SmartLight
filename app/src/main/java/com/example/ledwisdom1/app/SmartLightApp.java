@@ -119,6 +119,7 @@ public final class SmartLightApp extends TelinkApplication {
         String userProfile = SharePrefencesUtil.getUserProfile();
         profile = gson.fromJson(userProfile, Profile.class);
         String mesh = SharePrefencesUtil.getDefaultMesh();
+        Log.d(TAG, mesh);
         defaultMesh = gson.fromJson(mesh, DefaultMesh.class);
 
     }
