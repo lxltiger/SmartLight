@@ -100,3 +100,5 @@ ConstraintLayout 保持最新版使用旧版本会使新特性失效，导致图
         
  11. switch的方法引用          
  android:onCheckedChanged="@{(v,checked)->listener.onCheckedChanged(v,checked,clock)}"
+
+12.在xml中使用资源id给控件背景：app:backgroundResource="@{myData.iconId}"

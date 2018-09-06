@@ -36,6 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
+                tools:background="@drawable/icon_unauthorized"
                 android:background="@{hub.status==1?@drawable/icon_authorization:@drawable/icon_unauthorized}"
                 android:layout_marginEnd="8dp" />
 

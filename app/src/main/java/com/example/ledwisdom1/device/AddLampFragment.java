@@ -194,8 +194,7 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
         super.onDestroy();
         SmartLightApp smartLightApp = SmartLightApp.INSTANCE();
         smartLightApp.removeEventListener(this);
-        mHandler.removeCallbacks(null);
-        TelinkLightService.Instance().idleMode(true);
+        mHandler.removeCallbacksAndMessages(null);
     }
 
     /**
@@ -229,6 +228,7 @@ public class AddLampFragment extends Fragment implements EventListener<String>, 
     Runnable mStopScan = new Runnable() {
         @Override
         public void run() {
+            Log.d(TAG, "run: stop scan");
             isScan = false;
             TelinkLightService.Instance().idleMode(true);
             mBinding.setIsScanning(false);

@@ -80,7 +80,8 @@
             android:name=".sevice.TelinkLightService"
             android:enabled="true" />
 
-        <activity android:name=".activity.SplashActivity">
+        <activity android:name=".activity.SplashActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -98,7 +99,8 @@
             android:name=".user.UserActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"/>
-        <activity android:name=".device.DeviceActivity" />
+        <activity android:name=".device.DeviceActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".clock.ClockActivity"
             android:launchMode="singleTop"

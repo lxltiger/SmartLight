@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.databinding.ItemHomeBinding;
+import com.example.ledwisdom1.home.entity.MyData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +18,16 @@ import java.util.List;
  */
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
-    private List<String> mMeshBeanList;
+    private List<MyData> data;
 
 
     public HomeAdapter() {
-        mMeshBeanList =new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            mMeshBeanList.add("");
-        }
+        data =new ArrayList<>();
+        data.add(new MyData("室内温度", "23℃", R.drawable.icon_temperature));
+        data.add(new MyData("二氧化碳", "正常", R.drawable.icon_co2));
+        data.add(new MyData("室内湿度", "68%", R.drawable.icon_humidity));
+        data.add(new MyData("空气质量", "优", R.drawable.icon_pm));
+
     }
 
 
@@ -33,18 +36,20 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemHomeBinding binding= DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_home, parent, false);
+
         return new ViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.mBinding.setMyData(data.get(position));
         holder.mBinding.executePendingBindings();
 
     }
 
     @Override
     public int getItemCount() {
-        return mMeshBeanList ==null?0: mMeshBeanList.size();
+        return data ==null?0: data.size();
     }
 
      static class ViewHolder extends RecyclerView.ViewHolder {

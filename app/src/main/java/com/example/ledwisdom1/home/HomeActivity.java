@@ -66,8 +66,7 @@ public class HomeActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
-        addBlueToothStatusReceiver();
-        addEventListener();
+//        addEventListener();
         //底部选项按钮
         RadioGroup rgMainRadioGroup = (RadioGroup) findViewById(R.id.rg_main_group);
         rgMainRadioGroup.setOnCheckedChangeListener(this::onCheckedChanged);
@@ -75,10 +74,16 @@ public class HomeActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             navigatorController.navigateToHome();
         }
-        viewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
-        Profile profile = SmartLightApp.INSTANCE().getProfile();
+        SmartLightApp smartLightApp = SmartLightApp.INSTANCE();
+        smartLightApp.doInit();
+        Profile profile = smartLightApp.getProfile();
         isEmptyMesh = TextUtils.isEmpty(profile.meshId);
+
+        viewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         subscribeUI(viewModel);
+
+        addBlueToothStatusReceiver();
+
         try {
             MQTTClient.INSTANCE().startConnect();
         } catch (IOException e) {
@@ -143,7 +148,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-//        addEventListener();
+        addEventListener();
         autoConnect();
     }
 
@@ -157,14 +162,14 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-//        removeEventListener();
-//        TelinkLightService.Instance().disableAutoRefreshNotify();
+        removeEventListener();
+        TelinkLightService.Instance().disableAutoRefreshNotify();
     }
 
     @Override
     protected void onDestroy() {
-        removeEventListener();
-        TelinkLightService.Instance().disableAutoRefreshNotify();
+//        removeEventListener();
+//        TelinkLightService.Instance().disableAutoRefreshNotify();
         unregisterReceiver(mBlueToothStatusReceiver);
         SmartLightApp.INSTANCE().doDestroy();
         handler.removeCallbacks(null);

@@ -2,17 +2,20 @@ package com.example.ledwisdom1.device;
 
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 
@@ -20,21 +23,28 @@ import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.app.SmartLightApp;
 import com.example.ledwisdom1.databinding.FragmentLightSettingBinding;
 import com.example.ledwisdom1.device.entity.Lamp;
-import com.example.ledwisdom1.device.entity.LampCmd;
-import com.example.ledwisdom1.mqtt.MQTTClient;
 import com.example.ledwisdom1.sevice.TelinkLightService;
 import com.example.ledwisdom1.utils.LightCommandUtils;
-import com.google.gson.Gson;
+import com.example.ledwisdom1.view.ColorPicker;
+import com.example.ledwisdom1.view.RGBView;
+import com.telink.bluetooth.event.DeviceEvent;
+import com.telink.bluetooth.event.NotificationEvent;
+import com.telink.bluetooth.light.OnlineStatusNotificationParser;
+import com.telink.util.Event;
+import com.telink.util.EventListener;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  * 灯具的亮度设置
  * 需要兼任蓝牙和网关控制，场景下蓝牙控制
  */
-public class LightSettingFragment extends Fragment {
+public class LightSettingFragment extends Fragment implements EventListener<String> {
     public static final String TAG = LightSettingFragment.class.getSimpleName();
     private FragmentLightSettingBinding binding;
     private Lamp lamp;
+    private VectorDrawableCompat vectorDrawableCompat;
 
 
     @SuppressLint("HandlerLeak")
@@ -59,6 +69,7 @@ public class LightSettingFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        vectorDrawableCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_arrow_drop_down_black_24dp, getActivity().getTheme());
         Bundle arguments = getArguments();
         lamp = arguments.getParcelable("lamp");
     }
@@ -68,6 +79,9 @@ public class LightSettingFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_light_setting, container, false);
+        binding.ivRgb.setOnColorChangedListenner(listener);
+//        binding.ivRgb.setOnColorChangeListener(colorChangedListener);
+
         binding.setHandler(this);
         int brightness = lamp.getBrightness();
         binding.setOn(brightness > 0);
@@ -76,9 +90,23 @@ public class LightSettingFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        SmartLightApp smartLightApp = SmartLightApp.INSTANCE();
+        smartLightApp.addEventListener(NotificationEvent.ONLINE_STATUS, this);
+        smartLightApp.addEventListener(DeviceEvent.STATUS_CHANGED, this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        SmartLightApp.INSTANCE().removeEventListener(this);
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        DeviceViewModel viewModel = ViewModelProviders.of(this).get(DeviceViewModel.class);
+        /*DeviceViewModel viewModel = ViewModelProviders.of(this).get(DeviceViewModel.class);
         //当设备状态变更 会在DeviceFragment中更新数据库
         viewModel.observeLamp(lamp.getDevice_id()).observe(this, new Observer<Lamp>() {
             @Override
@@ -89,7 +117,7 @@ public class LightSettingFragment extends Fragment {
                     binding.setProgress(brightness);
                 }
             }
-        });
+        });*/
 
     }
 
@@ -134,6 +162,72 @@ public class LightSettingFragment extends Fragment {
         }
     }
 
+    private ColorPicker.OnColorChangeListener colorChangedListener = new ColorPicker.OnColorChangeListener() {
+
+        private long preTime;
+        private int delayTime = 100;
+
+        @Override
+        public void onStartTrackingTouch(ColorPicker view) {
+            this.preTime = System.currentTimeMillis();
+            this.changeColor(view.getColor());
+        }
+
+        @Override
+        public void onStopTrackingTouch(ColorPicker view) {
+            this.changeColor(view.getColor());
+        }
+
+        @Override
+        public void onColorChanged(ColorPicker view, int color) {
+
+            long currentTime = System.currentTimeMillis();
+
+            if ((currentTime - this.preTime) >= this.delayTime) {
+                this.preTime = currentTime;
+                this.changeColor(color);
+            }
+        }
+
+        private void changeColor(int color) {
+
+            byte red = (byte) (color >> 16 & 0xFF);
+            byte green = (byte) (color >> 8 & 0xFF);
+            byte blue = (byte) (color & 0xFF);
+            tintIndicator(binding.indicator, Color.rgb(red, green, blue));
+
+            int addr = lamp.getDevice_id();
+            byte opcode = (byte) 0xE2;
+            byte[] params = new byte[]{0x04,  red, green,  blue};
+
+            TelinkLightService.Instance().sendCommandNoResponse(opcode, addr, params);
+        }
+    };
+
+    private RGBView.OnColorChangedListener listener = new RGBView.OnColorChangedListener() {
+        @Override
+        public void onColorChanged(int red, int green, int blue, float degree) {
+            binding.view.setRotation(degree);
+//            tintIndicator(binding.indicator, Color.rgb(red, green, blue));
+//            byte red = (byte) (color >> 16 & 0xFF);
+//            byte green = (byte) (color >> 8 & 0xFF);
+//            byte blue = (byte) (color & 0xFF);
+            int addr = lamp.getDevice_id();
+            byte opcode = (byte) 0xE2;
+            byte[] params = new byte[]{0x04, (byte) red, (byte) green, (byte) blue};
+            TelinkLightService.Instance().sendCommandNoResponse(opcode, addr, params);
+        }
+
+    };
+
+    private void tintIndicator(ImageView view, int color) {
+        if (vectorDrawableCompat != null) {
+            vectorDrawableCompat.setTint(color);
+            view.setImageDrawable(vectorDrawableCompat);
+        }
+
+    }
+
     public void handleClick(View view) {
         switch (view.getId()) {
             case R.id.iv_switch:
@@ -145,32 +239,38 @@ public class LightSettingFragment extends Fragment {
         }
     }
 
-    public void toggleLamp() {
-        int dstAddr = lamp.getDevice_id();
-        boolean blueTooth = SmartLightApp.INSTANCE().isBlueTooth();
-        byte opcode = (byte) 0xD0;
-        boolean on = binding.getOn();
-        if (on) {
-            if (blueTooth) {
-                TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr, new byte[]{0x00, 0x00, 0x00});
-            } else {
-                toggleLampWithHub(dstAddr, false);
-            }
-        }else{
-            if (blueTooth) {
-                TelinkLightService.Instance().sendCommandNoResponse(opcode, dstAddr, new byte[]{0x01, 0x00, 0x00});
-            } else {
-                toggleLampWithHub(dstAddr, true);
+    @Override
+    public void performed(Event<String> event) {
+        Log.d(TAG, "event type" + event.getType());
+        switch (event.getType()) {
+            case NotificationEvent.ONLINE_STATUS:
+                onOnlineStatusNotify((NotificationEvent) event);
+                break;
+            case DeviceEvent.STATUS_CHANGED:
+//                onDeviceStatusChanged((DeviceEvent) event);
+                break;
+
+        }
+    }
+
+    @WorkerThread
+    protected void onOnlineStatusNotify(NotificationEvent event) {
+
+        List<OnlineStatusNotificationParser.DeviceNotificationInfo> notificationInfoList
+                = (List<OnlineStatusNotificationParser.DeviceNotificationInfo>) event.parse();
+
+        if (notificationInfoList == null || notificationInfoList.size() <= 0)
+            return;
+        for (OnlineStatusNotificationParser.DeviceNotificationInfo notificationInfo : notificationInfoList) {
+            int meshAddress = notificationInfo.meshAddress;
+            int brightness = notificationInfo.brightness;
+            Log.d(TAG, meshAddress + "meshAddress:" + brightness);
+            if (meshAddress == lamp.getDevice_id()) {
+                binding.setOn(brightness > 0);
+                binding.setProgress(brightness);
             }
         }
 
+
     }
-
-
-    private void toggleLampWithHub(int meshAddress, boolean on) {
-        LampCmd lampCmd = new LampCmd(5, meshAddress, 1, "0", on ? 100 : 0);
-        String message = new Gson().toJson(lampCmd);
-        MQTTClient.INSTANCE().publishLampControlMessage("1102F483CD9E6123", message);
-    }
-
 }

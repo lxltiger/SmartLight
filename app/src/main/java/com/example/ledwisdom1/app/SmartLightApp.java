@@ -40,7 +40,7 @@ public final class SmartLightApp extends TelinkApplication {
         super.onCreate();
         sLightApp = this;
         retrieveLocalData();
-        doInit();
+//        doInit();
         AdvanceStrategy.setDefault(new MySampleAdvanceStrategy());
         mAppExecutors = new AppExecutors();
     }
@@ -51,7 +51,7 @@ public final class SmartLightApp extends TelinkApplication {
     }
 
     public void updateProfile(String meshId) {
-        profile.meshId = defaultMesh.id;
+        profile.meshId = meshId;
         SharePrefencesUtil.saveUserProfile(new Gson().toJson(profile));
 
     }
