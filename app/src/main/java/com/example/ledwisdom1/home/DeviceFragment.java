@@ -92,10 +92,10 @@ public class DeviceFragment extends Fragment /*implements RadioGroup.OnCheckedCh
         ViewRecycleBinding viewPanelBinding = DataBindingUtil.inflate(inflater, R.layout.view_recycle, container, false);
 
         List<View> viewList = new ArrayList<>();
-        viewList.add(viewHubBinding.getRoot());
         viewList.add(viewLampBinding.getRoot());
         viewList.add(viewSocketBinding.getRoot());
         viewList.add(viewPanelBinding.getRoot());
+        viewList.add(viewHubBinding.getRoot());
         CommonPagerAdapter pagerAdapter = new CommonPagerAdapter(viewList);
         fragmentDeviceBinding.viewPager.setAdapter(pagerAdapter);
 
@@ -216,7 +216,6 @@ public class DeviceFragment extends Fragment /*implements RadioGroup.OnCheckedCh
     @Override
     public void onStart() {
         super.onStart();
-        viewModel.hubListRequest.setValue(1);
     }
 
     private void addEventListener() {
@@ -305,17 +304,18 @@ public class DeviceFragment extends Fragment /*implements RadioGroup.OnCheckedCh
 //    @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
         switch (checkedId) {
-            case R.id.device_hub:
+            case R.id.device_lamp:
                 binding.get().viewPager.setCurrentItem(0);
                 break;
-            case R.id.device_lamp:
+            case R.id.device_socket:
                 binding.get().viewPager.setCurrentItem(1);
                 break;
-            case R.id.device_socket:
+            case R.id.device_panel:
                 binding.get().viewPager.setCurrentItem(2);
                 break;
-            case R.id.device_panel:
+            case R.id.device_hub:
                 binding.get().viewPager.setCurrentItem(3);
+                viewModel.hubListRequest.setValue(1);
                 break;
         }
 

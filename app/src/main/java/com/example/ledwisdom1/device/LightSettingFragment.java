@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  * 灯具的亮度设置
- * 需要兼任蓝牙和网关控制，场景下蓝牙控制
+ * 需要兼任蓝牙和网关控制
  */
 public class LightSettingFragment extends Fragment implements EventListener<String> {
     public static final String TAG = LightSettingFragment.class.getSimpleName();

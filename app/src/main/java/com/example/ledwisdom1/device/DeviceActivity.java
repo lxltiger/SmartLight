@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.common.NavigatorController;
+import com.example.ledwisdom1.utils.BundleConstant;
+import com.example.ledwisdom1.utils.Bundler;
 
 /**
  * 设备页面 包含灯具和网关的添加等
@@ -27,9 +29,13 @@ public class DeviceActivity extends AppCompatActivity {
     public static void start(Context context, String action,int address, int brightness, int status) {
         Intent intent = new Intent(context, DeviceActivity.class);
         intent.putExtra("action", action);
-        intent.putExtra("address", address);
-        intent.putExtra("brightness", brightness);
-        intent.putExtra("status", status);
+        intent.putExtras(Bundler.start()
+                .put(BundleConstant.ADDRESS, address)
+                .put(BundleConstant.BRIGHTNESS, brightness)
+                .put(BundleConstant.STATUS, status).end());
+//        intent.putExtra("address", address);
+//        intent.putExtra("brightness", brightness);
+//        intent.putExtra("status", status);
         context.startActivity(intent);
     }
 
@@ -68,10 +74,11 @@ public class DeviceActivity extends AppCompatActivity {
                     break;
                 }
                 case ACTION_GROUP_CONTROL: {
-                    int meshAddress = intent.getIntExtra("address", -1);
-                    int brightness = intent.getIntExtra("brightness", 100);
-                    int status = intent.getIntExtra("status", 0);
-                    navigatorController.navigateToGroupControl(meshAddress, brightness, status);
+//                    int meshAddress = intent.getIntExtra("address", -1);
+//                    int brightness = intent.getIntExtra("brightness", 100);
+//                    int status = intent.getIntExtra("status", 0);
+//                    navigatorController.navigateToGroupControl(meshAddress, brightness, status);
+                    navigatorController.navigateToGroupControl(intent.getExtras());
                     break;
                 }
             }

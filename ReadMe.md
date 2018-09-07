@@ -101,4 +101,25 @@ ConstraintLayout 保持最新版使用旧版本会使新特性失效，导致图
  11. switch的方法引用          
  android:onCheckedChanged="@{(v,checked)->listener.onCheckedChanged(v,checked,clock)}"
 
-12.在xml中使用资源id给控件背景：app:backgroundResource="@{myData.iconId}"
+12.在xml中使用资源id给控件背景：
+app:backgroundResource="@{myData.iconId}"
+ //set a drawable from a resource ID as an ImageView src
+android:src="@{ContextCompat.getDrawable(context, character.icon)}"
+
+13设置toolbar的导航按钮 一般是返回键
+toolbar.setNavigationIcon(R.drawable.ic_back_36dp);
+填充目录按钮 及设置点击事件
+toolbar.inflateMenu(R.menu.fragment_device);
+toolbar.setOnMenuItemClickListener(this::onMenuItemClick);
+
+14获取anr文件 
+adb pull /data/anr/traces.txt trace.txt
+
+
+15 为了兼容5.0之前，使用vector drawable需要在app中设置
+AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+使用app:srcCompat代替src
+app:srcCompat="@{user.likes &lt; 4 ? R.drawable.ic_person_black_96dp : R.drawable.ic_whatshot_black_96dp }"/>
+imageView.setImageDrawable(...);代替imageView.setImageResource(...);
+
+

@@ -22,10 +22,6 @@ public class DeviceViewModel extends AndroidViewModel {
     private static final String TAG = "DeviceViewModel";
     private HomeRepository repository;
 
-    //    用户资料
-//    public final LiveData<Profile> profile;
-    //    默认的Mesh
-//    public final LiveData<DefaultMesh> defaultMeshObserver;
     /**
      * Fragment 与Activity的通信
      */
@@ -49,9 +45,6 @@ public class DeviceViewModel extends AndroidViewModel {
     public DeviceViewModel(@NonNull Application application) {
         super(application);
         repository = HomeRepository.INSTANCE(application);
-//        myMeshList = repository.loadMyMeshFromLocal();
-//        profile = repository.profileObserver;
-//        defaultMeshObserver = repository.defaultMeshObserver;
         addLampObserver = Transformations.switchMap(addLampRequest, input -> repository.reportDevice(input));
         addHubObserver = Transformations.switchMap(addHubRequest, addHubRequest -> repository.reportHub(addHubRequest));
 

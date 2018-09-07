@@ -10,9 +10,7 @@
             name="title"
             type="String"/>
 
-        <variable
-            name="navIcon"
-            type="android.graphics.drawable.Drawable"/>
+
     </data>
 
 
@@ -21,10 +19,8 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        app:navigationIcon="@{navIcon}"
         app:popupTheme="@style/AppTheme.PopupOverlay"
         >
-
 
         <TextView
             android:layout_width="wrap_content"

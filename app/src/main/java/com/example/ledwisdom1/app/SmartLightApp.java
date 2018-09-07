@@ -1,5 +1,6 @@
 package com.example.ledwisdom1.app;
 
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 
 import com.example.ledwisdom1.mesh.DefaultMesh;
@@ -41,6 +42,7 @@ public final class SmartLightApp extends TelinkApplication {
         sLightApp = this;
         retrieveLocalData();
 //        doInit();
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         AdvanceStrategy.setDefault(new MySampleAdvanceStrategy());
         mAppExecutors = new AppExecutors();
     }

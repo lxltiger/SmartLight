@@ -1,5 +1,6 @@
 package com.example.ledwisdom1.common;
 
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
@@ -9,7 +10,7 @@ import com.example.ledwisdom1.clock.ClockListFragment;
 import com.example.ledwisdom1.device.AddDeviceFragment;
 import com.example.ledwisdom1.device.AddHubFragment;
 import com.example.ledwisdom1.device.AddLampFragment;
-import com.example.ledwisdom1.device.GroupSceneControlFragment;
+import com.example.ledwisdom1.device.GroupControlFragment;
 import com.example.ledwisdom1.device.LightSettingFragment;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.DeviceFragment;
@@ -112,9 +113,9 @@ public class NavigatorController {
     }
 
 
-    public void navigateToGroupControl(int meshAddress, int brightness, int status) {
+    public void navigateToGroupControl(Bundle args) {
         fm.beginTransaction()
-                .replace(container, GroupSceneControlFragment.newInstance(meshAddress, brightness, status), GroupSceneControlFragment.TAG)
+                .replace(container, GroupControlFragment.newInstance(args), GroupControlFragment.TAG)
                 .commitAllowingStateLoss();
     }
 

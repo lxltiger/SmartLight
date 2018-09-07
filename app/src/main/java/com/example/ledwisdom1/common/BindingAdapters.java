@@ -1,8 +1,10 @@
 package com.example.ledwisdom1.common;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.databinding.BindingAdapter;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.ImageViewCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -215,6 +217,12 @@ public class BindingAdapters {
         } else  {
             Glide.with(context).load(R.drawable.pic_portrait).into(view);
         }*/
+    }
+
+    @BindingAdapter(value = "tintIndicator")
+    public static void tintIndicator(ImageView view, int rgb) {
+//        view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.ic_arrow_drop_down_black_24dp));
+        ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(rgb));
     }
 
 
