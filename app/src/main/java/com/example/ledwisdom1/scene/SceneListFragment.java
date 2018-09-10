@@ -16,8 +16,9 @@ import android.view.ViewGroup;
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.api.Resource;
+import com.example.ledwisdom1.command.SceneCommand;
+import com.example.ledwisdom1.command.TelinkSceneCommand;
 import com.example.ledwisdom1.databinding.FragmentSceneListBinding;
-import com.example.ledwisdom1.utils.LightCommandUtils;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class SceneListFragment extends Fragment implements CallBack {
     private SceneAdapter sceneAdapter;
     private SceneViewModel viewModel;
     private FragmentSceneListBinding binding;
+    private SceneCommand sceneCommand;
 
 
     public SceneListFragment() {
@@ -50,13 +52,16 @@ public class SceneListFragment extends Fragment implements CallBack {
         binding.scenes.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         sceneAdapter = new SceneAdapter(mHandleSceneListener);
         binding.scenes.setAdapter(sceneAdapter);
+        sceneCommand = new TelinkSceneCommand();
         return binding.getRoot();
     }
 
     private OnHandleSceneListener mHandleSceneListener = new OnHandleSceneListener() {
         @Override
         public void onItemClick(Scene scene) {
-            LightCommandUtils.loadScene(scene.getSceneId());
+            byte redundant=0;
+            sceneCommand.handleSceneOperation(SceneCommand.SceneOperation.LOAD,scene.getSceneId(),0,redundant,redundant,redundant,redundant);
+//            LightCommandUtils.loadScene(scene.getSceneId());
         }
 
         @Override

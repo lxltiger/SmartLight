@@ -2,6 +2,7 @@ package com.example.ledwisdom1.utils;
 
 import android.os.Bundle;
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 public class Bundler {
@@ -24,6 +25,11 @@ public class Bundler {
 
     public Bundler put(@NonNull String key, String value) {
         bundle.putString(key, value);
+        return this;
+    }
+
+    public Bundler put(@NonNull String key, Parcelable value) {
+        bundle.putParcelable(key, value);
         return this;
     }
 

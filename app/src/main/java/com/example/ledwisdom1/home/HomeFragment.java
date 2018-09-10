@@ -23,6 +23,8 @@ import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.app.SmartLightApp;
+import com.example.ledwisdom1.command.SceneCommand;
+import com.example.ledwisdom1.command.TelinkSceneCommand;
 import com.example.ledwisdom1.common.AutoClearValue;
 import com.example.ledwisdom1.databinding.FragmentHomeBinding;
 import com.example.ledwisdom1.databinding.HomeLayoutDetailBinding;
@@ -54,6 +56,7 @@ public class HomeFragment extends Fragment {
     private HomeViewModel viewModel;
     private PopupWindow popupWindow;
     private HomeSceneAdapter sceneAdapter;
+    private SceneCommand sceneCommand;
 
 
     public static HomeFragment newInstance() {
@@ -114,6 +117,8 @@ public class HomeFragment extends Fragment {
         bindingDetail.get().setViewModel(viewModel);
         bindingEmpty.get().setViewModel(viewModel);
         subscribeUI(viewModel);
+        sceneCommand = new TelinkSceneCommand();
+
 
     }
 
@@ -161,7 +166,8 @@ public class HomeFragment extends Fragment {
     private OnHandleSceneListener mHandleSceneListener = new OnHandleSceneListener() {
         @Override
         public void onItemClick(Scene scene) {
-            LightCommandUtils.loadScene(scene.getSceneId());
+            byte redundant=0;
+            sceneCommand.handleSceneOperation(SceneCommand.SceneOperation.LOAD,scene.getSceneId(),0,redundant,redundant,redundant,redundant);
         }
 
         @Override

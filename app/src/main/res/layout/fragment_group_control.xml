@@ -6,18 +6,6 @@
 
 
         <variable
-            name="handler"
-            type="com.example.ledwisdom1.device.GroupControlFragment" />
-
-        <variable
-            name="progress"
-            type="int" />
-
-        <variable
-            name="on"
-            type="boolean" />
-
-        <variable
             name="viewModel"
             type="com.example.ledwisdom1.device.DeviceControlViewModel" />
 

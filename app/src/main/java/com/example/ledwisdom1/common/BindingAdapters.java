@@ -135,6 +135,9 @@ public class BindingAdapters {
             case Config.PANEL_TYPE:
                 view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.icon_panel));
                 break;
+            default:
+                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.icon_light));
+
 
         }
     }
@@ -177,17 +180,17 @@ public class BindingAdapters {
         }
     }
 
-    private static RequestListener<String,GlideDrawable> drawableRequestListener=new RequestListener<String, GlideDrawable>() {
+    private static RequestListener<String, GlideDrawable> drawableRequestListener = new RequestListener<String, GlideDrawable>() {
         @Override
         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-            Log.e(TAG,e.toString()+"  model:"+model+" isFirstResource: "+isFirstResource);
+            Log.e(TAG, e.toString() + "  model:" + model + " isFirstResource: " + isFirstResource);
 
             return false;
         }
 
         @Override
         public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-            Log.e(TAG,"isFromMemoryCache:"+isFromMemoryCache+"  model:"+model+" isFirstResource: "+isFirstResource);
+            Log.e(TAG, "isFromMemoryCache:" + isFromMemoryCache + "  model:" + model + " isFirstResource: " + isFirstResource);
 
             return false;
         }
@@ -224,8 +227,6 @@ public class BindingAdapters {
 //        view.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.ic_arrow_drop_down_black_24dp));
         ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(rgb));
     }
-
-
 
 
     @BindingAdapter("visibleGone")

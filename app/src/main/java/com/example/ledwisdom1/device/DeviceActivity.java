@@ -33,16 +33,15 @@ public class DeviceActivity extends AppCompatActivity {
                 .put(BundleConstant.ADDRESS, address)
                 .put(BundleConstant.BRIGHTNESS, brightness)
                 .put(BundleConstant.STATUS, status).end());
-//        intent.putExtra("address", address);
-//        intent.putExtra("brightness", brightness);
-//        intent.putExtra("status", status);
         context.startActivity(intent);
     }
 
     public static void start(Context context, String action, Lamp lamp) {
         Intent intent = new Intent(context, DeviceActivity.class);
         intent.putExtra("action", action);
-        intent.putExtra("lamp", lamp);
+        intent.putExtras(Bundler.start()
+                .put(BundleConstant.LAMP, lamp)
+                .end());
         context.startActivity(intent);
     }
 
@@ -69,15 +68,11 @@ public class DeviceActivity extends AppCompatActivity {
                     navigatorController.navigateToAddDevice(type);
                     break;
                 case ACTION_LAMP_SETTING: {
-                    Lamp lamp = intent.getParcelableExtra("lamp");
-                    navigatorController.navigateToLampSetting(lamp);
+//                    Lamp lamp = intent.getParcelableExtra("lamp");
+                    navigatorController.navigateToLampSetting(intent.getExtras());
                     break;
                 }
                 case ACTION_GROUP_CONTROL: {
-//                    int meshAddress = intent.getIntExtra("address", -1);
-//                    int brightness = intent.getIntExtra("brightness", 100);
-//                    int status = intent.getIntExtra("status", 0);
-//                    navigatorController.navigateToGroupControl(meshAddress, brightness, status);
                     navigatorController.navigateToGroupControl(intent.getExtras());
                     break;
                 }

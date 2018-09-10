@@ -9,6 +9,9 @@ import com.telink.bluetooth.event.DeviceEvent;
 import com.telink.bluetooth.event.NotificationEvent;
 import com.telink.util.EventListener;
 
+/**
+ * 监听UI生命周期处理mesh事件的监听和移除
+ */
 public class MeshEventManager {
 
     public static void bindEventListener(LifecycleOwner lifecycleOwner, EventListener<String> eventListener, TelinkApplication application) {

@@ -148,5 +148,14 @@ public class ExampleUnitTest {
 
     }
 
+    @Test
+    public void testByte() {
+        int deay=5000;
+        int one =  (0xFF & deay);
+        byte two = (byte) (0xFF & deay>>8);
+        System.out.println(Integer.toHexString(one)+"--"+two);
+
+    }
+
 
 }

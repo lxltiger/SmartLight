@@ -12,7 +12,6 @@ import com.example.ledwisdom1.device.AddHubFragment;
 import com.example.ledwisdom1.device.AddLampFragment;
 import com.example.ledwisdom1.device.GroupControlFragment;
 import com.example.ledwisdom1.device.LightSettingFragment;
-import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.DeviceFragment;
 import com.example.ledwisdom1.home.GroupListFragment;
 import com.example.ledwisdom1.home.HomeFragment;
@@ -106,9 +105,9 @@ public class NavigatorController {
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToLampSetting(Lamp lamp) {
+    public void navigateToLampSetting(Bundle bundle) {
         fm.beginTransaction()
-                .replace(container, LightSettingFragment.newInstance(lamp), LightSettingFragment.TAG)
+                .replace(container, LightSettingFragment.newInstance(bundle), LightSettingFragment.TAG)
                 .commitAllowingStateLoss();
     }
 

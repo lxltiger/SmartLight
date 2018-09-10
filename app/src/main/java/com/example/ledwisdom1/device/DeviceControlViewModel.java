@@ -15,8 +15,11 @@ import android.util.Log;
 import android.widget.RadioGroup;
 
 import com.example.ledwisdom1.R;
-import com.example.ledwisdom1.sevice.TelinkLightService;
-import com.example.ledwisdom1.utils.LightCommandUtils;
+import com.example.ledwisdom1.command.BrightnessCommand;
+import com.example.ledwisdom1.command.ColorCommand;
+import com.example.ledwisdom1.command.CommandFactory;
+import com.example.ledwisdom1.command.OnOffCommand;
+import com.example.ledwisdom1.command.TelinkCommandFactory;
 import com.telink.bluetooth.event.DeviceEvent;
 import com.telink.bluetooth.event.NotificationEvent;
 import com.telink.bluetooth.light.OnlineStatusNotificationParser;
@@ -26,14 +29,16 @@ import java.util.List;
 
 /**
  * 灯具控制的逻辑实现
- * mesh事件由{@link MeshEventManager}负责监听，在eventListener处理回调
+ * mesh事件由 MeshEventManager负责监听，在eventListener处理回调
  * 与UI的交互 通过以下几个Observable字段，BindAdapters 的tintIndicator方法处理了颜色动态设置
- * todo 与灯具的交互使用command pattern
+ * <p>
+ * 对设备的控制采用面向接口的方式，后期如果依赖的库有所改变，只需要更改实现方式
+ * <p>
+ * 组控制界面是不保存设置的状态的，也没有查询其状态，默认是开的 亮度80 色盘没有旋转角度
  */
 public class DeviceControlViewModel extends ViewModel {
     private static final String TAG = DeviceControlViewModel.class.getSimpleName();
 
-    private final int address;
     /**
      * 亮度
      */
@@ -51,46 +56,49 @@ public class DeviceControlViewModel extends ViewModel {
      */
     public final ObservableFloat degree = new ObservableFloat(0f);
 
+    private OnOffCommand onOffCommand;
+    private BrightnessCommand brightnessCommand;
+    private ColorCommand colorCommand;
+
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            int brightness = msg.arg1;
-            handleLightSetting(brightness);
+            brightnessCommand.setBrightness(msg.arg1);
         }
     };
 
-    public DeviceControlViewModel(int address) {
-        this.address = address;
+    public DeviceControlViewModel(int address,  int brightness) {
+        this.status.set(brightness>0);
+        this.brightness.set(brightness);
+        CommandFactory commandFactory = new TelinkCommandFactory(address);
+        onOffCommand = commandFactory.onOffCommand();
+        brightnessCommand = commandFactory.brightnessCommand();
+        colorCommand = commandFactory.colorCommand();
     }
 
 
     public void handleSwitch() {
-        LightCommandUtils.toggleLamp(address, !status.get());
+        onOffCommand.turnOnOff(!status.get(), 0);
     }
 
     public void onCheckedChanged(RadioGroup group, int checkedId) {
         switch (checkedId) {
             case R.id.rb_sleep:
-                handleLightSetting(20);
+                brightnessCommand.setBrightness(20);
                 break;
             case R.id.rb_visit:
-                handleLightSetting(100);
+                brightnessCommand.setBrightness(100);
                 break;
             case R.id.rb_read:
-                LightCommandUtils.toggleLampWithDelay(address,!status.get());
-
+                onOffCommand.turnOnOff(!status.get(), 5000);
                 break;
             case R.id.rb_conservation:
-                handleLightSetting(40);
+                brightnessCommand.setBrightness(40);
                 break;
         }
     }
 
-    private void handleLightSetting(int brightness) {
-        LightCommandUtils.setBrightness(brightness, address);
-
-    }
 
     /**
      * SeekBar 调节亮度回调
@@ -107,7 +115,7 @@ public class DeviceControlViewModel extends ViewModel {
         }
     }
 
-    EventListener<String> eventListener= event -> {
+    EventListener<String> eventListener = event -> {
         switch (event.getType()) {
             case NotificationEvent.ONLINE_STATUS:
                 onOnlineStatusNotify((NotificationEvent) event);
@@ -130,36 +138,40 @@ public class DeviceControlViewModel extends ViewModel {
         for (OnlineStatusNotificationParser.DeviceNotificationInfo notificationInfo : notificationInfoList) {
             int meshAddress = notificationInfo.meshAddress;
             int brightness = notificationInfo.brightness;
-            Log.d(TAG, meshAddress+ " onOnlineStatusNotify: "+brightness);
-            status.set(brightness>0);
+            Log.d(TAG, meshAddress + " onOnlineStatusNotify: " + brightness);
+            status.set(brightness > 0);
             this.brightness.set(brightness);
         }
 
     }
 
-
     public void onColorChanged(int red, int green, int blue, float degree) {
         this.degree.set(degree);
         int rgb = Color.rgb(red, green, blue);
         color.set(rgb);
-        int addr = address;
-        byte opcode = (byte) 0xE2;
-        byte[] params = new byte[]{0x04, (byte) red, (byte) green, (byte) blue};
-        TelinkLightService.Instance().sendCommandNoResponse(opcode, addr, params);
+        colorCommand.setColor((byte) red, (byte) green, (byte) blue);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        handler.removeCallbacksAndMessages(null);
     }
 
     public static class Factory extends ViewModelProvider.NewInstanceFactory {
-        int address;
+        private int address;
+        private int brightness;
 
-        public Factory(int address) {
+        public Factory(int address, int brightness) {
             this.address = address;
+            this.brightness = brightness;
         }
 
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             //noinspection unchecked
-            return (T) new DeviceControlViewModel(address);
+            return (T) new DeviceControlViewModel(address, brightness);
         }
     }
 

@@ -9,13 +9,11 @@ import android.support.annotation.NonNull;
 
 import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
-import com.example.ledwisdom1.common.BindingAdapters;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -80,47 +78,6 @@ public class SceneViewModel extends AndroidViewModel {
         settingObserver = Transformations.switchMap(settingLampRequest, repository::getDeviceSetting);
 
     }
-
-
-
-
-    //获取选中设备的id
-    public List<String> getSelectedLampIds() {
-        List<String> deviceIds = new ArrayList<>();
-        List<Lamp> allLamps = lampListObserver.getValue();
-        if (allLamps != null) {
-            for (Lamp lamp : allLamps) {
-                if (BindingAdapters.LIGHT_SELECTED == lamp.lampStatus.get()) {
-                    deviceIds.add(lamp.getId());
-                }
-            }
-        }
-        return deviceIds;
-    }
-
-
-    /**
-     * 删除情景
-     */
-   /* public void deleteScene(SceneRequest sceneRequest) {
-        LiveData<ApiResponse<RequestResult>> responseLiveData =repository.deleteScene(sceneRequest.sceneId);
-        deleteSceneObserver.addSource(responseLiveData, new Observer<ApiResponse<RequestResult>>() {
-            @Override
-            public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
-                deleteSceneObserver.removeSource(responseLiveData);
-                if (null != apiResponse && apiResponse.isSuccessful() && apiResponse.body.succeed()) {
-                    repository.deleteSceneById(sceneRequest.sceneId);
-                    LightCommandUtils.deleteAllDevicesFromScene(sceneRequest.sceneAddress);
-                    deleteSceneObserver.setValue(apiResponse.body);
-                } else {
-                    deleteSceneObserver.setValue(null);
-                }
-            }
-        });
-
-
-    }
-*/
 
 
 
