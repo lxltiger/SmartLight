@@ -23,7 +23,9 @@ import com.example.ledwisdom1.R;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.app.SmartLightApp;
+import com.example.ledwisdom1.command.OnOffCommand;
 import com.example.ledwisdom1.command.SceneCommand;
+import com.example.ledwisdom1.command.TelinkOnOffCommand;
 import com.example.ledwisdom1.command.TelinkSceneCommand;
 import com.example.ledwisdom1.common.AutoClearValue;
 import com.example.ledwisdom1.databinding.FragmentHomeBinding;
@@ -36,7 +38,6 @@ import com.example.ledwisdom1.mesh.MeshActivity2;
 import com.example.ledwisdom1.scene.OnHandleSceneListener;
 import com.example.ledwisdom1.scene.Scene;
 import com.example.ledwisdom1.user.Profile;
-import com.example.ledwisdom1.utils.LightCommandUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,7 @@ public class HomeFragment extends Fragment {
     private PopupWindow popupWindow;
     private HomeSceneAdapter sceneAdapter;
     private SceneCommand sceneCommand;
+    private OnOffCommand onOffCommand;
 
 
     public static HomeFragment newInstance() {
@@ -118,7 +120,7 @@ public class HomeFragment extends Fragment {
         bindingEmpty.get().setViewModel(viewModel);
         subscribeUI(viewModel);
         sceneCommand = new TelinkSceneCommand();
-
+        onOffCommand = new TelinkOnOffCommand(0xffff);
 
     }
 
@@ -167,7 +169,9 @@ public class HomeFragment extends Fragment {
         @Override
         public void onItemClick(Scene scene) {
             byte redundant=0;
-            sceneCommand.handleSceneOperation(SceneCommand.SceneOperation.LOAD,scene.getSceneId(),0,redundant,redundant,redundant,redundant);
+            sceneCommand.setSceneAddress(scene.getSceneId());
+            sceneCommand.setDstAddress(0xffff);
+            sceneCommand.handleSceneOperation(SceneCommand.SceneOperation.LOAD,redundant,redundant,redundant,redundant);
         }
 
         @Override
@@ -202,8 +206,8 @@ public class HomeFragment extends Fragment {
                 popupWindow.showAsDropDown(bindingDetail.get().more);
                 break;
             case R.id.pop_mesh_list: {
-                MeshActivity2.start(getActivity(), MeshActivity2.ACTION_MESH_LIST);
                 popupWindow.dismiss();
+                MeshActivity2.start(getActivity(), MeshActivity2.ACTION_MESH_LIST);
             }
             break;
             case R.id.avatar: {
@@ -211,10 +215,12 @@ public class HomeFragment extends Fragment {
             }
             break;
             case R.id.open_all:
-                LightCommandUtils.toggleLamp(0xffff, true);
+                onOffCommand.turnOnOff(true,0);
+//                LightCommandUtils.toggleLamp(0xffff, true);
                 break;
             case R.id.close_all:
-                LightCommandUtils.toggleLamp(0xffff, false);
+                onOffCommand.turnOnOff(true,0);
+//                LightCommandUtils.toggleLamp(0xffff, false);
                 break;
         }
     }

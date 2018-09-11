@@ -8,6 +8,13 @@ import static com.telink.bluetooth.light.Opcode.BLE_GATT_OP_CTRL_EF;
 public class TelinkSceneCommand extends SceneCommand {
 
 
+    public TelinkSceneCommand() {
+    }
+
+    public TelinkSceneCommand(int sceneAddress, int dstAddress) {
+        super(sceneAddress, dstAddress);
+    }
+
     @Override
     protected void handleSceneOperationByBLE(SceneOperation sceneOperation, int sceneAddress, int dstAddress, byte light, byte red, byte green, byte blue) {
         switch (sceneOperation) {
@@ -23,7 +30,7 @@ public class TelinkSceneCommand extends SceneCommand {
             break;
             case LOAD: {
                 byte[] params = new byte[]{(byte) (sceneAddress & 0xFF)};
-                TelinkLightService.Instance().sendCommand(BLE_GATT_OP_CTRL_EF.getValue(), 0xffff, params);
+                TelinkLightService.Instance().sendCommand(BLE_GATT_OP_CTRL_EF.getValue(), dstAddress, params);
             }
             break;
 

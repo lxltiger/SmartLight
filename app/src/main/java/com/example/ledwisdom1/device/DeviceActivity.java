@@ -67,15 +67,7 @@ public class DeviceActivity extends AppCompatActivity {
                     int type = intent.getIntExtra("type",-1);
                     navigatorController.navigateToAddDevice(type);
                     break;
-                case ACTION_LAMP_SETTING: {
-//                    Lamp lamp = intent.getParcelableExtra("lamp");
-                    navigatorController.navigateToLampSetting(intent.getExtras());
-                    break;
-                }
-                case ACTION_GROUP_CONTROL: {
-                    navigatorController.navigateToGroupControl(intent.getExtras());
-                    break;
-                }
+
             }
         }
     }

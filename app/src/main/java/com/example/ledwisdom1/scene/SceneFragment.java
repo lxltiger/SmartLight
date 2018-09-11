@@ -3,43 +3,34 @@
 package com.example.ledwisdom1.scene;
 
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
-import android.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.example.ledwisdom1.CallBack;
 import com.example.ledwisdom1.CommonItemClickListener;
 import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.activity.LightSettingActivity;
 import com.example.ledwisdom1.adapter.CommonItemAdapter;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.adapter.SelectedLampAdapter;
 import com.example.ledwisdom1.adapter.UnSelectedLampAdapter;
 import com.example.ledwisdom1.api.ApiResponse;
-import com.example.ledwisdom1.app.SmartLightApp;
-import com.example.ledwisdom1.command.BrightnessCommand;
-import com.example.ledwisdom1.command.ColorCommand;
-import com.example.ledwisdom1.command.CommandFactory;
-import com.example.ledwisdom1.command.OnOffCommand;
 import com.example.ledwisdom1.command.SceneCommand;
-import com.example.ledwisdom1.command.TelinkCommandFactory;
 import com.example.ledwisdom1.command.TelinkSceneCommand;
 import com.example.ledwisdom1.common.BindingAdapters;
 import com.example.ledwisdom1.databinding.FragmentSceneBinding;
@@ -57,17 +48,11 @@ import com.example.ledwisdom1.home.OnHandleLampListener;
 import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.home.entity.GroupList;
 import com.example.ledwisdom1.model.CommonItem;
-import com.example.ledwisdom1.model.RequestResult;
+import com.example.ledwisdom1.model.LightSetting;
+import com.example.ledwisdom1.utils.BundleConstant;
 import com.example.ledwisdom1.utils.KeyBoardUtils;
-import com.example.ledwisdom1.utils.LightCommandUtils;
-import com.example.ledwisdom1.utils.MeshEventManager;
 import com.example.ledwisdom1.utils.ToastUtil;
-import com.example.ledwisdom1.view.RGBView;
 import com.google.gson.Gson;
-import com.telink.bluetooth.event.DeviceEvent;
-import com.telink.bluetooth.event.NotificationEvent;
-import com.telink.bluetooth.light.OnlineStatusNotificationParser;
-import com.telink.util.EventListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -103,17 +88,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
     private LayoutDeviceSettingBinding deviceSettingBinding;
     private LampForSceneAdapter lampForSceneAdapter;
 
-    private OnOffCommand onOffCommand;
-    private BrightnessCommand brightnessCommand;
-    private ColorCommand colorCommand;
-
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            brightnessCommand.setBrightness(msg.arg1);
-        }
-    };
     private SceneCommand sceneCommand;
 
 
@@ -128,7 +102,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MeshEventManager.bindEventListener(this,eventListener , SmartLightApp.INSTANCE());
+//        MeshEventManager.bindEventListener(this,eventListener , SmartLightApp.INSTANCE());
         Scene scene = getArguments().getParcelable("scene");
         if (scene != null && !TextUtils.isEmpty(scene.getId())) {
             sceneRequest.isAdd = false;
@@ -185,13 +159,13 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         lampForSceneAdapter = new LampForSceneAdapter(handleLampSettingListener);
         lampToSettingBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         lampToSettingBinding.recyclerView.setAdapter(lampForSceneAdapter);
-
         lampToSettingBinding.setHandler(this);
+
 //        设置页面
-        deviceSettingBinding = DataBindingUtil.inflate(inflater, R.layout.layout_device_setting, container, false);
-        deviceSettingBinding.ivRgb.setOnColorChangedListenner(this::onColorChanged);
-        deviceSettingBinding.sbBrightness.setOnSeekBarChangeListener(onSeekBarChangeListener);
-        deviceSettingBinding.setHandler(this);
+//        deviceSettingBinding = DataBindingUtil.inflate(inflater, R.layout.layout_device_setting, container, false);
+//        deviceSettingBinding.ivRgb.setOnColorChangedListenner(this::onColorChanged);
+//        deviceSettingBinding.sbBrightness.setOnSeekBarChangeListener(onSeekBarChangeListener);
+//        deviceSettingBinding.setHandler(this);
 
 
         //五个页面分别是场景列表 名称编辑  情景详情  已选灯具 未选灯具
@@ -203,7 +177,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         viewList.add(lampUnselectedBinding.getRoot());
         viewList.add(groupToSettingBinding.getRoot());
         viewList.add(lampToSettingBinding.getRoot());
-        viewList.add(deviceSettingBinding.getRoot());
+//        viewList.add(deviceSettingBinding.getRoot());
 
         CommonPagerAdapter pagerAdapter = new CommonPagerAdapter(viewList);
         binding.viewPager.setAdapter(pagerAdapter);
@@ -254,24 +228,8 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
     private OnHandleLampListener handleLampSettingListener = new OnHandleLampListener() {
         @Override
         public void onItemClick(Lamp lamp) {
-            deviceSettingBinding.setLamp(lamp);
-            colorCommand.setAddr(lamp.getDevice_id());
-            brightnessCommand.setAddr(lamp.getDevice_id());
-
-            float degreeByColor=0;
-            int color = lamp.getColor();
-            // 不为0说明已设置过 需要根据颜色获取旋转角度
-            if (color!= 0) {
-                degreeByColor = deviceSettingBinding.ivRgb.getDegreeByColor(Color.red(color), Color.green(color),Color.blue(color));
-            }else{
-//                默认旋转角度为0 为红色
-                color = Color.RED;
-            }
-            deviceSettingBinding.view.setRotation(degreeByColor);
-//            更新指示器颜色
-            deviceSettingBinding.setColor(color);
-            deviceSettingBinding.setProgress(lamp.getBrightness());
-            binding.viewPager.setCurrentItem(7);
+            LightSetting lightSetting = new LightSetting(lamp, sceneRequest.sceneAddress,sceneRequest.sceneId, LightSetting.Kind.SCENE);
+            LightSettingActivity.start(SceneFragment.this, lightSetting);
         }
 
         @Override
@@ -284,35 +242,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
 
         }
     };
-
-    SeekBar.OnSeekBarChangeListener onSeekBarChangeListener=new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if (fromUser) {
-                handler.removeMessages(0);
-                Message message = handler.obtainMessage(0, progress, -1);
-                handler.sendMessageDelayed(message, 100);
-            }
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-
-        }
-    };
-
-
-    public void onColorChanged(int red, int green, int blue, float degree) {
-        deviceSettingBinding.view.setRotation(degree);
-        int color = Color.rgb(red, green, blue);
-        deviceSettingBinding.setColor(color);
-        colorCommand.setColor((byte) red, (byte) green, (byte) blue);
-    }
 
 
 
@@ -370,12 +299,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         if (!TextUtils.isEmpty(sceneRequest.sceneId)) {
             viewModel.settingLampRequest.setValue(sceneRequest.sceneId);
         }
-
-//        addr需要动态更新
-        CommandFactory commandFactory = new TelinkCommandFactory(-1);
-        onOffCommand = commandFactory.onOffCommand();
-        brightnessCommand = commandFactory.brightnessCommand();
-        colorCommand = commandFactory.colorCommand();
         sceneCommand = new TelinkSceneCommand();
     }
 
@@ -430,8 +353,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                         List<Lamp> lamps = selectedLampAdapter.getmLampList();
                         lampForSceneAdapter.addLamps(lamps);
                         binding.viewPager.setCurrentItem(6);
-
-
                     }
                     showToast("情景景创建成功");
                 } else {
@@ -446,7 +367,9 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                 if (apiResponse != null) {
                     showToast("删除成功");
                     byte redundant=0;
-                    sceneCommand.handleSceneOperation(SceneCommand.SceneOperation.DELETE, sceneRequest.sceneAddress, 0xffff,redundant, redundant, redundant, redundant);
+                    sceneCommand.setSceneAddress(sceneRequest.sceneAddress);
+                    sceneCommand.setDstAddress(0xffff);
+                    sceneCommand.handleSceneOperation(SceneCommand.SceneOperation.DELETE,redundant, redundant, redundant, redundant);
 //                    LightCommandUtils.deleteAllDevicesFromScene(sceneRequest.sceneAddress);
                     getActivity().onBackPressed();
                 } else {
@@ -455,7 +378,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
             }
         });
 
-        viewModel.deviceSettingObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
+       /* viewModel.deviceSettingObserver.observe(this, new Observer<ApiResponse<RequestResult>>() {
             @Override
             public void onChanged(@Nullable ApiResponse<RequestResult> apiResponse) {
                 binding.setIsLoading(false);
@@ -473,7 +396,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                     showToast("设置失败");
                 }
             }
-        });
+        });*/
 
         viewModel.settingObserver.observe(this, new Observer<List<DeviceSetting>>() {
             @Override
@@ -515,34 +438,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         });
     }
 
-    EventListener<String> eventListener = event -> {
-        switch (event.getType()) {
-            case NotificationEvent.ONLINE_STATUS:
-                onOnlineStatusNotify((NotificationEvent) event);
-                break;
-            case DeviceEvent.STATUS_CHANGED:
-//                onDeviceStatusChanged((DeviceEvent) event);
-                break;
-
-        }
-    };
-
-    //一次最多返回两个灯的状态，对组控制的状态反馈使用其中一个即可，返回的meshAddress是单灯的
-    @WorkerThread
-    protected void onOnlineStatusNotify(NotificationEvent event) {
-        List<OnlineStatusNotificationParser.DeviceNotificationInfo> notificationInfoList
-                = (List<OnlineStatusNotificationParser.DeviceNotificationInfo>) event.parse();
-
-        if (notificationInfoList == null || notificationInfoList.size() <= 0)
-            return;
-        for (OnlineStatusNotificationParser.DeviceNotificationInfo notificationInfo : notificationInfoList) {
-            int meshAddress = notificationInfo.meshAddress;
-            int brightness = notificationInfo.brightness;
-            Log.d(TAG, meshAddress + " onOnlineStatusNotify: " + brightness);
-            deviceSettingBinding.setProgress(brightness);
-        }
-
-    }
 
     @Override
     public void handleClick(View view) {
@@ -612,7 +507,7 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         switch (currentItem) {
             //灯具设置页面
             case 7:
-                handleLightSetting();
+//                handleLightSetting();
                 break;
             //场景完成设置
             case 5:
@@ -653,36 +548,6 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
                 break;
         }
 
-    }
-
-    private void handleLightSetting() {
-        ArrayMap<String, Integer> map = new ArrayMap<>();
-        int progress = deviceSettingBinding.getProgress();
-        int color=deviceSettingBinding.getColor();
-        int blue = Color.blue(color);
-        int red =Color.red(color);
-        int green = Color.green(color);
-        map.put("light", progress);
-        map.put("red", red);
-        map.put("green", green);
-        map.put("blue", blue);
-        Gson gson = new Gson();
-        String param = gson.toJson(map);
-        ArrayMap<String, String> map2 = new ArrayMap<>();
-        map2.put("objectId", sceneRequest.sceneId);
-        map2.put("setting", param);
-        if (sceneRequest.isGroupSetting) {
-            map2.put("sonId", sceneRequest.groupIds);
-        } else {
-            Lamp lamp = deviceSettingBinding.getLamp();
-            map2.put("sonId", lamp.getId());
-            //添加到情景
-            sceneCommand.handleSceneOperation(SceneCommand.SceneOperation.ADD,sceneRequest.sceneAddress, lamp.getDevice_id(),(byte) progress, (byte)red, (byte)green, (byte)blue);
-//            LightCommandUtils.addDeviceToScene(sceneRequest.sceneAddress, lamp.getDevice_id(), progress, red, green, blue);
-        }
-        String request = gson.toJson(map2);
-        binding.setIsLoading(true);
-        viewModel.deviceSettingRequest.setValue(request);
     }
 
     private void addScene() {
@@ -731,6 +596,17 @@ public class SceneFragment extends Fragment implements CallBack, ProduceAvatarFr
         item.observableValue.set(file.getAbsolutePath());
         sceneRequest.imageUrl = file.getAbsolutePath();
         sceneRequest.pic = file;
+    }
+
+    //灯具的设置
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
+        if (resultCode== Activity.RESULT_OK&&data!=null) {
+            Lamp lamp = data.getParcelableExtra(BundleConstant.LAMP);
+            Log.d(TAG, "lamp:" + lamp);
+            lampForSceneAdapter.updateLamp(lamp);
+        }
     }
 }
 

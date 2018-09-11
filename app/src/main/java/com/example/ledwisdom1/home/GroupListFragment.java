@@ -16,12 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.activity.LightSettingActivity;
 import com.example.ledwisdom1.api.ApiResponse;
-import com.example.ledwisdom1.common.BindingAdapters;
 import com.example.ledwisdom1.databinding.FragmentGroupListBinding;
-import com.example.ledwisdom1.device.DeviceActivity;
 import com.example.ledwisdom1.home.entity.Group;
 import com.example.ledwisdom1.home.entity.GroupList;
+import com.example.ledwisdom1.model.LightSetting;
 import com.example.ledwisdom1.scene.GroupSceneActivity;
 
 import java.util.List;
@@ -62,7 +62,8 @@ public class GroupListFragment extends Fragment /*implements CallBack*/{
     private OnHandleGroupListener mHandleSceneListener = new OnHandleGroupListener() {
         @Override
         public void onItemClick(Group group) {
-            DeviceActivity.start(getActivity(),DeviceActivity.ACTION_GROUP_CONTROL,group.getGroupId(),100, BindingAdapters.LIGHT_ON);
+            LightSetting lightSetting = new LightSetting(group.getGroupId());
+            LightSettingActivity.start(getActivity(),lightSetting);
         }
 
         @Override

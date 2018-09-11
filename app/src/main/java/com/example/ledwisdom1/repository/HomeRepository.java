@@ -258,10 +258,6 @@ public class HomeRepository {
         return addSceneResult;
     }
 
-    public LiveData<ApiResponse<RequestResult>> createDeviceSetting(String request) {
-        RequestBody requestBody = RequestCreator.createDeviceSetting(request);
-        return kimService.createDeviceSetting(requestBody);
-    }
 
     //    添加场景到情景,成功后到设置页面
     private void addGroupToScene(MediatorLiveData<SceneRequest> addSceneResult, SceneRequest sceneRequest) {

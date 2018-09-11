@@ -21,6 +21,7 @@ import com.example.ledwisdom1.utils.MeshEventManager;
  * 单个灯具的亮度设置
  *
  */
+@Deprecated
 public class LightSettingFragment extends Fragment  {
     public static final String TAG = LightSettingFragment.class.getSimpleName();
     private FragmentLightSettingBinding binding;

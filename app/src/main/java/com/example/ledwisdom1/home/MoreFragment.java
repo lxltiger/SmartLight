@@ -86,9 +86,7 @@ public class MoreFragment extends Fragment implements CallBack {
         switch (v.getId()) {
             case R.id.portrait://点击头像
                 break;
-            case R.id.btn_scene:
-//                GroupSceneActivity.start(getActivity(), GroupSceneActivity.ACTION_SCENE_LIST);
-            {
+            case R.id.btn_scene: {
                 Intent intent = new Intent(getActivity(), GroupSceneActivity.class);
                 intent.putExtra("action", GroupSceneActivity.ACTION_SCENE_LIST);
                 startActivityForResult(intent, 10);

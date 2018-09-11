@@ -20,6 +20,7 @@ import com.example.ledwisdom1.utils.MeshEventManager;
  * 场景下设备控制 开关 亮度  延时开关
  * 需要兼任蓝牙和网关控制
  */
+@Deprecated
 public class GroupControlFragment extends Fragment /*implements EventListener<String>*/ {
     public static final String TAG = GroupControlFragment.class.getSimpleName();
     private FragmentGroupControlBinding binding;

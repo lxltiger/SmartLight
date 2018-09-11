@@ -1,9 +1,12 @@
 package com.example.ledwisdom1.common;
 
+import android.graphics.Color;
 import android.util.ArrayMap;
+import android.util.Pair;
 
 import com.example.ledwisdom1.clock.ClockRequest;
 import com.example.ledwisdom1.device.entity.AddHubRequest;
+import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.model.CommonRequest;
 import com.example.ledwisdom1.scene.GroupRequest;
 import com.example.ledwisdom1.scene.SceneRequest;
@@ -21,6 +24,8 @@ public class RequestCreator {
 
     public static final MediaType MEDIATYPE = MediaType.parse("application/json; charset=utf-8");
 
+    private RequestCreator() {
+    }
 
     public static RequestBody createPage(int pageNO, int pageSize) {
         Page page = new Page(pageNO, pageSize);
@@ -124,6 +129,28 @@ public class RequestCreator {
     public static RequestBody createDeviceSetting(String params) {
         return RequestBody.create(MEDIATYPE, params);
     }
+
+
+    public static RequestBody createDeviceSetting(Pair<String, Lamp> lightSetting) {
+        int color = lightSetting.second.getColor();
+        int brightness=lightSetting.second.getBrightness();
+        Gson gson = new Gson();
+        /*ArrayMap<String, Integer> map = new ArrayMap<>();
+        map.put("light", lightSetting.second.getBrightness());
+        map.put("red", Color.red(color));
+        map.put("green", Color.green(color));
+        map.put("blue", Color.blue(color));
+        String param = gson.toJson(map);
+        ArrayMap<String, String> map2 = new ArrayMap<>();
+        map2.put("objectId", lightSetting.first);
+        map2.put("setting", param);
+        map2.put("sonId", lightSetting.second.getId());*/
+        ColorLight colorLight = new ColorLight(color, brightness);
+        LightSettingParam lightSettingParam=new LightSettingParam(lightSetting.first,colorLight,lightSetting.second.getId());
+        String request = gson.toJson(lightSettingParam);
+        return RequestBody.create(MEDIATYPE, request);
+    }
+
 
     public static RequestBody requestGroupFromScene(String sceneId) {
         ArrayMap<String, String> map = new ArrayMap<>();
@@ -249,12 +276,37 @@ public class RequestCreator {
         }
 
 
-
         public DeviceRequest(String meshId, String deviceId) {
             this.meshId = meshId;
             this.deviceId = deviceId;
         }
 
+    }
+
+    private static class LightSettingParam {
+        String objectId;
+        ColorLight setting;
+        String sonId;
+
+        public LightSettingParam(String objectId, ColorLight setting, String sonId) {
+            this.objectId = objectId;
+            this.setting = setting;
+            this.sonId = sonId;
+        }
+    }
+
+    private static class ColorLight {
+        int red;
+        int green;
+        int blue;
+        int progress;
+
+        public ColorLight(int color, int progress) {
+            this.red = Color.red(color);
+            this.green = Color.green(color);
+            this.blue = Color.blue(color);
+            this.progress = progress;
+        }
     }
 
 

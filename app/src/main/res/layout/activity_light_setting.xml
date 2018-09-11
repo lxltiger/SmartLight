@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.example.ledwisdom1.api.Status" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="resource"
+            type="com.example.ledwisdom1.api.Resource" />
+
+        <variable
+            name="viewModel"
+            type="com.example.ledwisdom1.activity.LightSettingViewModel" />
+
+        <variable
+            name="showMenu"
+            type="boolean" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/title_bar"
+            layout="@layout/layout_title_bar"
+            app:navIcon="@{@drawable/ic_back_36dp}"
+            app:title='@{@string/devicesetting_titlename}' />
+
+        <RadioGroup
+            android:id="@+id/rg_main_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:onCheckedChanged="@{(view,checkedId)->viewModel.onCheckedChanged(view, checkedId)}"
+            android:orientation="horizontal"
+            android:visibility="@{showMenu?View.INVISIBLE:View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:visibility="visible">
+
+            <RadioButton
+                android:id="@+id/rb_sleep"
+                style="@style/main_radioButton"
+                android:checked="true"
+                android:drawableTop="@drawable/selector_sleep"
+                android:gravity="center"
+                android:text="@string/sleep" />
+
+            <RadioButton
+                android:id="@+id/rb_visit"
+                style="@style/main_radioButton"
+                android:drawableTop="@drawable/selector_visit"
+                android:text="@string/com_visit" />
+
+            <RadioButton
+                android:id="@+id/rb_read"
+                style="@style/main_radioButton"
+                android:drawableTop="@drawable/selector_read"
+                android:text="@string/time_delay" />
+
+            <RadioButton
+                android:id="@+id/rb_conservation"
+                style="@style/main_radioButton"
+                android:drawableTop="@drawable/selector_conservation"
+                android:text="@string/conservation" />
+
+
+        </RadioGroup>
+
+        <com.example.ledwisdom1.view.RGBView
+            android:id="@+id/iv_rgb"
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            android:background="@drawable/bg_white_circle"
+            app:layout_constraintBottom_toTopOf="@+id/sb_brightness"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_bar" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="196dp"
+            android:layout_height="196dp"
+            android:background="@drawable/liuguang_nor"
+            android:rotation="@{viewModel.degree}"
+            app:layout_constraintBottom_toTopOf="@+id/sb_brightness"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_bar" />
+
+        <ImageView
+            android:id="@+id/indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/view"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:srcCompat="@drawable/ic_arrow_drop_down_black_24dp"
+            app:tintIndicator="@{viewModel.color}" />
+
+        <ImageView
+            android:id="@+id/iv_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@{viewModel.status?@drawable/light_control_btn:@drawable/lightcontrol_off_btn}"
+            android:onClick="@{()->viewModel.handleSwitch()}"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_rgb"
+            app:layout_constraintLeft_toLeftOf="@+id/iv_rgb"
+            app:layout_constraintRight_toRightOf="@+id/iv_rgb"
+            app:layout_constraintTop_toTopOf="@+id/iv_rgb" />
+
+        <ImageView
+            android:id="@+id/left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/lighting_drak"
+            app:layout_constraintBottom_toBottomOf="@+id/sb_brightness"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/sb_brightness" />
+
+        <ImageView
+            android:id="@+id/right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/brightness_big"
+            app:layout_constraintBottom_toBottomOf="@+id/sb_brightness"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/sb_brightness" />
+
+        <SeekBar
+            android:id="@+id/sb_brightness"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="false"
+            android:max="100"
+            android:onProgressChanged="@{(view,progress, fromUser)->viewModel.onProgressChanged( progress, fromUser)}"
+            android:progress="@{viewModel.brightness}"
+            app:layout_constraintBottom_toTopOf="@+id/rg_main_group"
+            app:layout_constraintLeft_toRightOf="@+id/left"
+            app:layout_constraintRight_toLeftOf="@+id/right"
+            app:layout_constraintTop_toBottomOf="@+id/iv_rgb" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibleGone="@{resource.status == Status.LOADING}" />
+
+    </android.support.constraint.ConstraintLayout>
+
+
+</layout>

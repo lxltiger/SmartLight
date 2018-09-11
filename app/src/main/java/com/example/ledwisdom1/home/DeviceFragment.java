@@ -22,6 +22,7 @@ import android.widget.RadioGroup;
 
 import com.example.ledwisdom1.Config;
 import com.example.ledwisdom1.R;
+import com.example.ledwisdom1.activity.LightSettingActivity;
 import com.example.ledwisdom1.adapter.CommonPagerAdapter;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.api.Status;
@@ -34,6 +35,7 @@ import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.entity.Hub;
 import com.example.ledwisdom1.home.entity.HubList;
 import com.example.ledwisdom1.mesh.DefaultMesh;
+import com.example.ledwisdom1.model.LightSetting;
 import com.example.ledwisdom1.utils.LightCommandUtils;
 import com.example.ledwisdom1.utils.ToastUtil;
 import com.telink.bluetooth.event.MeshEvent;
@@ -348,7 +350,9 @@ public class DeviceFragment extends Fragment /*implements RadioGroup.OnCheckedCh
             if (lamp.getBrightness()<0) {
                 ToastUtil.showToast("设备已离线");
             }else{
-                DeviceActivity.start(getActivity(), DeviceActivity.ACTION_LAMP_SETTING, lamp);
+//                DeviceActivity.start(getActivity(), DeviceActivity.ACTION_LAMP_SETTING, lamp);
+                LightSetting lightSetting = new LightSetting(lamp);
+                LightSettingActivity.start(getActivity(),lightSetting);
             }
         }
 

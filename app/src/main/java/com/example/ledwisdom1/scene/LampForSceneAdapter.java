@@ -83,6 +83,20 @@ public class LampForSceneAdapter extends RecyclerView.Adapter<LampForSceneAdapte
         return mLampList == null ? 0 : mLampList.size();
     }
 
+    public void updateLamp(Lamp lamp) {
+        for (Lamp item : mLampList) {
+            if (item.equals(lamp)) {
+                item.setBrightness(lamp.getBrightness());
+                item.setColor(lamp.getColor());
+                item.setTemperature(lamp.getTemperature());
+                item.isSetting=true;
+                break;
+            }
+        }
+        notifyDataSetChanged();
+
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemLampForSceneBinding mBinding;

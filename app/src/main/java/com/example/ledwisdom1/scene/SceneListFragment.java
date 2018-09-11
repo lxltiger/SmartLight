@@ -60,7 +60,9 @@ public class SceneListFragment extends Fragment implements CallBack {
         @Override
         public void onItemClick(Scene scene) {
             byte redundant=0;
-            sceneCommand.handleSceneOperation(SceneCommand.SceneOperation.LOAD,scene.getSceneId(),0,redundant,redundant,redundant,redundant);
+            sceneCommand.setSceneAddress(scene.getSceneId());
+            sceneCommand.setDstAddress(0xffff);
+            sceneCommand.handleSceneOperation(SceneCommand.SceneOperation.LOAD,redundant,redundant,redundant,redundant);
 //            LightCommandUtils.loadScene(scene.getSceneId());
         }
 

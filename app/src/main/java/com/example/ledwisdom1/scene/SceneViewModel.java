@@ -11,7 +11,6 @@ import com.example.ledwisdom1.api.ApiResponse;
 import com.example.ledwisdom1.api.Resource;
 import com.example.ledwisdom1.device.entity.Lamp;
 import com.example.ledwisdom1.home.entity.GroupList;
-import com.example.ledwisdom1.model.RequestResult;
 import com.example.ledwisdom1.repository.HomeRepository;
 
 import java.util.List;
@@ -45,12 +44,6 @@ public class SceneViewModel extends AndroidViewModel {
     // 创建情景结果监听
     public final LiveData<SceneRequest> addSceneObserver;
 
-    // 设备参数
-    public MutableLiveData<String> deviceSettingRequest = new MutableLiveData<>();
-    // 设置设备参数结果监听
-    public final LiveData<ApiResponse<RequestResult>> deviceSettingObserver;
-
-
     // 修改情景请求
     public MutableLiveData<SceneRequest> updateSceneRequest = new MutableLiveData<>();
     // 修改情景监听
@@ -73,7 +66,6 @@ public class SceneViewModel extends AndroidViewModel {
         lampListObserver = Transformations.switchMap(lampListRequest, repository::loadLampForScene);
         updateSceneObserver =Transformations.switchMap(updateSceneRequest, repository::updateSceneAndDevices);
         addSceneObserver=Transformations.switchMap(addSceneRequest, repository::addScene);
-        deviceSettingObserver = Transformations.switchMap(deviceSettingRequest, repository::createDeviceSetting);
         deleteSceneObserver = Transformations.switchMap(deleteSceneRequest, repository::deleteScene);
         settingObserver = Transformations.switchMap(settingLampRequest, repository::getDeviceSetting);
 
